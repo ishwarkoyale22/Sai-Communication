@@ -42,8 +42,11 @@ function ContactPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header className="max-w-2xl">
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Contact Us</h1>
-        <p className="mt-3 text-muted-foreground">
+        <span className="eyebrow">We'd Love To Hear From You</span>
+        <h1 className="mt-6 font-serif text-3xl font-bold sm:text-4xl">
+          Contact <em>Sai Communication</em>
+        </h1>
+        <p className="mt-4 text-muted-foreground">
           Questions about a phone, a repair or EMI? Send a message and we'll call you back.
         </p>
       </header>

@@ -341,11 +341,11 @@ function HomePage() {
         <div className="mx-auto max-w-6xl px-4">
           <Reveal>
             <h2 className="text-center text-2xl font-bold sm:text-3xl">Authorized &amp; Major Brands</h2>
-            <div className="mt-8 flex flex-wrap justify-center gap-3">
+            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
               {BRANDS.map((brand) => (
                 <span
                   key={brand}
-                  className="rounded-full border border-border bg-card px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:border-primary/40 hover:text-primary transition-colors"
+                  className="card-surface hover-glow group flex items-center justify-center rounded-2xl border border-border px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary"
                 >
                   {brand}
                 </span>
@@ -364,7 +364,7 @@ function HomePage() {
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {REVIEWS.map((review, i) => (
               <Reveal key={review.name} delay={i * 100}>
-                <div className="card-surface h-full rounded-2xl p-6 border border-border">
+                <div className="card-surface hover-glow h-full rounded-2xl p-6 border border-border">
                   <div className="flex gap-1 text-primary">
                     {Array.from({ length: 5 }).map((_, s) => (
                       <Star key={s} className="size-4 fill-current" />
@@ -383,7 +383,7 @@ function HomePage() {
       <section className="mx-auto max-w-6xl px-4 py-16">
         <div className="grid gap-6 lg:grid-cols-2">
           <Reveal>
-            <div className="card-surface h-full rounded-2xl p-6 border border-border">
+            <div className="card-surface hover-glow h-full rounded-2xl p-6 border border-border">
               <h2 className="text-2xl font-bold">Visit Our Store Counter</h2>
               <p className="mt-3 flex gap-2 text-sm text-foreground/85">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-primary" />

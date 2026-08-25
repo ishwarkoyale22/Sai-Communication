@@ -23,8 +23,17 @@ export function SiteFooter() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="border-t border-border bg-card/40">
-      <div className="mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="relative overflow-hidden border-t border-border bg-gradient-to-b from-card/60 to-card/20">
+      {/* Faint brand-glow, echoes the header's premium strip instead of a flat cutoff */}
+      <div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent"
+        aria-hidden="true"
+      />
+      <div
+        className="pointer-events-none absolute -top-24 left-1/2 h-48 w-[36rem] -translate-x-1/2 rounded-full bg-primary/5 blur-3xl"
+        aria-hidden="true"
+      />
+      <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
         {/* Brand */}
         <div>
           <h2 className="text-lg font-bold text-primary">{settings["shop_name"]}</h2>
@@ -33,24 +42,24 @@ export function SiteFooter() {
           <div className="mt-4 flex gap-2">
             {settings["facebook"] && (
               <a href={settings["facebook"]} target="_blank" rel="noopener noreferrer" aria-label="Facebook"
-                className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:text-primary hover:border-primary/40">
+                className="flex size-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary hover:text-primary-foreground hover:shadow-md">
                 <Facebook className="size-4" />
               </a>
             )}
             {settings["instagram"] && (
               <a href={settings["instagram"]} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-                className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:text-primary hover:border-primary/40">
+                className="flex size-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary hover:text-primary-foreground hover:shadow-md">
                 <Instagram className="size-4" />
               </a>
             )}
             {settings["youtube"] && (
               <a href={settings["youtube"]} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
-                className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:text-primary hover:border-primary/40">
+                className="flex size-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary hover:text-primary-foreground hover:shadow-md">
                 <Youtube className="size-4" />
               </a>
             )}
             <a href={`https://wa.me/${settings["whatsapp"]}`} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
-              className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:text-primary hover:border-primary/40">
+              className="flex size-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-primary/40 hover:bg-primary hover:text-primary-foreground hover:shadow-md">
               <MessageCircle className="size-4" />
             </a>
           </div>
@@ -103,7 +112,7 @@ export function SiteFooter() {
         </div>
       </div>
 
-      <div className="border-t border-border px-4 py-5 text-center text-xs text-muted-foreground">
+      <div className="relative border-t border-border px-4 py-5 text-center text-xs text-muted-foreground">
         © {year} {settings["shop_name"]}. All rights reserved. · Talegaon Dabhade, Pune, Maharashtra
       </div>
     </footer>
