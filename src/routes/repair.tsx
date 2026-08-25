@@ -20,13 +20,18 @@ export const Route = createFileRoute("/repair")({
 
 const REPAIR_SERVICES = [
   { icon: "📱", title: "Screen Replacement", desc: "Original & high-grade displays fitted in under an hour with warranty." },
+  { icon: "🔩", title: "Motherboard Repair", desc: "Chip-level diagnostics and motherboard repair for dead or malfunctioning phones." },
   { icon: "🔋", title: "Battery Replacement", desc: "Genuine batteries that restore full-day backup." },
   { icon: "⚡", title: "Charging Issues", desc: "Port cleaning, port replacement, cable diagnostics." },
   { icon: "💿", title: "Software & Hang", desc: "OS updates, factory reset, app issues and performance fixes." },
   { icon: "📷", title: "Camera Repair", desc: "Front and rear camera module replacement." },
   { icon: "🔊", title: "Speaker / Mic Issues", desc: "Audio diagnostics and component replacement." },
   { icon: "💧", title: "Water Damage", desc: "Cleaning, drying and component recovery." },
-  { icon: "🔧", title: "Other Issues", desc: "Tell us the problem and we will diagnose it." },
+  {
+    icon: "🔧",
+    title: "Other Issues",
+    desc: "Fingerprint sensor, back panel, audio jack, SIM tray, buttons, vibration motor & more — tell us the problem and we will diagnose it.",
+  },
 ];
 
 const STEPS = [

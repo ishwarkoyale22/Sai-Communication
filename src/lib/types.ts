@@ -214,7 +214,7 @@ export type Payment = {
 };
 
 export type RepairStatus = 'new' | 'contacted' | 'device_received' | 'diagnosis' | 'in_progress' | 'ready' | 'delivered' | 'cancelled';
-export type ProblemType = 'screen' | 'battery' | 'charging' | 'software' | 'camera' | 'speaker' | 'water' | 'other';
+export type ProblemType = 'screen' | 'battery' | 'charging' | 'software' | 'camera' | 'speaker' | 'water' | 'motherboard' | 'other';
 
 export type RepairEnquiry = {
   id: string;

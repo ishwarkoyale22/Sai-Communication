@@ -27,10 +27,49 @@ const CATS = [
   { value: "promotions", label: "Promotions" },
 ];
 
+// Real in-store footage, served from /public/videos.
+const SHOP_VIDEOS: GalleryItem[] = [
+  {
+    id: "shop-tour-1",
+    type: "video",
+    category: "store",
+    title: "A Walk Through Our Store",
+    url: "/videos/shop-tour-1.mp4",
+    thumbnail_url: null,
+    display_order: 1,
+    is_active: true,
+    created_at: "",
+  },
+  {
+    id: "shop-tour-2",
+    type: "video",
+    category: "store",
+    title: "Inside Sai Communication",
+    url: "/videos/shop-tour-2.mp4",
+    thumbnail_url: null,
+    display_order: 2,
+    is_active: true,
+    created_at: "",
+  },
+  {
+    id: "shop-tour-3",
+    type: "video",
+    category: "store",
+    title: "Our Store Counter",
+    url: "/videos/shop-tour-3.mp4",
+    thumbnail_url: null,
+    display_order: 3,
+    is_active: true,
+    created_at: "",
+  },
+];
+
 function GalleryPage() {
   const [cat, setCat] = useState("all");
   const [lightbox, setLightbox] = useState<GalleryItem | null>(null);
-  const { data: items = [], isLoading } = useQuery(galleryQuery(cat === "all" ? undefined : cat));
+  const { data: dbItems = [], isLoading } = useQuery(galleryQuery(cat === "all" ? undefined : cat));
+  const localItems = cat === "all" || cat === "store" ? SHOP_VIDEOS : [];
+  const items = [...localItems, ...dbItems];
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">

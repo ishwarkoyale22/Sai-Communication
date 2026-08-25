@@ -62,7 +62,7 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm">
             {QUICK_LINKS.map((l) => (
               <li key={l.to}>
-                <Link to={l.to} className="text-foreground/80 hover:text-primary">{l.label}</Link>
+                <Link to={l.to} className="link-underline text-foreground/80 hover:text-primary">{l.label}</Link>
               </li>
             ))}
           </ul>
@@ -74,7 +74,7 @@ export function SiteFooter() {
           <ul className="mt-3 space-y-2 text-sm">
             {INFO_LINKS.map((l) => (
               <li key={l.to}>
-                <Link to={l.to} className="text-foreground/80 hover:text-primary">{l.label}</Link>
+                <Link to={l.to} className="link-underline text-foreground/80 hover:text-primary">{l.label}</Link>
               </li>
             ))}
           </ul>

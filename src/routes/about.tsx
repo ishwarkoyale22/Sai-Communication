@@ -1,9 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { User, Award, ShieldCheck, Star, Clock, MapPin, Sparkles, Video } from "lucide-react";
-import shopImage from "@/assets/shop.jpg";
+import { Award, ShieldCheck, Star, Clock, MapPin, Sparkles, Video } from "lucide-react";
+import vijaySirPhoto from "@/assets/vijay-sir.jpg";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
+import { CountUp } from "@/components/CountUp";
 import { useSettings } from "@/hooks/useSettings";
+
+// Served from /public/videos — real in-store footage
+const SHOP_TOUR_VIDEO = "/videos/shop-tour-1.mp4";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -56,13 +60,13 @@ function AboutPage() {
       <div className="mt-12 grid items-center gap-10 lg:grid-cols-2">
         <Reveal>
           <div className="overflow-hidden rounded-2xl border border-border shadow-lg">
-            <img
-              src={shopImage}
-              alt="Our mobile phone store front"
-              loading="lazy"
-              width={1280}
-              height={800}
-              className="size-full object-cover transition-transform duration-500 hover:scale-105"
+            <video
+              src={SHOP_TOUR_VIDEO}
+              controls
+              playsInline
+              preload="metadata"
+              aria-label="A walkthrough of our store"
+              className="aspect-4/3 size-full bg-black object-cover"
             />
           </div>
         </Reveal>
@@ -94,7 +98,7 @@ function AboutPage() {
         {badges.map((badge, i) => (
           <Reveal key={badge.label} delay={i * 90}>
             <div className="card-surface hover-glow rounded-2xl p-6 text-center border border-border/80">
-              <p className="font-serif text-3xl font-bold text-primary">{badge.value}</p>
+              <p className="font-serif text-3xl font-bold text-primary"><CountUp value={badge.value} /></p>
               <p className="mt-1 text-sm text-muted-foreground">{badge.label}</p>
             </div>
           </Reveal>
@@ -106,11 +110,11 @@ function AboutPage() {
         <div className="grid gap-8 lg:grid-cols-3 items-center">
           <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
             <div className="size-28 sm:size-36 rounded-full border-2 border-primary/40 bg-accent overflow-hidden flex items-center justify-center shadow-inner">
-              {settings["vijay_sir_photo_url"] || settings["hero_photo_url"] ? (
-                <img src={settings["vijay_sir_photo_url"] || settings["hero_photo_url"]} alt={settings["owner_name"] || "Vijay Sir"} className="size-full object-cover" />
-              ) : (
-                <User className="size-16 text-primary" />
-              )}
+              <img
+                src={settings["vijay_sir_photo_url"] || settings["hero_photo_url"] || vijaySirPhoto}
+                alt={settings["owner_name"] || "Vijay Sir"}
+                className="size-full object-cover"
+              />
             </div>
             <h3 className="mt-4 text-xl font-bold">{settings["owner_name"] || "Vijay Sir"}</h3>
             <p className="text-xs uppercase tracking-widest text-primary font-semibold">Founder &amp; Proprietor</p>
@@ -127,8 +131,56 @@ function AboutPage() {
               <div className="mt-4 rounded-xl overflow-hidden border border-border aspect-video">
                 <iframe src={settings["vijay_sir_video_url"] || settings["owner_video_url"]} title="Founder video" className="size-full" allowFullScreen />
               </div>
-            ) : null}
+            ) : (
+              <div className="mt-4 flex items-center gap-2 text-xs font-medium text-primary">
+                <Video className="size-4" />
+                <span>Watch our store in action below</span>
+              </div>
+            )}
           </div>
+        </div>
+      </section>
+
+      {/* More Store Videos */}
+      <section className="mt-20">
+        <Reveal>
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <span className="eyebrow">See It For Yourself</span>
+              <h2 className="mt-4 font-serif text-2xl font-bold sm:text-3xl">More From Our Store</h2>
+            </div>
+            <Link to="/gallery" className="link-underline text-sm font-medium text-primary">
+              View Full Gallery →
+            </Link>
+          </div>
+        </Reveal>
+        <div className="mt-8 grid gap-5 sm:grid-cols-2">
+          <Reveal>
+            <div className="overflow-hidden rounded-2xl border border-border shadow-lg">
+              <video
+                src="/videos/shop-tour-2.mp4"
+                controls
+                playsInline
+                preload="metadata"
+                aria-label="Inside Sai Communication"
+                className="aspect-video w-full bg-black object-cover"
+              />
+              <p className="p-3 text-sm font-medium">Inside Sai Communication</p>
+            </div>
+          </Reveal>
+          <Reveal delay={80}>
+            <div className="overflow-hidden rounded-2xl border border-border shadow-lg">
+              <video
+                src="/videos/shop-tour-3.mp4"
+                controls
+                playsInline
+                preload="metadata"
+                aria-label="Our store counter"
+                className="aspect-video w-full bg-black object-cover"
+              />
+              <p className="p-3 text-sm font-medium">Our Store Counter</p>
+            </div>
+          </Reveal>
         </div>
       </section>
 

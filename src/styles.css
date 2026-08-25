@@ -11,8 +11,8 @@
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Cormorant Garamond", ui-serif, Georgia, serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -53,65 +53,61 @@
 }
 
 :root {
-  --radius: 1.25rem;
+  --radius: 1rem;
 
-  --background: #0c0c0c;
-  --foreground: #f0eee8;
+  --background: #f4f5f8;
+  --foreground: #12141b;
 
-  --card: #111111;
-  --card-foreground: #e8e8e0;
-  --popover: #161616;
-  --popover-foreground: #f0eee8;
+  --card: #ffffff;
+  --card-foreground: #12141b;
+  --popover: #ffffff;
+  --popover-foreground: #12141b;
 
-  --primary: #e8d5a3;
-  --primary-foreground: #0c0c0c;
-  --primary-glow: #f5edd0;
+  --primary: #2547e0;
+  --primary-foreground: #ffffff;
+  --primary-glow: #3f5ff2;
 
-  --secondary: #161616;
-  --secondary-foreground: #f0eee8;
+  --secondary: #eceef2;
+  --secondary-foreground: #12141b;
 
-  --muted: #161616;
-  --muted-foreground: #888880;
+  --muted: #eceef2;
+  --muted-foreground: #666b78;
 
-  --accent: #1a1a14;
-  --accent-foreground: #e8d5a3;
+  --accent: #e7ebfd;
+  --accent-foreground: #2547e0;
 
-  --destructive: #4a2a20;
-  --destructive-foreground: #e8b8a0;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
 
-  --success: #1a1a0a;
-  --success-foreground: #a89060;
-  --warning: #b8a878;
+  --success: #e5f7ec;
+  --success-foreground: #14804a;
+  --warning: #d9600f;
 
-  --border: #222222;
-  --input: #2a2a22;
-  --ring: #e8d5a3;
+  --border: #dfe1e8;
+  --input: #dfe1e8;
+  --ring: #2547e0;
 
-  --chart-1: #e8d5a3;
-  --chart-2: #b8a878;
-  --chart-3: #f5edd0;
-  --chart-4: #888880;
-  --chart-5: #444440;
+  --chart-1: #2547e0;
+  --chart-2: #d9600f;
+  --chart-3: #14804a;
+  --chart-4: #7c8291;
+  --chart-5: #b7bcc8;
 
-  --sidebar: #0c0c0c;
-  --sidebar-foreground: #f0eee8;
-  --sidebar-primary: #e8d5a3;
-  --sidebar-primary-foreground: #0c0c0c;
-  --sidebar-accent: #161616;
-  --sidebar-accent-foreground: #e8d5a3;
-  --sidebar-border: #222222;
-  --sidebar-ring: #e8d5a3;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #12141b;
+  --sidebar-primary: #2547e0;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eceef2;
+  --sidebar-accent-foreground: #2547e0;
+  --sidebar-border: #dfe1e8;
+  --sidebar-ring: #2547e0;
 
-  --gradient-hero: linear-gradient(135deg, #0c0c0c 0%, #131310 55%, #0c0c0c 100%);
-  --gradient-primary: linear-gradient(135deg, #e8d5a3, #b8a878);
-  --gradient-card: linear-gradient(160deg, #121211, #111111);
-  --shadow-glow: none;
-  --shadow-card: none;
+  --gradient-hero: linear-gradient(160deg, #fbfbfd 0%, #eef0fb 55%, #f4f5f8 100%);
+  --gradient-primary: linear-gradient(135deg, #2547e0, #3f5ff2);
+  --gradient-card: linear-gradient(160deg, #ffffff, #fbfbfd);
+  --shadow-glow: 0 0 0 1px rgba(37, 71, 224, 0.16);
+  --shadow-card: 0 1px 2px rgba(18, 20, 27, 0.04), 0 12px 28px -16px rgba(18, 20, 27, 0.14);
   --transition-smooth: 300ms ease;
-}
-
-.dark {
-  color-scheme: dark;
 }
 
 @layer base {
@@ -127,7 +123,7 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
-    font-weight: 300;
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
   }
 
@@ -137,7 +133,7 @@
   h4 {
     font-family: var(--font-serif);
     font-weight: 700;
-    letter-spacing: 0.005em;
+    letter-spacing: -0.01em;
   }
 
   em {
@@ -154,7 +150,7 @@
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: #222222 #0c0c0c;
+    scrollbar-color: #c5c9d3 #f4f5f8;
   }
 
   ::-webkit-scrollbar {
@@ -162,10 +158,10 @@
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: #0c0c0c;
+    background: #f4f5f8;
   }
   ::-webkit-scrollbar-thumb {
-    background: #222222;
+    background: #c5c9d3;
     border-radius: 20px;
   }
 }
@@ -187,17 +183,47 @@
 @utility card-surface {
   background-color: var(--card);
   background-image: none;
-  border: 1px solid #1e1e1e;
-  box-shadow: none;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
 }
 
 @utility hover-glow {
-  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  transition:
+    transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 450ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 450ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Cursor-tracking spotlight — position set via --mx/--my by useSpotlight() */
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background: radial-gradient(
+      420px circle at var(--mx, 50%) var(--my, 50%),
+      color-mix(in srgb, var(--primary) 12%, transparent),
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity 450ms ease;
+    pointer-events: none;
+  }
+
+  & > * {
+    position: relative;
+    z-index: 1;
+  }
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: none;
-    border-color: color-mix(in srgb, #e8d5a3 25%, transparent);
+    box-shadow: var(--shadow-glow), 0 16px 32px -18px rgba(18, 20, 27, 0.18);
+    border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+  }
+
+  &:hover::before {
+    opacity: 1;
   }
 }
 
@@ -217,18 +243,99 @@
     width: 30px;
     height: 1px;
     background: var(--primary);
+    transition: width 400ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 }
 
 @utility reveal {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(28px) scale(0.985);
   transition:
-    opacity 700ms ease-out,
-    transform 700ms cubic-bezier(0.22, 1, 0.36, 1);
+    opacity 800ms cubic-bezier(0.22, 1, 0.36, 1),
+    transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
 }
 
 @utility reveal-in {
   opacity: 1;
   transform: none;
+}
+
+/* Animated underline for inline/nav text links. Usage: <Link className="link-underline"> */
+@utility link-underline {
+  position: relative;
+  background-image: linear-gradient(currentColor, currentColor);
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 0% 1px;
+  transition: background-size 350ms cubic-bezier(0.22, 1, 0.36, 1);
+
+  &:hover {
+    background-size: 100% 1px;
+  }
+}
+
+/* Thin fixed progress bar reflecting scroll position, painted in <ScrollProgress/> */
+@utility scroll-progress-track {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 60;
+  background: transparent;
+  pointer-events: none;
+}
+
+@utility scroll-progress-bar {
+  height: 100%;
+  background-image: var(--gradient-primary);
+  transform-origin: 0 50%;
+  transition: transform 120ms linear;
+}
+
+@keyframes fade-up-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Staggered entrance for above-the-fold content (hero) that Reveal's
+   IntersectionObserver would otherwise fire instantly for. */
+@utility hero-stagger {
+  & > * {
+    opacity: 0;
+    animation: fade-up-in 800ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  & > *:nth-child(1) {
+    animation-delay: 80ms;
+  }
+  & > *:nth-child(2) {
+    animation-delay: 200ms;
+  }
+  & > *:nth-child(3) {
+    animation-delay: 340ms;
+  }
+  & > *:nth-child(4) {
+    animation-delay: 460ms;
+  }
+  & > *:nth-child(5) {
+    animation-delay: 580ms;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }

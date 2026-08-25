@@ -15,14 +15,15 @@ import {
   RefreshCw,
   CreditCard,
   ArrowRight,
-  User,
 } from "lucide-react";
 import heroImage from "@/assets/hero.jpg";
+import vijaySirPhoto from "@/assets/vijay-sir.jpg";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
 import { EnquiryDialog } from "@/components/EnquiryDialog";
 import { ProductDetailDialog } from "@/components/ProductDetailDialog";
 import { Reveal } from "@/components/Reveal";
+import { CountUp } from "@/components/CountUp";
 import { useSettings } from "@/hooks/useSettings";
 import { productsQuery, refurbishedQuery, offersQuery } from "@/lib/queries";
 import { formatINR } from "@/lib/format";
@@ -88,39 +89,49 @@ function HomePage() {
   return (
     <div>
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <img
-          src={heroImage}
-          alt="Premium smartphones on display"
-          width={1920}
-          height={1088}
-          className="absolute inset-0 size-full object-cover opacity-40"
-        />
-        <div className="gradient-hero absolute inset-0 opacity-85" />
-        <div className="relative mx-auto flex max-w-6xl flex-col items-center px-4 py-20 text-center sm:py-28">
-          <span className="eyebrow">{settings["tagline"] || "Mobile Phone Dealer & Repair Service — Since 2005"}</span>
-          <h1 className="mt-6 font-serif text-[42px] font-bold leading-[1.1] tracking-[-0.5px] sm:text-6xl max-w-4xl">
-            Your Complete Mobile Store, <em>Repair Lab &amp; Exchange Hub</em>
-          </h1>
-          <p className="mx-auto mt-6 max-w-[580px] text-sm sm:text-base font-light leading-[1.8] text-muted-foreground">
-            Shop brand-new smartphones, certified second-hand phones, genuine accessories, custom gift hampers,
-            and same-day phone repairs under one trusted roof.
-          </p>
+      <section className="gradient-hero relative overflow-hidden">
+        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
+          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div className="hero-stagger text-center lg:text-left">
+              <span className="eyebrow lg:justify-start">{settings["tagline"] || "Mobile Phone Dealer & Repair Service — Since 2005"}</span>
+              <h1 className="mt-6 font-serif text-[38px] font-bold leading-[1.1] tracking-[-0.5px] sm:text-6xl">
+                Your Complete Mobile Store, <em>Repair Lab &amp; Exchange Hub</em>
+              </h1>
+              <p className="mx-auto mt-6 max-w-[520px] text-sm sm:text-base leading-[1.8] text-muted-foreground lg:mx-0">
+                Shop brand-new smartphones, certified second-hand phones, genuine accessories, custom gift hampers,
+                and same-day phone repairs under one trusted roof.
+              </p>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <Button asChild size="lg" className="rounded-full px-8 text-[13px] font-semibold">
-              <Link to="/products">Shop New Phones</Link>
-            </Button>
-            <Button asChild size="lg" variant="outline" className="rounded-full border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground">
-              <Link to="/repair">Repair Enquiry</Link>
-            </Button>
-            <Button asChild size="lg" variant="secondary" className="rounded-full px-6 text-[13px]">
-              <Link to="/refurbished">Refurbished Phones</Link>
-            </Button>
+              <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
+                <Button asChild size="lg" className="rounded-full px-8 text-[13px] font-semibold">
+                  <Link to="/products">Shop New Phones</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline" className="rounded-full border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground">
+                  <Link to="/repair">Repair Enquiry</Link>
+                </Button>
+                <Button asChild size="lg" variant="secondary" className="rounded-full px-6 text-[13px]">
+                  <Link to="/refurbished">Refurbished Phones</Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Contained hero image — small, crisp, fully visible */}
+            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+              <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-primary/5 blur-2xl" aria-hidden="true" />
+              <div className="card-surface overflow-hidden rounded-3xl border border-border p-2">
+                <img
+                  src={heroImage}
+                  alt="Premium smartphones on display"
+                  width={1920}
+                  height={1088}
+                  className="aspect-[4/3] w-full rounded-[20px] object-cover"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Quick Pillars */}
-          <div className="mt-12 grid w-full grid-cols-2 gap-3 sm:grid-cols-4 max-w-4xl">
+          <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {PILLARS.map((p) => (
               <Link
                 key={p.title}
@@ -258,16 +269,16 @@ function HomePage() {
                   100% honest advice, authentic hardware, and after-sale support you can walk in and ask for.
                 </p>
                 <div className="grid grid-cols-3 gap-3 pt-2">
-                  <div className="card-surface rounded-xl p-3 text-center border border-border">
-                    <p className="font-serif text-2xl font-bold text-primary">2005</p>
+                  <div className="card-surface hover-glow rounded-xl p-3 text-center border border-border">
+                    <p className="font-serif text-2xl font-bold text-primary"><CountUp value="2005" /></p>
                     <p className="text-[11px] text-muted-foreground">Established</p>
                   </div>
-                  <div className="card-surface rounded-xl p-3 text-center border border-border">
-                    <p className="font-serif text-2xl font-bold text-primary">4.7 / 5</p>
+                  <div className="card-surface hover-glow rounded-xl p-3 text-center border border-border">
+                    <p className="font-serif text-2xl font-bold text-primary"><CountUp value="4.8 / 5" /></p>
                     <p className="text-[11px] text-muted-foreground">Justdial Rating</p>
                   </div>
-                  <div className="card-surface rounded-xl p-3 text-center border border-border">
-                    <p className="font-serif text-2xl font-bold text-primary">25k+</p>
+                  <div className="card-surface hover-glow rounded-xl p-3 text-center border border-border">
+                    <p className="font-serif text-2xl font-bold text-primary"><CountUp value="25k+" /></p>
                     <p className="text-[11px] text-muted-foreground">Happy Customers</p>
                   </div>
                 </div>
@@ -283,11 +294,11 @@ function HomePage() {
               <div className="card-surface rounded-3xl p-8 border border-border/80 relative overflow-hidden bg-gradient-to-br from-accent/50 to-card">
                 <div className="flex items-center gap-4">
                   <div className="size-16 rounded-full border-2 border-primary/50 bg-accent overflow-hidden flex items-center justify-center">
-                    {settings["vijay_sir_photo_url"] || settings["hero_photo_url"] ? (
-                      <img src={settings["vijay_sir_photo_url"] || settings["hero_photo_url"]} alt={settings["owner_name"] || "Vijay Sir"} className="size-full object-cover" />
-                    ) : (
-                      <User className="size-8 text-primary" />
-                    )}
+                    <img
+                      src={settings["vijay_sir_photo_url"] || settings["hero_photo_url"] || vijaySirPhoto}
+                      alt={settings["owner_name"] || "Vijay Sir"}
+                      className="size-full object-cover"
+                    />
                   </div>
                   <div>
                     <h3 className="font-bold text-lg">{settings["owner_name"] || "Vijay Sir"}</h3>

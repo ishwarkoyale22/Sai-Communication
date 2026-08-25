@@ -73,6 +73,11 @@ function ProductsPage() {
         <p className="mt-2 text-sm text-muted-foreground">
           Live stock straight from our store counter. Enquire and we'll hold it for you.
         </p>
+        <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-muted-foreground">
+          <span className="rounded-full border border-border bg-card px-3 py-1.5">🚚 Same Day Delivery</span>
+          <span className="rounded-full border border-border bg-card px-3 py-1.5">🎁 Free Delivery</span>
+          <span className="rounded-full border border-border bg-card px-3 py-1.5">🏬 In-Store Pickup</span>
+        </div>
       </header>
 
       <div className="mt-8 flex flex-wrap gap-2">

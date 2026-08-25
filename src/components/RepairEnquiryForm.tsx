@@ -19,7 +19,8 @@ const PROBLEM_TYPES = [
   { value: "camera", label: "Camera Issue" },
   { value: "speaker", label: "Speaker / Microphone Issue" },
   { value: "water", label: "Water Damage" },
-  { value: "other", label: "Other" },
+  { value: "motherboard", label: "Motherboard / Hardware Repair" },
+  { value: "other", label: "Other (fingerprint, back panel, SIM tray, buttons, etc.)" },
 ];
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB

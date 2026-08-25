@@ -28,7 +28,7 @@ export function ProductCard({
       <button
         type="button"
         onClick={() => onOpen(product)}
-        className="relative aspect-4/3 w-full overflow-hidden rounded-[14px] border border-[#1e1e1e] bg-background"
+        className="relative aspect-4/3 w-full overflow-hidden rounded-[14px] border border-border bg-muted"
         aria-label={`View ${product.brand} ${product.name}`}
       >
         {image ? (
@@ -47,8 +47,8 @@ export function ProductCard({
           className={cn(
             "absolute left-3 top-3 rounded-full border px-3 py-[3px] text-[9px] font-medium uppercase tracking-[0.5px]",
             inStock
-              ? "border-[#33330a] bg-[#1a1a0a] text-[#a89060]"
-              : "border-[#3a2a22] bg-[#1a1210] text-[#a87a60]",
+              ? "border-success/30 bg-success text-success-foreground"
+              : "border-destructive/30 bg-destructive/10 text-destructive",
           )}
         >
           {inStock ? "In Stock" : "Out of Stock"}
@@ -57,7 +57,7 @@ export function ProductCard({
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div>
-          <p className="text-[9px] font-medium uppercase tracking-[2.5px] text-[#666660]">
+          <p className="text-[9px] font-medium uppercase tracking-[2.5px] text-muted-foreground">
             {product.brand}
           </p>
           <h3 className="mt-1 line-clamp-1 font-serif text-[17px] font-semibold text-card-foreground">
@@ -67,7 +67,7 @@ export function ProductCard({
         <div className="flex items-baseline gap-2">
           <span className="text-lg font-semibold text-primary">{formatINR(product.price)}</span>
           {product.original_price != null && product.original_price > product.price && (
-            <span className="text-xs font-light text-[#444440] line-through">
+            <span className="text-xs font-light text-muted-foreground/70 line-through">
               {formatINR(product.original_price)}
             </span>
           )}
@@ -76,7 +76,7 @@ export function ProductCard({
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 rounded-full border-[#2a2a22] bg-transparent text-xs font-medium tracking-[0.3px] text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground"
+            className="flex-1 rounded-full border-border bg-transparent text-xs font-medium tracking-[0.3px] text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground"
             onClick={() => onOpen(product)}
           >
             Details
