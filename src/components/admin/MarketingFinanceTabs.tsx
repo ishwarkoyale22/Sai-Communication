@@ -566,6 +566,8 @@ const SETTING_FIELDS = [
   ["owner_history", "Store History Text"],
   ["established", "Established Year"],
   ["years_in_business", "Years in Business"],
+  ["rating", "Justdial / Google Rating (e.g. 4.8)"],
+  ["total_ratings", "Total Ratings Count (e.g. 242)"],
 
   // Store Contact Details
   ["store_phone", "Store Phone (phone)"],

@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import {
   Menu,
-  Smartphone,
   X,
   ShoppingCart,
   Phone,
@@ -29,13 +28,13 @@ const PRIMARY_NAV = [
   { to: "/", label: "Home" },
   { to: "/products", label: "Products" },
   { to: "/repair", label: "Repair" },
-  { to: "/services", label: "Services" },
   { to: "/about", label: "About" },
-  { to: "/contact", label: "Contact" },
 ] as const;
 
 // Tucked under "More" on the pill (still full links in the mobile menu).
 const MORE_NAV = [
+  { to: "/services", label: "Services" },
+  { to: "/contact", label: "Contact" },
   { to: "/refurbished", label: "Refurbished" },
   { to: "/gift-hampers", label: "Gift Hampers" },
   { to: "/offers", label: "Offers" },
@@ -45,8 +44,8 @@ const MORE_NAV = [
 const ALL_NAV = [...PRIMARY_NAV, ...MORE_NAV] as const;
 
 const navLinkClass =
-  "link-underline rounded-full px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground";
-const navLinkActiveClass = "bg-secondary text-foreground shadow-sm";
+  "border-b-2 border-transparent pb-1 text-sm font-medium text-muted-foreground transition-colors hover:border-gold/50 hover:text-foreground";
+const navLinkActiveClass = "border-gold text-foreground";
 
 /**
  * Slim utility strip above the nav — contact + social. Scrolls away with
@@ -76,7 +75,7 @@ function TopBar() {
         className="pointer-events-none absolute inset-0 opacity-70"
         style={{
           backgroundImage:
-            "radial-gradient(420px circle at 10% 0%, rgba(63,95,242,0.28), transparent 60%), radial-gradient(360px circle at 92% 100%, rgba(63,95,242,0.16), transparent 55%)",
+            "radial-gradient(420px circle at 10% 0%, rgba(184,137,75,0.22), transparent 60%), radial-gradient(360px circle at 92% 100%, rgba(184,137,75,0.14), transparent 55%)",
         }}
       />
       <div className="relative mx-auto flex h-10 max-w-7xl items-center justify-between px-4 text-[11px] tracking-wide text-white/70">
@@ -173,105 +172,103 @@ export function SiteHeader() {
 
       <div
         className={cn(
-          "sticky top-0 z-40 flex justify-center px-3 py-3 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform sm:px-4",
+          "sticky top-0 z-40 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform",
           isHidden ? "-translate-y-full" : "translate-y-0",
         )}
       >
-        {/* Floating pill */}
-        <div className="flex w-full max-w-4xl items-center gap-1 rounded-full border border-border/70 bg-card/95 p-1.5 pl-4 shadow-lg shadow-black/[0.06] backdrop-blur-xl">
-          <Link to="/" className="flex shrink-0 items-center gap-2 pr-2" onClick={() => setOpen(false)}>
-            {logoUrl ? (
-              <img src={logoUrl} alt={settings["shop_name"]} className="h-8 w-auto rounded-md object-contain" />
-            ) : (
-              <span className="flex size-8 items-center justify-center rounded-full border border-primary/50">
-                <Smartphone className="size-3.5 text-primary" />
-              </span>
-            )}
-            <span className="hidden font-serif text-sm font-bold uppercase tracking-[1px] text-primary sm:inline">
-              {settings["shop_name"]}
-            </span>
-          </Link>
-
-          {/* Desktop nav */}
-          <nav className="hidden items-center gap-0.5 xl:flex">
-            {PRIMARY_NAV.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                activeOptions={{ exact: item.to === "/" }}
-                className={navLinkClass}
-                activeProps={{ className: navLinkActiveClass }}
-              >
-                {item.label}
-              </Link>
-            ))}
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={cn(
-                  navLinkClass,
-                  "flex items-center gap-1 data-[state=open]:bg-secondary data-[state=open]:text-foreground",
-                )}
-              >
-                More
-                <ChevronDown className="size-3.5" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="center" className="min-w-40 rounded-2xl p-1.5">
-                {MORE_NAV.map((item) => (
-                  <DropdownMenuItem key={item.to} asChild className="rounded-xl px-3 py-2 text-sm">
-                    <Link to={item.to}>{item.label}</Link>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </nav>
-
-          <div className="ml-auto flex shrink-0 items-center gap-1.5 pl-1">
-            <Link
-              to="/cart"
-              className="relative flex size-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-secondary hover:text-primary"
-              onClick={() => setOpen(false)}
-            >
-              <ShoppingCart className="size-4" />
-              {itemCount > 0 && (
-                <span className="absolute right-0.5 top-0.5 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
-                  {itemCount > 9 ? "9+" : itemCount}
+        {/* Flush ledger bar — one gold hairline does the work shadows used to */}
+        <div className="relative border-b border-gold bg-background">
+          <div className="mx-auto flex h-[68px] max-w-6xl items-center gap-6 px-4 sm:px-6">
+            <Link to="/" className="flex shrink-0 items-center gap-2.5" onClick={() => setOpen(false)}>
+              {logoUrl ? (
+                <img src={logoUrl} alt={settings["shop_name"]} className="h-8 w-auto object-contain" />
+              ) : (
+                <span
+                  className="flex size-8 items-center justify-center rounded-full font-serif text-sm font-semibold text-gold"
+                  style={{ background: "linear-gradient(160deg, #1c2f6e, #0d1633)" }}
+                >
+                  {(settings["shop_name"] || "S").charAt(0)}
                 </span>
               )}
+              <span className="hidden font-serif text-sm font-semibold uppercase tracking-[1px] text-foreground sm:inline">
+                {settings["shop_name"]}
+              </span>
             </Link>
 
-            <Button
-              asChild
-              size="sm"
-              className="hidden rounded-full px-5 text-[12px] font-semibold xl:flex"
-            >
-              <Link to="/products">Shop Now</Link>
-            </Button>
+            {/* Desktop nav — centered, text links with a gold underline */}
+            <nav className="hidden flex-1 items-center justify-center gap-8 xl:flex">
+              {PRIMARY_NAV.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  activeOptions={{ exact: item.to === "/" }}
+                  className={navLinkClass}
+                  activeProps={{ className: navLinkActiveClass }}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  className={cn(navLinkClass, "flex items-center gap-1 data-[state=open]:border-gold data-[state=open]:text-foreground")}
+                >
+                  More
+                  <ChevronDown className="size-3.5" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="center" className="min-w-40 rounded-md p-1.5">
+                  {MORE_NAV.map((item) => (
+                    <DropdownMenuItem key={item.to} asChild className="rounded-[3px] px-3 py-2 text-sm">
+                      <Link to={item.to}>{item.label}</Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </nav>
 
-            <button
-              className="rounded-full p-2 text-foreground xl:hidden"
-              aria-label="Toggle menu"
-              aria-expanded={open}
-              onClick={() => setOpen((v) => !v)}
-            >
-              {open ? <X className="size-5" /> : <Menu className="size-5" />}
-            </button>
+            <div className="ml-auto flex shrink-0 items-center gap-3">
+              <Link
+                to="/cart"
+                className="relative flex size-9 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:border-gold hover:text-gold"
+                onClick={() => setOpen(false)}
+              >
+                <ShoppingCart className="size-4" />
+                {itemCount > 0 && (
+                  <span className="absolute -right-1 -top-1 flex size-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                    {itemCount > 9 ? "9+" : itemCount}
+                  </span>
+                )}
+              </Link>
+
+              <Button asChild size="sm" className="hidden px-5 text-[12px] font-semibold xl:flex">
+                <Link to="/products">Shop Now</Link>
+              </Button>
+
+              <button
+                className="p-2 text-foreground xl:hidden"
+                aria-label="Toggle menu"
+                aria-expanded={open}
+                onClick={() => setOpen((v) => !v)}
+              >
+                {open ? <X className="size-5" /> : <Menu className="size-5" />}
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Mobile nav — floats as its own card under the pill */}
+        {/* Mobile nav — drops down flush beneath the bar */}
         <div
           className={cn(
-            "absolute left-3 right-3 top-full z-40 mt-2 overflow-hidden rounded-3xl border border-border/70 bg-card/98 shadow-xl shadow-black/[0.08] backdrop-blur-xl transition-[max-height,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] sm:left-4 sm:right-4 xl:hidden",
+            "overflow-hidden border-b border-border bg-card transition-[max-height,opacity] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] xl:hidden",
             open ? "max-h-[32rem] opacity-100" : "max-h-0 opacity-0",
           )}
         >
-          <nav className="grid grid-cols-2 gap-1 p-3">
+          <nav className="mx-auto grid max-w-6xl grid-cols-2 gap-1 p-3">
             {ALL_NAV.map((item) => (
               <Link
                 key={item.to}
                 to={item.to}
                 onClick={() => setOpen(false)}
-                className="rounded-2xl px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
+                className="rounded-[3px] px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground"
                 activeProps={{ className: "text-foreground bg-secondary" }}
                 activeOptions={{ exact: item.to === "/" }}
               >

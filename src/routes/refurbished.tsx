@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { MessageCircle, ShieldCheck, Battery, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
 import { refurbishedQuery } from "@/lib/queries";
 import { formatINR } from "@/lib/format";
 import { useSettings } from "@/hooks/useSettings";
@@ -50,10 +51,9 @@ function RefurbishedPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header className="max-w-2xl">
-        <span className="eyebrow">Certified Devices</span>
-        <h1 className="mt-6 font-serif text-3xl font-bold sm:text-4xl">
+        <TextReveal as="h1" trigger="mount" className="font-serif text-3xl font-medium sm:text-4xl">
           Refurbished &amp; <em>Second-Hand Phones</em>
-        </h1>
+        </TextReveal>
         <p className="mt-4 text-muted-foreground">
           Every phone is tested, graded and verified before listing. Full transparency — condition, battery health and warranty shown upfront.
         </p>
@@ -66,21 +66,21 @@ function RefurbishedPage() {
           { icon: Star, text: "Graded A / B / C" },
           { icon: Battery, text: "Battery Health Shown" },
         ].map((b) => (
-          <div key={b.text} className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground">
-            <b.icon className="size-4 text-primary" /> {b.text}
+          <div key={b.text} className="flex items-center gap-2 border border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground">
+            <b.icon className="size-4 text-gold" /> {b.text}
           </div>
         ))}
       </div>
 
       {/* Filters */}
-      <div className="mt-8 card-surface rounded-2xl p-5 flex flex-wrap gap-4 items-center">
+      <div className="mt-8 card-surface p-5 flex flex-wrap gap-4 items-center">
         <div>
           <p className="mb-2 text-xs text-muted-foreground">Condition</p>
           <div className="flex flex-wrap gap-2">
             {CONDITIONS.map((c) => (
               <button key={c} onClick={() => setCondition(c)}
-                className={cn("rounded-full border px-4 py-1.5 text-xs font-medium transition-colors",
-                  condition === c ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:text-foreground")}>
+                className={cn("border px-4 py-1.5 text-xs font-medium transition-colors",
+                  condition === c ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-gold hover:text-gold")}>
                 {c === "All" ? "All" : CONDITION_LABELS[c]}
               </button>
             ))}
@@ -91,8 +91,8 @@ function RefurbishedPage() {
           <div className="flex flex-wrap gap-2">
             {brands.map((b) => (
               <button key={b} onClick={() => setBrand(b)}
-                className={cn("rounded-full border px-4 py-1.5 text-xs font-medium transition-colors",
-                  brand === b ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:text-foreground")}>
+                className={cn("border px-4 py-1.5 text-xs font-medium transition-colors",
+                  brand === b ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-gold hover:text-gold")}>
                 {b}
               </button>
             ))}
@@ -123,7 +123,7 @@ function RefurbishedPage() {
 function RefurbishedCard({ phone, whatsapp, msg }: { phone: RefurbishedProduct; whatsapp: string; msg: string }) {
   const waText = encodeURIComponent(`${msg} ${phone.brand} ${phone.model} (Refurbished, ${phone.condition_grade ?? phone.condition} condition). Price: ${formatINR(phone.price)}.`);
   return (
-    <div className="card-surface hover-glow rounded-2xl overflow-hidden">
+    <div className="card-surface hover-glow overflow-hidden">
       <div className="aspect-square bg-secondary/50 flex items-center justify-center">
         {phone.images[0] ? (
           <img src={phone.images[0]} alt={`${phone.brand} ${phone.model}`} className="size-full object-cover" loading="lazy" />
@@ -134,11 +134,11 @@ function RefurbishedCard({ phone, whatsapp, msg }: { phone: RefurbishedProduct; 
       <div className="p-5">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">{phone.brand}</p>
+            <p className="caption-mono">{phone.brand}</p>
             <h2 className="mt-0.5 font-semibold leading-tight">{phone.model}</h2>
           </div>
           {phone.condition_grade && (
-            <span className={cn("shrink-0 rounded-full border px-2.5 py-1 text-xs font-bold", CONDITION_COLORS[phone.condition] ?? "text-muted-foreground border-border")}>
+            <span className={cn("shrink-0 border px-2.5 py-1 text-xs font-semibold", CONDITION_COLORS[phone.condition] ?? "text-muted-foreground border-border")}>
               Grade {phone.condition_grade}
             </span>
           )}
@@ -149,9 +149,10 @@ function RefurbishedCard({ phone, whatsapp, msg }: { phone: RefurbishedProduct; 
           {phone.battery_health && <Tag>🔋 {phone.battery_health}%</Tag>}
         </div>
         {phone.warranty && <p className="mt-2 text-xs text-muted-foreground">✅ {phone.warranty}</p>}
+        <hr className="mt-4 border-border" />
         <div className="mt-4 flex items-center justify-between">
           <div>
-            <p className="text-lg font-bold text-primary">{formatINR(phone.price)}</p>
+            <p className="text-lg font-medium text-primary">{formatINR(phone.price)}</p>
             {phone.original_price && <p className="text-xs text-muted-foreground line-through">{formatINR(phone.original_price)}</p>}
           </div>
           {!phone.is_available && <span className="text-xs text-muted-foreground">Sold Out</span>}
@@ -168,6 +169,6 @@ function RefurbishedCard({ phone, whatsapp, msg }: { phone: RefurbishedProduct; 
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="rounded border border-border bg-secondary/50 px-2 py-0.5 text-xs text-muted-foreground">{children}</span>
+    <span className="border border-border bg-secondary/50 px-2 py-0.5 text-xs text-muted-foreground">{children}</span>
   );
 }

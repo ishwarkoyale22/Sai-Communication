@@ -3,6 +3,7 @@ import { MapPin, MessageCircle, Phone } from "lucide-react";
 import { EnquiryForm } from "@/components/EnquiryDialog";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
 import { useSettings } from "@/hooks/useSettings";
 
 export const Route = createFileRoute("/contact")({
@@ -42,10 +43,9 @@ function ContactPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header className="max-w-2xl">
-        <span className="eyebrow">We'd Love To Hear From You</span>
-        <h1 className="mt-6 font-serif text-3xl font-bold sm:text-4xl">
+        <TextReveal as="h1" trigger="mount" className="font-serif text-3xl font-medium sm:text-4xl">
           Contact <em>Sai Communication</em>
-        </h1>
+        </TextReveal>
         <p className="mt-4 text-muted-foreground">
           Questions about a phone, a repair or EMI? Send a message and we'll call you back.
         </p>
@@ -53,8 +53,8 @@ function ContactPage() {
 
       <div className="mt-10 grid gap-6 lg:grid-cols-2">
         <Reveal>
-          <div className="card-surface rounded-2xl p-6">
-            <h2 className="text-lg font-semibold">Send us a message</h2>
+          <div className="card-surface p-6">
+            <h2 className="text-lg font-medium font-serif">Send us a message</h2>
             <div className="mt-4">
               <EnquiryForm />
             </div>
@@ -63,10 +63,10 @@ function ContactPage() {
 
         <div className="space-y-6">
           <Reveal delay={80}>
-            <div className="card-surface rounded-2xl p-6">
-              <h2 className="text-lg font-semibold">Store Details</h2>
+            <div className="card-surface p-6">
+              <h2 className="text-lg font-medium font-serif">Store Details</h2>
               <p className="mt-4 flex gap-2 text-sm text-foreground/85">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-primary" />
+                <MapPin className="mt-0.5 size-4 shrink-0 text-gold" />
                 {settings["address"]}
               </p>
               <dl className="mt-4 space-y-1.5 text-sm">
@@ -117,9 +117,9 @@ function ContactPage() {
           </Reveal>
 
           <Reveal delay={140}>
-            <div className="card-surface rounded-2xl p-6">
+            <div className="card-surface p-6">
 
-              <h2 className="text-lg font-semibold">Business Hours</h2>
+              <h2 className="text-lg font-medium font-serif">Business Hours</h2>
               <table className="mt-4 w-full text-sm">
                 <tbody>
                   {HOURS.map((row) => (
@@ -134,7 +134,7 @@ function ContactPage() {
           </Reveal>
 
           <Reveal delay={200}>
-            <div className="h-64 overflow-hidden rounded-2xl border border-border">
+            <div className="h-64 overflow-hidden border border-border">
               <iframe
                 title="Store location map"
                 src={settings["maps_embed"]}

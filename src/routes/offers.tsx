@@ -2,6 +2,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { offersQuery } from "@/lib/queries";
 import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
 import { Button } from "@/components/ui/button";
 import { Tag, Clock } from "lucide-react";
 import type { Offer } from "@/lib/types";
@@ -23,10 +24,9 @@ function OffersPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header className="max-w-2xl">
-        <span className="eyebrow">Latest Deals</span>
-        <h1 className="mt-6 font-serif text-3xl font-bold sm:text-4xl">
+        <TextReveal as="h1" trigger="mount" className="font-serif text-3xl font-medium sm:text-4xl">
           Current <em>Offers &amp; Promotions</em>
-        </h1>
+        </TextReveal>
         <p className="mt-4 text-muted-foreground">
           Exclusive deals, festival offers and limited-time discounts. Check back regularly for the latest savings.
         </p>
@@ -35,9 +35,9 @@ function OffersPage() {
       {isLoading ? (
         <p className="mt-16 text-center text-muted-foreground">Loading offers...</p>
       ) : offers.length === 0 ? (
-        <div className="mt-16 text-center card-surface rounded-2xl p-12">
-          <Tag className="mx-auto size-12 text-muted-foreground" />
-          <h2 className="mt-4 text-xl font-bold">No Active Offers Right Now</h2>
+        <div className="mt-16 text-center card-surface p-12">
+          <Tag className="mx-auto size-12 text-gold" />
+          <h2 className="mt-4 text-xl font-medium font-serif">No Active Offers Right Now</h2>
           <p className="mt-2 text-sm text-muted-foreground">Visit our store or check back soon for the latest deals.</p>
           <Button asChild className="mt-6"><Link to="/products">Browse Products</Link></Button>
         </div>
@@ -56,7 +56,7 @@ function OffersPage() {
 
 function OfferCard({ offer }: { offer: Offer }) {
   return (
-    <div className="card-surface hover-glow rounded-2xl overflow-hidden">
+    <div className="card-surface hover-glow overflow-hidden">
       {offer.banner_image_url ? (
         <img src={offer.banner_image_url} alt={offer.title} className="w-full aspect-video object-cover" loading="lazy" />
       ) : (
@@ -66,9 +66,9 @@ function OfferCard({ offer }: { offer: Offer }) {
       )}
       <div className="p-5">
         <div className="flex items-start justify-between gap-2">
-          <h2 className="font-bold leading-tight">{offer.title}</h2>
+          <h2 className="font-semibold leading-tight">{offer.title}</h2>
           {offer.badge_text && (
-            <span className="shrink-0 rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground">
+            <span className="shrink-0 border border-gold bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold">
               {offer.badge_text}
             </span>
           )}

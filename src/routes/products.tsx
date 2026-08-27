@@ -18,6 +18,7 @@ import { productsQuery } from "@/lib/queries";
 import { formatINR } from "@/lib/format";
 import { CATEGORIES, type Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { TextReveal } from "@/components/TextReveal";
 
 export const Route = createFileRoute("/products")({
   head: () => ({
@@ -69,15 +70,10 @@ function ProductsPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header>
-        <h1 className="text-3xl font-extrabold sm:text-4xl">Our Products</h1>
+        <TextReveal as="h1" trigger="mount" className="text-3xl font-medium sm:text-4xl">Our Products</TextReveal>
         <p className="mt-2 text-sm text-muted-foreground">
           Live stock straight from our store counter. Enquire and we'll hold it for you.
         </p>
-        <div className="mt-4 flex flex-wrap gap-2 text-xs font-medium text-muted-foreground">
-          <span className="rounded-full border border-border bg-card px-3 py-1.5">🚚 Same Day Delivery</span>
-          <span className="rounded-full border border-border bg-card px-3 py-1.5">🎁 Free Delivery</span>
-          <span className="rounded-full border border-border bg-card px-3 py-1.5">🏬 In-Store Pickup</span>
-        </div>
       </header>
 
       <div className="mt-8 flex flex-wrap gap-2">
@@ -86,10 +82,10 @@ function ProductsPage() {
             key={c}
             onClick={() => setCategory(c)}
             className={cn(
-              "rounded-full border px-4 py-2 text-sm font-medium transition-colors",
+              "border px-4 py-2 text-sm font-medium transition-colors",
               category === c
                 ? "border-primary bg-primary text-primary-foreground"
-                : "border-border bg-card text-muted-foreground hover:text-foreground",
+                : "border-border bg-card text-muted-foreground hover:border-gold hover:text-gold",
             )}
           >
             {c}
@@ -97,7 +93,7 @@ function ProductsPage() {
         ))}
       </div>
 
-      <div className="card-surface mt-5 grid gap-5 rounded-2xl p-5 md:grid-cols-3">
+      <div className="card-surface mt-5 grid gap-5 p-5 md:grid-cols-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input

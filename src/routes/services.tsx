@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -92,28 +93,28 @@ function ServicesPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header className="max-w-3xl">
-        <span className="eyebrow">Complete Electronics Hub</span>
-        <h1 className="mt-6 font-serif text-3xl font-bold sm:text-5xl">
-          Everything Your Phone Needs — <em>All In One Place</em>
-        </h1>
+        <TextReveal as="h1" trigger="mount" className="font-serif text-3xl font-medium sm:text-5xl">
+          One Store for Every <em>Phone Need</em>
+        </TextReveal>
         <p className="mt-4 text-muted-foreground text-lg">
-          From brand new phone purchases to same-day repairs, certified refurbished trade-ins, custom hampers and easy finance.
+          New phones, same-day repairs, certified refurbished devices, custom gift hampers and easy EMI — all at
+          our Talegaon Dabhade counter.
         </p>
       </header>
 
       <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {SERVICES.map((service, i) => (
           <Reveal key={service.title} delay={i * 60}>
-            <div className="card-surface hover-glow h-full rounded-2xl p-6 border border-border flex flex-col justify-between">
+            <div className="card-surface hover-glow h-full p-6 flex flex-col justify-between">
               <div>
-                <span className="flex size-12 items-center justify-center rounded-full border border-primary/40 bg-accent">
-                  <service.icon className="size-5 text-primary" />
+                <span className="medallion-ring-sm">
+                  <service.icon className="size-5" />
                 </span>
-                <h2 className="mt-4 text-lg font-bold">{service.title}</h2>
+                <h2 className="mt-4 text-lg font-semibold">{service.title}</h2>
                 <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{service.text}</p>
               </div>
               <div className="mt-6 pt-4 border-t border-border/50">
-                <Button asChild size="sm" variant="ghost" className="w-full justify-between px-2 text-xs text-primary hover:text-primary">
+                <Button asChild size="sm" variant="ghost" className="w-full justify-between px-2 text-xs text-primary hover:text-gold">
                   <Link to={service.link as "/products"}>
                     {service.linkText} <ArrowRight className="size-3.5" />
                   </Link>
@@ -124,15 +125,15 @@ function ServicesPage() {
         ))}
       </div>
 
-      <div className="card-surface mt-16 flex flex-wrap items-center justify-between gap-6 rounded-3xl p-8 sm:p-10 border border-primary/30 bg-gradient-to-r from-card to-accent/40">
+      <div className="card-surface mt-16 flex flex-wrap items-center justify-between gap-6 p-8 sm:p-10">
         <div className="max-w-xl">
-          <h2 className="font-serif text-2xl font-bold">Have a custom requirement?</h2>
+          <h2 className="font-serif text-2xl font-medium">Have a custom requirement?</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Visit our store counter in Talegaon Dabhade or reach us on WhatsApp. Our technicians and staff are ready to help.
           </p>
         </div>
         <div className="flex gap-3">
-          <Button asChild size="lg" className="rounded-full px-8">
+          <Button asChild size="lg">
             <Link to="/contact">Contact Store</Link>
           </Button>
         </div>

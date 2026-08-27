@@ -24,11 +24,11 @@ export function ProductCard({
   const image = product.images[0];
 
   return (
-    <article className="card-surface hover-glow group flex flex-col overflow-hidden rounded-[20px] p-2">
+    <article className="card-surface hover-glow group flex flex-col overflow-hidden p-2">
       <button
         type="button"
         onClick={() => onOpen(product)}
-        className="relative aspect-4/3 w-full overflow-hidden rounded-[14px] border border-border bg-muted"
+        className="relative aspect-4/3 w-full overflow-hidden border border-border bg-muted"
         aria-label={`View ${product.brand} ${product.name}`}
       >
         {image ? (
@@ -45,7 +45,7 @@ export function ProductCard({
         )}
         <span
           className={cn(
-            "absolute left-3 top-3 rounded-full border px-3 py-[3px] text-[9px] font-medium uppercase tracking-[0.5px]",
+            "absolute left-3 top-3 border px-3 py-[3px] text-[9px] font-medium uppercase tracking-[0.5px]",
             inStock
               ? "border-success/30 bg-success text-success-foreground"
               : "border-destructive/30 bg-destructive/10 text-destructive",
@@ -57,15 +57,15 @@ export function ProductCard({
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div>
-          <p className="text-[9px] font-medium uppercase tracking-[2.5px] text-muted-foreground">
-            {product.brand}
-          </p>
-          <h3 className="mt-1 line-clamp-1 font-serif text-[17px] font-semibold text-card-foreground">
+          <p className="caption-mono">{product.brand}</p>
+          <h3 className="mt-1 line-clamp-1 font-serif text-[17px] font-medium text-card-foreground">
             {product.name}
           </h3>
         </div>
+        <hr className="border-border" />
         <div className="flex items-baseline gap-2">
-          <span className="text-lg font-semibold text-primary">{formatINR(product.price)}</span>
+          <span className="caption-mono text-[9px]">Price</span>
+          <span className="text-lg font-medium text-primary">{formatINR(product.price)}</span>
           {product.original_price != null && product.original_price > product.price && (
             <span className="text-xs font-light text-muted-foreground/70 line-through">
               {formatINR(product.original_price)}
@@ -76,7 +76,7 @@ export function ProductCard({
           <Button
             variant="outline"
             size="sm"
-            className="flex-1 rounded-full border-border bg-transparent text-xs font-medium tracking-[0.3px] text-primary transition-all duration-300 hover:bg-primary hover:text-primary-foreground"
+            className="flex-1 text-xs font-medium tracking-[0.3px]"
             onClick={() => onOpen(product)}
           >
             Details
@@ -84,7 +84,7 @@ export function ProductCard({
           {product.stock_status === "in_stock" ? (
             <Button
               size="sm"
-              className="flex-1 rounded-full text-xs font-semibold tracking-[0.3px]"
+              className="flex-1 text-xs font-semibold tracking-[0.3px]"
               onClick={handleAddToCart}
             >
               <ShoppingCart className="size-3.5 mr-1" /> Add to Cart
@@ -93,7 +93,7 @@ export function ProductCard({
             <Button
               size="sm"
               variant="secondary"
-              className="flex-1 rounded-full text-xs font-semibold tracking-[0.3px]"
+              className="flex-1 text-xs font-semibold tracking-[0.3px]"
               onClick={() => onEnquire(product)}
             >
               Enquire

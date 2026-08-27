@@ -10,19 +10,23 @@ import {
   Star,
   Clock,
   Wrench,
-  Sparkles,
   Gift,
   RefreshCw,
   CreditCard,
   ArrowRight,
+  Instagram,
+  Facebook,
+  Youtube,
+  Twitter,
 } from "lucide-react";
-import heroImage from "@/assets/hero.jpg";
 import vijaySirPhoto from "@/assets/vijay-sir.jpg";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/ProductCard";
+import img1 from "@/assets/hero_phones_transparent.png";
 import { EnquiryDialog } from "@/components/EnquiryDialog";
 import { ProductDetailDialog } from "@/components/ProductDetailDialog";
 import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
 import { CountUp } from "@/components/CountUp";
 import { useSettings } from "@/hooks/useSettings";
 import { productsQuery, refurbishedQuery, offersQuery } from "@/lib/queries";
@@ -54,7 +58,7 @@ const PILLARS = [
 const WHY = [
   { icon: Award, title: "21+ Years of Trust", text: "Serving Talegaon Dabhade and Pune since 2005." },
   { icon: ShieldCheck, title: "100% Genuine Products", text: "Original sealed devices with official brand warranty." },
-  { icon: BadgeCheck, title: "Certified Technicians", text: "Fast in-house repairs using genuine grade parts." },
+  { icon: BadgeCheck, title: "Certified Technicians", text: "Fast in-house repairs with genuine, quality-grade parts." },
   { icon: Headphones, title: "Friendly After-Sale Support", text: "Walk in anytime for data transfer, setup & help." },
 ];
 
@@ -86,74 +90,199 @@ function HomePage() {
   const strip = featured.length ? featured : products.slice(0, 4);
   const refurbStrip = refurbs.slice(0, 3);
 
+  const rating = settings["rating"] || "4.8";
+  const totalRatings = settings["total_ratings"] || "242";
+
   return (
     <div>
       {/* Hero Section */}
-      <section className="gradient-hero relative overflow-hidden">
-        <div className="relative mx-auto max-w-6xl px-4 py-16 sm:py-24">
-          <div className="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div className="hero-stagger text-center lg:text-left">
-              <span className="eyebrow lg:justify-start">{settings["tagline"] || "Mobile Phone Dealer & Repair Service — Since 2005"}</span>
-              <h1 className="mt-6 font-serif text-[38px] font-bold leading-[1.1] tracking-[-0.5px] sm:text-6xl">
-                Your Complete Mobile Store, <em>Repair Lab &amp; Exchange Hub</em>
-              </h1>
-              <p className="mx-auto mt-6 max-w-[520px] text-sm sm:text-base leading-[1.8] text-muted-foreground lg:mx-0">
-                Shop brand-new smartphones, certified second-hand phones, genuine accessories, custom gift hampers,
-                and same-day phone repairs under one trusted roof.
-              </p>
+      <section
+        className="relative overflow-hidden"
+        style={{ background: "linear-gradient(180deg, #FBF7EE 0%, #F7F2E6 100%)" }}
+      >
+        <div className="relative mx-auto max-w-6xl px-4 py-14 sm:py-20">
+          <div className="hero-stagger flex flex-col items-center text-center">
+            {/* Title */}
+            <TextReveal
+              as="h1"
+              trigger="mount"
+              delayStep={55}
+              className="font-serif text-[32px] font-bold leading-[1.12] tracking-[-0.5px] text-foreground sm:text-[56px] max-w-2xl"
+            >
+              Premium Phones &amp; <em className="font-semibold text-[#1F3A8A]">Expert Repairs</em>
+            </TextReveal>
 
-              <div className="mt-8 flex flex-wrap justify-center gap-3 lg:justify-start">
-                <Button asChild size="lg" className="rounded-full px-8 text-[13px] font-semibold">
-                  <Link to="/products">Shop New Phones</Link>
-                </Button>
-                <Button asChild size="lg" variant="outline" className="rounded-full border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground">
-                  <Link to="/repair">Repair Enquiry</Link>
-                </Button>
-                <Button asChild size="lg" variant="secondary" className="rounded-full px-6 text-[13px]">
-                  <Link to="/refurbished">Refurbished Phones</Link>
-                </Button>
-              </div>
-            </div>
+            {/* Subtitle */}
+            <p className="mx-auto mt-5 max-w-[540px] text-[13px] leading-[1.8] sm:text-[15px]" style={{ color: "#5B5B5B" }}>
+              Your local store for brand-new smartphones, genuine accessories, tested second-hand and ady repairs — honest advice and easy EMI.
+            </p>
 
-            {/* Contained hero image — small, crisp, fully visible */}
-            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
-              <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-primary/5 blur-2xl" aria-hidden="true" />
-              <div className="card-surface overflow-hidden rounded-3xl border border-border p-2">
-                <img
-                  src={heroImage}
-                  alt="Premium smartphones on display"
-                  width={1920}
-                  height={1088}
-                  className="aspect-[4/3] w-full rounded-[20px] object-cover"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Quick Pillars */}
-          <div className="mt-14 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {PILLARS.map((p) => (
-              <Link
-                key={p.title}
-                to={p.to as "/repair"}
-                className="card-surface hover-glow rounded-2xl p-4 text-left border border-border/80 transition-all hover:-translate-y-0.5"
+            {/* Feature chips */}
+            <div className="mx-auto mt-6 flex w-full max-w-[460px] flex-row gap-3 justify-center">
+              <div
+                className="flex flex-1 items-center gap-3 rounded-2xl bg-white p-3 shadow-sm"
+                style={{ border: "1px solid #E6E0D2" }}
               >
-                <p.icon className="size-5 text-primary" />
-                <p className="mt-2 text-xs font-semibold text-foreground">{p.title}</p>
-                <p className="text-[11px] text-muted-foreground">{p.desc}</p>
-              </Link>
-            ))}
+                <span
+                  className="flex size-9 shrink-0 items-center justify-center rounded-full"
+                  style={{ background: "#EEF1FD", color: "#1F3A8A" }}
+                >
+                  <Clock className="size-4" />
+                </span>
+                <div className="text-left">
+                  <p className="text-xs font-bold leading-tight text-foreground">Same-day repairs</p>
+                  <p className="text-[10.5px] text-muted-foreground">Screen &amp; battery in 60 min</p>
+                </div>
+              </div>
+              <div
+                className="flex flex-1 items-center gap-3 rounded-2xl bg-white p-3 shadow-sm"
+                style={{ border: "1px solid #E6E0D2" }}
+              >
+                <span
+                  className="flex size-9 shrink-0 items-center justify-center rounded-full"
+                  style={{ background: "#EEF1FD", color: "#1F3A8A" }}
+                >
+                  <CreditCard className="size-4" />
+                </span>
+                <div className="text-left">
+                  <p className="text-xs font-bold leading-tight text-foreground">Easy EMI</p>
+                  <p className="text-[10.5px] text-muted-foreground">Zero down payment plans</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Centered Image with Blue Glow Background */}
+            <div className="relative w-full max-w-2xl my-8 flex justify-center items-center">
+              {/* Radial gradient glow behind the devices */}
+              <div
+                className="absolute inset-0 mx-auto max-w-[500px] aspect-square rounded-full blur-3xl -z-10 opacity-70"
+                style={{
+                  background: "radial-gradient(circle, rgba(31,58,138,0.25) 0%, rgba(31,58,138,0.05) 50%, transparent 70%)",
+                }}
+              />
+              <img
+                src={img1}
+                alt="Fanned display of premium smartphones and a smartwatch available at Sai Communication"
+                className="mx-auto w-full max-w-[550px] h-auto object-contain"
+              />
+            </div>
+
+            {/* CTAs (Buttons stacked vertically) */}
+            <div className="mt-4 flex flex-col gap-3 w-full max-w-[280px] sm:max-w-[320px] mx-auto">
+              <Button
+                asChild
+                size="lg"
+                className="w-full rounded-2xl py-6 font-semibold shadow-sm cursor-pointer"
+                style={{ background: "#1F3A8A", color: "#fff" }}
+              >
+                <Link to="/products">Shop New Phones</Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="w-full rounded-2xl py-6 font-semibold bg-[#F2EDE4] border border-[#E6E0D2] text-[#1b1b1b] shadow-sm cursor-pointer"
+                style={{ borderWidth: 1 }}
+              >
+                <Link to="/repair">Book a Repair</Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                className="w-full rounded-2xl py-6 font-semibold shadow-sm cursor-pointer"
+                style={{ background: "#C99A4F", color: "#fff" }}
+              >
+                <Link to="/refurbished">Refurbished deals</Link>
+              </Button>
+            </div>
+
+            {/* Trust row & Social icons */}
+            <div
+              className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-x-6 gap-y-3 border-t border-[#E6E0D2]/60 pt-6 w-full max-w-4xl mx-auto text-xs"
+              style={{ color: "#5B5B5B" }}
+            >
+              <div className="flex items-center gap-1.5">
+                <div className="flex text-gold">
+                  {Array.from({ length: 5 }).map((_, s) => (
+                    <Star key={s} className="size-3.5 fill-current" />
+                  ))}
+                </div>
+                <span>
+                  <span className="font-bold text-foreground">4.7/5</span> · 118 Justdial reviews
+                </span>
+              </div>
+              <span className="hidden h-3 w-px bg-[#E6E0D2] sm:block" />
+              <p>
+                <span className="font-bold text-foreground">21+ years</span> ·{" "}
+                <span className="font-bold text-foreground">25,000+</span> happy customers
+              </p>
+              <span className="hidden h-3 w-px bg-[#E6E0D2] sm:block" />
+              <div className="flex items-center gap-4">
+                <a
+                  href={settings["instagram"] || "https://instagram.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#1F3A8A] transition-colors"
+                >
+                  <Instagram className="size-4" />
+                </a>
+                <a
+                  href={settings["twitter"] || "https://twitter.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#1F3A8A] transition-colors"
+                >
+                  <Twitter className="size-4" />
+                </a>
+                <a
+                  href={settings["facebook"] || "https://facebook.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#1F3A8A] transition-colors"
+                >
+                  <Facebook className="size-4" />
+                </a>
+                <a
+                  href={settings["youtube"] || "https://youtube.com"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-[#1F3A8A] transition-colors"
+                >
+                  <Youtube className="size-4" />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
+      {/* Quick Pillars */}
+      <section className="mx-auto max-w-6xl px-4 pb-16 pt-2 sm:pb-20">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {PILLARS.map((p) => (
+            <Link
+              key={p.title}
+              to={p.to as "/repair"}
+              className="group card-surface hover-glow flex items-center gap-3 p-4 text-left sm:flex-col sm:items-start sm:gap-3"
+            >
+              <span className="medallion-ring-sm shrink-0 transition-colors group-hover:bg-gold group-hover:text-primary-foreground">
+                <p.icon className="size-4.5" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">{p.title}</p>
+                <p className="text-[11px] text-muted-foreground">{p.desc}</p>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* Featured Products */}
-      <section className="mx-auto max-w-6xl px-4 py-16">
+      <section className="mx-auto max-w-6xl px-4 py-24">
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span className="eyebrow">Top Recommendations</span>
-              <h2 className="text-2xl font-bold sm:text-3xl mt-1">Featured Smartphones</h2>
+              <TextReveal as="h2" className="text-2xl font-medium sm:text-3xl">Featured Smartphones</TextReveal>
               <p className="mt-1 text-sm text-muted-foreground">
                 Brand new, official warranty, live stock ready for checkout or store collection.
               </p>
@@ -174,18 +303,17 @@ function HomePage() {
 
       {/* Refurbished Phones Showcase Strip */}
       {refurbStrip.length > 0 && (
-        <section className="border-y border-border bg-card/20 py-16">
+        <section className="border-y border-border py-24">
           <div className="mx-auto max-w-6xl px-4">
             <Reveal>
               <div className="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                  <span className="eyebrow">Smart Savings</span>
-                  <h2 className="text-2xl font-bold sm:text-3xl mt-1">Certified Refurbished Phones</h2>
+                  <TextReveal as="h2" className="text-2xl font-medium sm:text-3xl">Certified Refurbished Phones</TextReveal>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Tested on 30+ checkpoints, graded transparently with warranty.
+                    Every device is inspected, graded honestly and backed by our warranty.
                   </p>
                 </div>
-                <Button asChild variant="outline" className="border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground">
+                <Button asChild variant="outline">
                   <Link to="/refurbished">Browse Refurbished</Link>
                 </Button>
               </div>
@@ -193,13 +321,13 @@ function HomePage() {
             <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {refurbStrip.map((item, i) => (
                 <Reveal key={item.id} delay={i * 80}>
-                  <div className="card-surface hover-glow rounded-2xl p-5 border border-border">
+                  <div className="card-surface hover-glow p-5">
                     <div className="flex justify-between items-start">
                       <div>
-                        <span className="text-[10px] uppercase font-bold text-muted-foreground">{item.brand}</span>
-                        <h3 className="font-semibold text-base">{item.model}</h3>
+                        <span className="caption-mono">{item.brand}</span>
+                        <h3 className="font-semibold text-base mt-0.5">{item.model}</h3>
                       </div>
-                      <span className="rounded-full bg-primary/10 border border-primary/30 px-2 py-0.5 text-xs text-primary font-medium">
+                      <span className="border border-gold/50 px-2 py-0.5 text-xs text-gold font-medium">
                         Grade {item.condition_grade ?? item.condition}
                       </span>
                     </div>
@@ -208,8 +336,9 @@ function HomePage() {
                       {item.battery_health && <span>· 🔋 {item.battery_health}%</span>}
                       {item.warranty && <span>· ✅ {item.warranty}</span>}
                     </div>
+                    <hr className="mt-4 border-border" />
                     <div className="mt-4 flex items-center justify-between">
-                      <p className="font-bold text-primary text-lg">{formatINR(item.price)}</p>
+                      <p className="font-semibold text-primary text-lg">{formatINR(item.price)}</p>
                       <Button asChild size="sm">
                         <Link to="/refurbished">View Details</Link>
                       </Button>
@@ -223,29 +352,28 @@ function HomePage() {
       )}
 
       {/* Repair & Service Highlight Banner */}
-      <section className="mx-auto max-w-6xl px-4 py-16">
+      <section className="mx-auto max-w-6xl px-4 py-24">
         <Reveal>
-          <div className="card-surface rounded-3xl p-8 sm:p-12 border border-primary/30 bg-gradient-to-r from-card to-accent/30 flex flex-col lg:flex-row items-center justify-between gap-8">
+          <div className="card-surface p-8 sm:p-14 flex flex-col lg:flex-row items-center justify-between gap-8">
             <div className="max-w-2xl space-y-3">
-              <span className="eyebrow">Fast &amp; Professional</span>
-              <h2 className="font-serif text-3xl font-bold sm:text-4xl text-foreground">
+              <TextReveal as="h2" className="font-serif text-3xl font-medium sm:text-4xl text-foreground">
                 Phone Broken? Get It Fixed Same Day
-              </h2>
+              </TextReveal>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Cracked screens, battery drain, charging port issues or software trouble — our expert technicians
-                diagnose and repair all major brands with original-quality spares and guaranteed workmanship.
+                Cracked screen, weak battery, dead charging port or software trouble? Our technicians handle all
+                major brands with quality spares — and most repairs are done the same day.
               </p>
               <div className="pt-2 flex flex-wrap gap-2 text-xs text-foreground/80">
-                <span className="rounded-full bg-secondary px-3 py-1">⚡ 45-Min Screen Swap</span>
-                <span className="rounded-full bg-secondary px-3 py-1">🔋 Genuine Batteries</span>
-                <span className="rounded-full bg-secondary px-3 py-1">💧 Water Damage Recovery</span>
+                <span className="bg-secondary px-3 py-1">⚡ 45-Min Screen Swap</span>
+                <span className="bg-secondary px-3 py-1">🔋 Genuine Batteries</span>
+                <span className="bg-secondary px-3 py-1">💧 Water Damage Recovery</span>
               </div>
             </div>
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Button asChild size="lg" className="rounded-full px-8">
+              <Button asChild size="lg">
                 <Link to="/repair">Submit Repair Enquiry</Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full border-border">
+              <Button asChild size="lg" variant="outline">
                 <Link to="/gift-hampers">Build Gift Hamper</Link>
               </Button>
             </div>
@@ -253,99 +381,107 @@ function HomePage() {
         </Reveal>
       </section>
 
-      {/* Vijay Sir & Brand Story Highlight */}
-      <section className="border-y border-border bg-card/40 py-16">
-        <div className="mx-auto max-w-6xl px-4">
-          <div className="grid gap-8 lg:grid-cols-2 items-center">
-            <Reveal>
-              <div className="space-y-4">
-                <span className="eyebrow">The Sai Communication Heritage</span>
-                <h2 className="font-serif text-3xl font-bold sm:text-4xl">
-                  21+ Years Guided by <em>Vijay Sir</em>
-                </h2>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Established in 2005, Sai Communication has grown from a humble counter into one of Pune and
-                  Talegaon Dabhade's most recommended electronics retailers. Our focus has never changed: give every customer
-                  100% honest advice, authentic hardware, and after-sale support you can walk in and ask for.
-                </p>
-                <div className="grid grid-cols-3 gap-3 pt-2">
-                  <div className="card-surface hover-glow rounded-xl p-3 text-center border border-border">
-                    <p className="font-serif text-2xl font-bold text-primary"><CountUp value="2005" /></p>
-                    <p className="text-[11px] text-muted-foreground">Established</p>
-                  </div>
-                  <div className="card-surface hover-glow rounded-xl p-3 text-center border border-border">
-                    <p className="font-serif text-2xl font-bold text-primary"><CountUp value="4.8 / 5" /></p>
-                    <p className="text-[11px] text-muted-foreground">Justdial Rating</p>
-                  </div>
-                  <div className="card-surface hover-glow rounded-xl p-3 text-center border border-border">
-                    <p className="font-serif text-2xl font-bold text-primary"><CountUp value="25k+" /></p>
-                    <p className="text-[11px] text-muted-foreground">Happy Customers</p>
-                  </div>
-                </div>
-                <div className="pt-2">
-                  <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
-                    <Link to="/about">Read Our Full Story <ArrowRight className="size-4 ml-1" /></Link>
-                  </Button>
-                </div>
-              </div>
-            </Reveal>
+      {/* Vijay Sir & Brand Story — centered founder moment */}
+      <section className="border-y border-border py-24">
+        <div className="mx-auto max-w-2xl px-4 text-center">
+          <Reveal>
+            <TextReveal as="h2" className="font-serif text-3xl font-medium sm:text-4xl">
+              21+ Years Guided by <em>Vijay Sir</em>
+            </TextReveal>
+          </Reveal>
 
-            <Reveal delay={100}>
-              <div className="card-surface rounded-3xl p-8 border border-border/80 relative overflow-hidden bg-gradient-to-br from-accent/50 to-card">
-                <div className="flex items-center gap-4">
-                  <div className="size-16 rounded-full border-2 border-primary/50 bg-accent overflow-hidden flex items-center justify-center">
-                    <img
-                      src={settings["vijay_sir_photo_url"] || settings["hero_photo_url"] || vijaySirPhoto}
-                      alt={settings["owner_name"] || "Vijay Sir"}
-                      className="size-full object-cover"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">{settings["owner_name"] || "Vijay Sir"}</h3>
-                    <p className="text-xs text-primary font-semibold">Founder &amp; Owner</p>
-                    <p className="text-xs text-muted-foreground">Talegaon Dabhade, Pune</p>
-                  </div>
+          <Reveal delay={80}>
+            <div className="mt-8 inline-flex items-center justify-center rounded-full border border-white p-1 shadow-md">
+              <div className="rounded-full border border-gold p-1.5">
+                <div className="size-24 overflow-hidden rounded-full bg-accent sm:size-28">
+                  <img
+                    src={settings["vijay_sir_photo_url"] || settings["hero_photo_url"] || vijaySirPhoto}
+                    alt={settings["owner_name"] || "Vijay Sir"}
+                    className="size-full object-cover"
+                  />
                 </div>
-                <p className="mt-4 text-xs italic text-foreground/90 leading-relaxed">
-                  "{settings["owner_intro"] ||
-                    "Our commitment is simple: We will never sell you a phone or repair you do not need. Come with questions, leave with confidence."}"
-                </p>
               </div>
-            </Reveal>
-          </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={140}>
+            <p className="mt-8 font-serif text-xl italic leading-relaxed text-foreground sm:text-2xl">
+              {settings["owner_intro"] ||
+                '"Our commitment is simple: We will never sell you a phone or repair you do not need. Come with questions, leave with confidence."'}
+            </p>
+            <p className="caption-mono mt-4 not-italic">
+              {settings["owner_name"] || "Vijay Sir"} · Founder &amp; Owner
+            </p>
+          </Reveal>
+
+          <Reveal delay={200}>
+            <p className="mt-8 text-sm text-muted-foreground leading-relaxed">
+              Established in {settings["established"] || "2005"}, Sai Communication has grown from a humble counter
+              into one of Pune and Talegaon Dabhade's most recommended electronics retailers. Our focus has never
+              changed: give every customer 100% honest advice, authentic hardware, and after-sale support you can
+              walk in and ask for.
+            </p>
+          </Reveal>
+
+          <Reveal delay={240}>
+            <div className="stat-strip mt-10 sm:grid-cols-3">
+              <div className="stat-strip-item">
+                <p className="stat-num"><CountUp value={settings["established"] || "2005"} /></p>
+                <p className="stat-label">Established</p>
+              </div>
+              <div className="stat-strip-item">
+                <p className="stat-num"><CountUp value={`${rating} / 5`} /></p>
+                <p className="stat-label">Justdial Rating</p>
+              </div>
+              <div className="stat-strip-item">
+                <p className="stat-num"><CountUp value="25k+" /></p>
+                <p className="stat-label">Happy Customers</p>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={280}>
+            <div className="mt-10">
+              <Button asChild variant="outline">
+                <Link to="/about">
+                  Read Our Full Story <ArrowRight className="size-4 ml-1" />
+                </Link>
+              </Button>
+            </div>
+          </Reveal>
         </div>
       </section>
 
-      {/* Why Choose Us */}
-      <section className="mx-auto max-w-6xl px-4 py-16">
+      {/* Why Choose Us — single bordered band, divided by hairlines */}
+      <section className="mx-auto max-w-6xl px-4 py-24">
         <Reveal>
-          <h2 className="text-center text-2xl font-bold sm:text-3xl">Why Thousands Trust Us</h2>
+          <TextReveal as="h2" className="text-center text-2xl font-medium sm:text-3xl">Why Thousands Trust Us</TextReveal>
         </Reveal>
-        <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {WHY.map((item, i) => (
-            <Reveal key={item.title} delay={i * 80}>
-              <div className="card-surface hover-glow h-full rounded-2xl p-6 border border-border">
-                <span className="flex size-11 items-center justify-center rounded-full border border-primary/40 bg-accent">
-                  <item.icon className="size-5 text-primary" />
+        <Reveal delay={80}>
+          <div className="hairline-band mt-10 sm:grid-cols-2 lg:grid-cols-4">
+            {WHY.map((item) => (
+              <div key={item.title} className="hairline-band-item">
+                <span className="medallion-ring-sm">
+                  <item.icon className="size-4.5" />
                 </span>
                 <h3 className="mt-4 font-semibold">{item.title}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
               </div>
-            </Reveal>
-          ))}
-        </div>
+            ))}
+          </div>
+        </Reveal>
       </section>
 
-      {/* Brands Strip */}
-      <section className="border-t border-border bg-card/30 py-16">
+      {/* Brands Strip — plain text, hairline underline, gold on hover */}
+      <section className="border-t border-border py-24">
         <div className="mx-auto max-w-6xl px-4">
           <Reveal>
-            <h2 className="text-center text-2xl font-bold sm:text-3xl">Authorized &amp; Major Brands</h2>
-            <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
+            <TextReveal as="h2" className="text-center text-2xl font-medium sm:text-3xl">Authorized &amp; Major Brands</TextReveal>
+            <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8">
               {BRANDS.map((brand) => (
                 <span
                   key={brand}
-                  className="card-surface hover-glow group flex items-center justify-center rounded-2xl border border-border px-4 py-4 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:text-primary"
+                  className="group flex items-center justify-center border-b border-border px-4 py-5 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-gold"
                 >
                   {brand}
                 </span>
@@ -356,22 +492,23 @@ function HomePage() {
       </section>
 
       {/* Reviews */}
-      <section className="border-y border-border py-16">
+      <section className="border-b border-border py-24">
         <div className="mx-auto max-w-6xl px-4">
           <Reveal>
-            <h2 className="text-center text-2xl font-bold sm:text-3xl">Customer Stories</h2>
+            <TextReveal as="h2" className="text-center text-2xl font-medium sm:text-3xl">Customer Stories</TextReveal>
           </Reveal>
           <div className="mt-10 grid gap-5 md:grid-cols-3">
             {REVIEWS.map((review, i) => (
               <Reveal key={review.name} delay={i * 100}>
-                <div className="card-surface hover-glow h-full rounded-2xl p-6 border border-border">
-                  <div className="flex gap-1 text-primary">
+                <div className="card-surface hover-glow h-full p-6">
+                  <div className="flex gap-1 text-gold">
                     {Array.from({ length: 5 }).map((_, s) => (
                       <Star key={s} className="size-4 fill-current" />
                     ))}
                   </div>
-                  <p className="mt-4 text-sm text-foreground/85">"{review.text}"</p>
-                  <p className="mt-4 text-sm font-semibold">{review.name}</p>
+                  <p className="mt-4 font-serif text-lg italic leading-relaxed text-foreground/90">"{review.text}"</p>
+                  <div className="mt-5 w-8 border-t border-gold" />
+                  <p className="caption-mono mt-2">{review.name}</p>
                 </div>
               </Reveal>
             ))}
@@ -380,17 +517,17 @@ function HomePage() {
       </section>
 
       {/* Store Location */}
-      <section className="mx-auto max-w-6xl px-4 py-16">
+      <section className="mx-auto max-w-6xl px-4 py-24">
         <div className="grid gap-6 lg:grid-cols-2">
           <Reveal>
-            <div className="card-surface hover-glow h-full rounded-2xl p-6 border border-border">
-              <h2 className="text-2xl font-bold">Visit Our Store Counter</h2>
+            <div className="card-surface hover-glow h-full p-6">
+              <TextReveal as="h2" className="text-2xl font-medium">Visit Our Store Counter</TextReveal>
               <p className="mt-3 flex gap-2 text-sm text-foreground/85">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-primary" />
+                <MapPin className="mt-0.5 size-4 shrink-0 text-gold" />
                 {settings["address"]}
               </p>
               <p className="mt-3 flex gap-2 text-sm text-foreground/85">
-                <Clock className="mt-0.5 size-4 shrink-0 text-primary" />
+                <Clock className="mt-0.5 size-4 shrink-0 text-gold" />
                 {settings["hours"]}
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
@@ -406,7 +543,7 @@ function HomePage() {
             </div>
           </Reveal>
           <Reveal delay={100}>
-            <div className="h-72 overflow-hidden rounded-2xl border border-border lg:h-full">
+            <div className="h-72 overflow-hidden border border-border lg:h-full">
               <iframe
                 title="Store location"
                 src={settings["maps_embed"]}

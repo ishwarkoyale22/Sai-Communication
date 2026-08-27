@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Phone, Wrench, Clock, CheckCircle, ArrowRight, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
 import { useSettings } from "@/hooks/useSettings";
 import { RepairEnquiryForm } from "@/components/RepairEnquiryForm";
 
@@ -48,18 +49,17 @@ function RepairPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header className="max-w-3xl">
-        <span className="eyebrow">Mobile Repair Service</span>
-        <h1 className="mt-6 font-serif text-3xl font-bold sm:text-4xl">
+        <TextReveal as="h1" trigger="mount" className="font-serif text-3xl font-medium sm:text-4xl">
           Fast, Reliable <em>Phone Repair</em> You Can Trust
-        </h1>
+        </TextReveal>
         <p className="mt-4 text-muted-foreground">
           Trained technicians, genuine parts, most repairs done the same day. Submit your enquiry below and we will get back to you.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <Button asChild size="lg" className="rounded-full px-8">
+          <Button asChild size="lg">
             <a href="#repair-form">Submit Enquiry</a>
           </Button>
-          <Button asChild size="lg" variant="outline" className="rounded-full px-8 border-primary/50 text-primary hover:bg-primary hover:text-primary-foreground">
+          <Button asChild size="lg" variant="outline">
             <a href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(settings["repair_whatsapp_message"] || "Hello, I would like to enquire about a mobile repair.")}`} target="_blank" rel="noopener noreferrer">
               <MessageCircle className="size-4 mr-2" /> WhatsApp
             </a>
@@ -68,17 +68,19 @@ function RepairPage() {
       </header>
 
       {/* Services Grid */}
-      <section className="mt-16">
+      <section className="mt-20">
         <Reveal>
-          <h2 className="text-center text-2xl font-bold sm:text-3xl">What We Repair</h2>
+          <h2 className="text-center text-2xl font-medium sm:text-3xl">What We Repair</h2>
           <p className="mt-2 text-center text-sm text-muted-foreground">All major brands — Samsung, Apple, Vivo, Oppo, Realme, OnePlus, Xiaomi & more</p>
         </Reveal>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {REPAIR_SERVICES.map((svc, i) => (
             <Reveal key={svc.title} delay={i * 60}>
-              <div className="card-surface hover-glow h-full rounded-2xl p-5">
-                <span className="text-3xl">{svc.icon}</span>
-                <h3 className="mt-3 font-semibold">{svc.title}</h3>
+              <div className="card-surface hover-glow h-full p-5">
+                <span className="medallion-ring-sm text-xl">
+                  {svc.icon}
+                </span>
+                <h3 className="mt-4 font-semibold">{svc.title}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{svc.desc}</p>
               </div>
             </Reveal>
@@ -87,16 +89,16 @@ function RepairPage() {
       </section>
 
       {/* Process */}
-      <section className="mt-16 border-y border-border py-16">
+      <section className="mt-20 border-y border-border py-20">
         <Reveal>
-          <h2 className="text-center text-2xl font-bold sm:text-3xl">How It Works</h2>
+          <h2 className="text-center text-2xl font-medium sm:text-3xl">How It Works</h2>
         </Reveal>
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s, i) => (
             <Reveal key={s.step} delay={i * 80}>
               <div className="relative text-center">
-                <div className="mx-auto flex size-14 items-center justify-center rounded-full border border-primary/40 bg-accent">
-                  <span className="font-serif text-lg font-bold text-primary">{s.step}</span>
+                <div className="mx-auto flex size-14 items-center justify-center rounded-full border border-gold">
+                  <span className="font-serif text-lg font-medium text-primary">{s.step}</span>
                 </div>
                 <h3 className="mt-4 font-semibold">{s.title}</h3>
                 <p className="mt-1 text-sm text-muted-foreground">{s.desc}</p>
@@ -107,14 +109,14 @@ function RepairPage() {
       </section>
 
       {/* Repair Form */}
-      <section id="repair-form" className="mt-16">
+      <section id="repair-form" className="mt-20">
         <Reveal>
-          <h2 className="text-center text-2xl font-bold sm:text-3xl">Submit Repair Enquiry</h2>
+          <h2 className="text-center text-2xl font-medium sm:text-3xl">Submit Repair Enquiry</h2>
           <p className="mt-2 text-center text-sm text-muted-foreground">We will respond within 2 hours on business days.</p>
         </Reveal>
         <div className="mt-8 mx-auto max-w-2xl">
           <Reveal>
-            <div className="card-surface rounded-2xl p-6 sm:p-8">
+            <div className="card-surface p-6 sm:p-8">
               <RepairEnquiryForm />
             </div>
           </Reveal>

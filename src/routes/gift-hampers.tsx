@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { hamperProductsQuery } from "@/lib/queries";
 import { formatINR } from "@/lib/format";
 import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
 import { useCart } from "@/context/CartContext";
 import type { GiftHamperProduct } from "@/lib/types";
 import { toast } from "sonner";
@@ -52,10 +53,9 @@ function GiftHampersPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header className="max-w-2xl">
-        <span className="eyebrow">Custom Gift Hampers</span>
-        <h1 className="mt-6 font-serif text-3xl font-bold sm:text-4xl">
+        <TextReveal as="h1" trigger="mount" className="font-serif text-3xl font-medium sm:text-4xl">
           Build Your <em>Gift Hamper</em>
-        </h1>
+        </TextReveal>
         <p className="mt-4 text-muted-foreground">
           Select mobile accessories, choose quantities, see the total instantly. Perfect for gifting.
         </p>
@@ -67,7 +67,7 @@ function GiftHampersPage() {
           {isLoading ? (
             <p className="text-center text-muted-foreground py-16">Loading items...</p>
           ) : products.length === 0 ? (
-            <div className="card-surface rounded-2xl p-12 text-center">
+            <div className="card-surface p-12 text-center">
               <Gift className="mx-auto size-12 text-muted-foreground" />
               <p className="mt-4 text-muted-foreground">Gift hamper items coming soon.</p>
             </div>
@@ -94,9 +94,9 @@ function GiftHampersPage() {
 
         {/* Summary Panel */}
         <div>
-          <div className="card-surface sticky top-20 rounded-2xl p-6">
-            <h2 className="flex items-center gap-2 font-bold">
-              <Gift className="size-5 text-primary" /> Your Hamper
+          <div className="card-surface sticky top-20 p-6">
+            <h2 className="flex items-center gap-2 font-medium font-serif text-lg">
+              <Gift className="size-5 text-gold" /> Your Hamper
             </h2>
             {selectedItems.length === 0 ? (
               <p className="mt-4 text-sm text-muted-foreground">No items selected yet.</p>
@@ -145,9 +145,9 @@ function HamperItem({ product, qty, onQtyChange }: {
   onQtyChange: (q: number) => void;
 }) {
   return (
-    <div className={`card-surface rounded-xl p-4 transition-colors ${qty > 0 ? "border-primary/40" : ""}`}>
+    <div className={`card-surface p-4 transition-colors ${qty > 0 ? "border-gold" : ""}`}>
       <div className="flex gap-3">
-        <div className="size-14 shrink-0 rounded-lg overflow-hidden bg-secondary/50 flex items-center justify-center">
+        <div className="size-14 shrink-0 overflow-hidden bg-secondary/50 flex items-center justify-center">
           {product.image_url ? (
             <img src={product.image_url} alt={product.name} className="size-full object-cover" loading="lazy" />
           ) : (
@@ -161,11 +161,11 @@ function HamperItem({ product, qty, onQtyChange }: {
       </div>
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <button onClick={() => onQtyChange(qty - 1)} className="flex size-8 items-center justify-center rounded-full border border-border bg-secondary hover:border-primary/40 transition-colors">
+          <button onClick={() => onQtyChange(qty - 1)} className="flex size-8 items-center justify-center rounded-full border border-border bg-secondary hover:border-gold transition-colors">
             <Minus className="size-3.5" />
           </button>
           <span className="w-6 text-center text-sm font-semibold">{qty}</span>
-          <button onClick={() => onQtyChange(qty + 1)} className="flex size-8 items-center justify-center rounded-full border border-border bg-secondary hover:border-primary/40 transition-colors">
+          <button onClick={() => onQtyChange(qty + 1)} className="flex size-8 items-center justify-center rounded-full border border-border bg-secondary hover:border-gold transition-colors">
             <Plus className="size-3.5" />
           </button>
         </div>

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { X, Play } from "lucide-react";
 import { galleryQuery } from "@/lib/queries";
 import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
 import { cn } from "@/lib/utils";
 import type { GalleryItem } from "@/lib/types";
 
@@ -74,16 +75,15 @@ function GalleryPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header className="max-w-2xl">
-        <span className="eyebrow">Our Story in Pictures</span>
-        <h1 className="mt-6 font-serif text-3xl font-bold sm:text-4xl">Gallery</h1>
+        <TextReveal as="h1" trigger="mount" className="font-serif text-3xl font-medium sm:text-4xl">Gallery</TextReveal>
         <p className="mt-3 text-muted-foreground">A glimpse into our store, team and the moments that matter.</p>
       </header>
 
       <div className="mt-8 flex flex-wrap gap-2">
         {CATS.map((c) => (
           <button key={c.value} onClick={() => setCat(c.value)}
-            className={cn("rounded-full border px-4 py-2 text-sm font-medium transition-colors",
-              cat === c.value ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:text-foreground")}>
+            className={cn("border px-4 py-2 text-sm font-medium transition-colors",
+              cat === c.value ? "border-primary bg-primary text-primary-foreground" : "border-border text-muted-foreground hover:border-gold hover:text-gold")}>
             {c.label}
           </button>
         ))}
@@ -100,7 +100,7 @@ function GalleryPage() {
         <div className="mt-8 grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
           {items.map((item, i) => (
             <Reveal key={item.id} delay={i * 40}>
-              <button onClick={() => setLightbox(item)} className="group relative block aspect-square w-full overflow-hidden rounded-xl border border-border bg-secondary/50 hover:border-primary/50 transition-colors">
+              <button onClick={() => setLightbox(item)} className="group relative block aspect-square w-full overflow-hidden border border-border bg-secondary/50 hover:border-gold transition-colors">
                 {item.type === "video" || item.type === "reel" ? (
                   <div className="size-full flex items-center justify-center">
                     {item.thumbnail_url ? (

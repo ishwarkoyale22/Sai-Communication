@@ -20,10 +20,12 @@ import { Route as GiftHampersRouteImport } from './routes/gift-hampers'
 import { Route as OffersRouteImport } from './routes/offers'
 import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as OrderTrackRouteImport } from './routes/order-track'
+import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as RefurbishedRouteImport } from './routes/refurbished'
 import { Route as RepairRouteImport } from './routes/repair'
 import { Route as ServicesRouteImport } from './routes/services'
+import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -80,6 +82,11 @@ const OrderTrackRoute = OrderTrackRouteImport.update({
   path: '/order-track',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
+  id: '/privacy-policy',
+  path: '/privacy-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProductsRoute = ProductsRouteImport.update({
   id: '/products',
   path: '/products',
@@ -100,6 +107,11 @@ const ServicesRoute = ServicesRouteImport.update({
   path: '/services',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
+  id: '/terms-and-conditions',
+  path: '/terms-and-conditions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -113,10 +125,12 @@ export interface FileRoutesByFullPath {
   '/offers': typeof OffersRoute
   '/order-success': typeof OrderSuccessRoute
   '/order-track': typeof OrderTrackRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRoute
   '/refurbished': typeof RefurbishedRoute
   '/repair': typeof RepairRoute
   '/services': typeof ServicesRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -130,10 +144,12 @@ export interface FileRoutesByTo {
   '/offers': typeof OffersRoute
   '/order-success': typeof OrderSuccessRoute
   '/order-track': typeof OrderTrackRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRoute
   '/refurbished': typeof RefurbishedRoute
   '/repair': typeof RepairRoute
   '/services': typeof ServicesRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -148,10 +164,12 @@ export interface FileRoutesById {
   '/offers': typeof OffersRoute
   '/order-success': typeof OrderSuccessRoute
   '/order-track': typeof OrderTrackRoute
+  '/privacy-policy': typeof PrivacyPolicyRoute
   '/products': typeof ProductsRoute
   '/refurbished': typeof RefurbishedRoute
   '/repair': typeof RepairRoute
   '/services': typeof ServicesRoute
+  '/terms-and-conditions': typeof TermsAndConditionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -167,10 +185,12 @@ export interface FileRouteTypes {
     | '/offers'
     | '/order-success'
     | '/order-track'
+    | '/privacy-policy'
     | '/products'
     | '/refurbished'
     | '/repair'
     | '/services'
+    | '/terms-and-conditions'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -184,10 +204,12 @@ export interface FileRouteTypes {
     | '/offers'
     | '/order-success'
     | '/order-track'
+    | '/privacy-policy'
     | '/products'
     | '/refurbished'
     | '/repair'
     | '/services'
+    | '/terms-and-conditions'
   id:
     | '__root__'
     | '/'
@@ -201,10 +223,12 @@ export interface FileRouteTypes {
     | '/offers'
     | '/order-success'
     | '/order-track'
+    | '/privacy-policy'
     | '/products'
     | '/refurbished'
     | '/repair'
     | '/services'
+    | '/terms-and-conditions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -219,10 +243,12 @@ export interface RootRouteChildren {
   OffersRoute: typeof OffersRoute
   OrderSuccessRoute: typeof OrderSuccessRoute
   OrderTrackRoute: typeof OrderTrackRoute
+  PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   ProductsRoute: typeof ProductsRoute
   RefurbishedRoute: typeof RefurbishedRoute
   RepairRoute: typeof RepairRoute
   ServicesRoute: typeof ServicesRoute
+  TermsAndConditionsRoute: typeof TermsAndConditionsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -304,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrderTrackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/privacy-policy': {
+      id: '/privacy-policy'
+      path: '/privacy-policy'
+      fullPath: '/privacy-policy'
+      preLoaderRoute: typeof PrivacyPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/products': {
       id: '/products'
       path: '/products'
@@ -332,6 +365,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ServicesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/terms-and-conditions': {
+      id: '/terms-and-conditions'
+      path: '/terms-and-conditions'
+      fullPath: '/terms-and-conditions'
+      preLoaderRoute: typeof TermsAndConditionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -347,10 +387,12 @@ const rootRouteChildren: RootRouteChildren = {
   OffersRoute: OffersRoute,
   OrderSuccessRoute: OrderSuccessRoute,
   OrderTrackRoute: OrderTrackRoute,
+  PrivacyPolicyRoute: PrivacyPolicyRoute,
   ProductsRoute: ProductsRoute,
   RefurbishedRoute: RefurbishedRoute,
   RepairRoute: RepairRoute,
   ServicesRoute: ServicesRoute,
+  TermsAndConditionsRoute: TermsAndConditionsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

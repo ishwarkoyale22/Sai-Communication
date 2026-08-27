@@ -3,6 +3,7 @@ import { Award, ShieldCheck, Star, Clock, MapPin, Sparkles, Video } from "lucide
 import vijaySirPhoto from "@/assets/vijay-sir.jpg";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
+import { TextReveal } from "@/components/TextReveal";
 import { CountUp } from "@/components/CountUp";
 import { useSettings } from "@/hooks/useSettings";
 
@@ -38,8 +39,8 @@ function AboutPage() {
   const badges = [
     { value: `${settings["years_in_business"] ?? "21"}+`, label: "Years of Trust" },
     {
-      value: `${settings["rating"] ?? "4.7"} / 5`,
-      label: `${settings["total_ratings"] ?? "119"}+ Verified Ratings`,
+      value: `${settings["rating"] ?? "4.8"} / 5`,
+      label: `${settings["total_ratings"] ?? "242"}+ Verified Ratings`,
     },
     { value: settings["verification"] || "Justdial Verified", label: "Certified Local Dealer" },
   ];
@@ -47,10 +48,9 @@ function AboutPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header className="max-w-3xl">
-        <span className="eyebrow">Serving Since 2005</span>
-        <h1 className="mt-6 font-serif text-3xl font-bold sm:text-5xl">
+        <TextReveal as="h1" trigger="mount" className="font-serif text-3xl font-medium sm:text-5xl">
           About <em>{settings["shop_name"]}</em>
-        </h1>
+        </TextReveal>
         <p className="mt-4 text-muted-foreground text-lg">
           {settings["tagline"]}
         </p>
@@ -59,7 +59,7 @@ function AboutPage() {
       {/* Story section */}
       <div className="mt-12 grid items-center gap-10 lg:grid-cols-2">
         <Reveal>
-          <div className="overflow-hidden rounded-2xl border border-border shadow-lg">
+          <div className="gold-frame">
             <video
               src={SHOP_TOUR_VIDEO}
               controls
@@ -72,12 +72,12 @@ function AboutPage() {
         </Reveal>
         <Reveal delay={100}>
           <div className="space-y-4 text-sm leading-relaxed text-foreground/85">
-            <h2 className="text-2xl font-bold text-foreground">Our Story &amp; Philosophy</h2>
+            <h2 className="text-2xl font-medium text-foreground">Our Story &amp; Philosophy</h2>
             <p>
               {settings["owner_history"] ||
                 "Founded in 2005, Sai Communication began with a simple promise: give every customer honest advice, 100% genuine products, and after-sale support you can count on. Over the last 21+ years, we have grown to become one of Pune & Talegaon's premier mobile destinations."}
             </p>
-            <h3 className="pt-2 text-xl font-bold text-foreground">Our Mission</h3>
+            <h3 className="pt-2 text-xl font-medium text-foreground">Our Mission</h3>
             <p>
               To eliminate confusion in buying electronics. Whether you are picking a flagship phone, finding a budget-friendly certified refurbished device, or getting your screen replaced in 45 minutes — we provide direct, transparent service.
             </p>
@@ -85,7 +85,7 @@ function AboutPage() {
               <Button asChild>
                 <Link to="/products">Browse Catalogue</Link>
               </Button>
-              <Button asChild variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground">
+              <Button asChild variant="outline">
                 <Link to="/repair">Repair Services</Link>
               </Button>
             </div>
@@ -93,52 +93,57 @@ function AboutPage() {
         </Reveal>
       </div>
 
-      {/* Badges */}
-      <div className="mt-14 grid gap-5 sm:grid-cols-3">
-        {badges.map((badge, i) => (
-          <Reveal key={badge.label} delay={i * 90}>
-            <div className="card-surface hover-glow rounded-2xl p-6 text-center border border-border/80">
-              <p className="font-serif text-3xl font-bold text-primary"><CountUp value={badge.value} /></p>
-              <p className="mt-1 text-sm text-muted-foreground">{badge.label}</p>
+      {/* Badges — stat strip */}
+      <Reveal>
+        <div className="stat-strip mt-14 sm:grid-cols-3">
+          {badges.map((badge) => (
+            <div key={badge.label} className="stat-strip-item">
+              <p className="stat-num text-2xl"><CountUp value={badge.value} /></p>
+              <p className="stat-label">{badge.label}</p>
             </div>
-          </Reveal>
-        ))}
-      </div>
+          ))}
+        </div>
+      </Reveal>
 
       {/* Founder Section — Vijay Sir */}
-      <section className="mt-20 card-surface rounded-3xl p-8 sm:p-12 border border-primary/20 bg-gradient-to-br from-card/80 to-accent/40">
-        <div className="grid gap-8 lg:grid-cols-3 items-center">
-          <div className="flex flex-col items-center text-center lg:items-start lg:text-left">
-            <div className="size-28 sm:size-36 rounded-full border-2 border-primary/40 bg-accent overflow-hidden flex items-center justify-center shadow-inner">
-              <img
-                src={settings["vijay_sir_photo_url"] || settings["hero_photo_url"] || vijaySirPhoto}
-                alt={settings["owner_name"] || "Vijay Sir"}
-                className="size-full object-cover"
-              />
+      <section className="mt-24 border-y border-border py-16 text-center">
+        <Reveal>
+          <div className="inline-flex items-center justify-center rounded-full border border-white p-1 shadow-md">
+            <div className="rounded-full border border-gold p-1.5">
+              <div className="size-28 overflow-hidden rounded-full bg-accent sm:size-32">
+                <img
+                  src={settings["vijay_sir_photo_url"] || settings["hero_photo_url"] || vijaySirPhoto}
+                  alt={settings["owner_name"] || "Vijay Sir"}
+                  className="size-full object-cover"
+                />
+              </div>
             </div>
-            <h3 className="mt-4 text-xl font-bold">{settings["owner_name"] || "Vijay Sir"}</h3>
-            <p className="text-xs uppercase tracking-widest text-primary font-semibold">Founder &amp; Proprietor</p>
-            <p className="mt-2 text-xs text-muted-foreground">Sai Communication · Est. 2005</p>
           </div>
+          <h3 className="mt-5 text-xl font-medium font-serif">{settings["owner_name"] || "Vijay Sir"}</h3>
+          <p className="caption-mono mt-1">Founder &amp; Proprietor · Est. 2005</p>
+        </Reveal>
 
-          <div className="lg:col-span-2 space-y-4 text-sm leading-relaxed text-foreground/90">
-            <h3 className="font-serif text-2xl font-bold">A Message From The Founder</h3>
-            <p>
-              {settings["owner_intro"] ||
-                "\"When we opened Sai Communication in 2005, technology was simpler, but the need for trust was just as vital. Today, with hundreds of phones launched every year, our role is more important than ever: we test, verify, and guide you so your hard-earned money gets you the device that best fits your life. Thank you for making us a part of your family for over two decades.\""}
-            </p>
-            {settings["vijay_sir_video_url"] || settings["owner_video_url"] ? (
-              <div className="mt-4 rounded-xl overflow-hidden border border-border aspect-video">
-                <iframe src={settings["vijay_sir_video_url"] || settings["owner_video_url"]} title="Founder video" className="size-full" allowFullScreen />
-              </div>
-            ) : (
-              <div className="mt-4 flex items-center gap-2 text-xs font-medium text-primary">
-                <Video className="size-4" />
-                <span>Watch our store in action below</span>
-              </div>
-            )}
-          </div>
-        </div>
+        <Reveal delay={100}>
+          <p className="mx-auto mt-8 max-w-2xl font-serif text-xl italic leading-relaxed text-foreground sm:text-2xl">
+            {settings["owner_intro"] ||
+              '"When we opened Sai Communication in 2005, technology was simpler, but the need for trust was just as vital. Today, with hundreds of phones launched every year, our role is more important than ever: we test, verify, and guide you so your hard-earned money gets you the device that best fits your life. Thank you for making us a part of your family for over two decades."'}
+          </p>
+        </Reveal>
+
+        {settings["vijay_sir_video_url"] || settings["owner_video_url"] ? (
+          <Reveal delay={160}>
+            <div className="mx-auto mt-8 max-w-xl gold-frame">
+              <iframe src={settings["vijay_sir_video_url"] || settings["owner_video_url"]} title="Founder video" className="aspect-video w-full" allowFullScreen />
+            </div>
+          </Reveal>
+        ) : (
+          <Reveal delay={160}>
+            <div className="mt-6 flex items-center justify-center gap-2 text-xs font-medium text-gold">
+              <Video className="size-4" />
+              <span>Watch our store in action below</span>
+            </div>
+          </Reveal>
+        )}
       </section>
 
       {/* More Store Videos */}
@@ -146,17 +151,16 @@ function AboutPage() {
         <Reveal>
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <span className="eyebrow">See It For Yourself</span>
-              <h2 className="mt-4 font-serif text-2xl font-bold sm:text-3xl">More From Our Store</h2>
+              <h2 className="font-serif text-2xl font-medium sm:text-3xl">More From Our Store</h2>
             </div>
-            <Link to="/gallery" className="link-underline text-sm font-medium text-primary">
+            <Link to="/gallery" className="link-underline text-sm font-medium text-gold">
               View Full Gallery →
             </Link>
           </div>
         </Reveal>
         <div className="mt-8 grid gap-5 sm:grid-cols-2">
           <Reveal>
-            <div className="overflow-hidden rounded-2xl border border-border shadow-lg">
+            <div className="overflow-hidden border border-border">
               <video
                 src="/videos/shop-tour-2.mp4"
                 controls
@@ -169,7 +173,7 @@ function AboutPage() {
             </div>
           </Reveal>
           <Reveal delay={80}>
-            <div className="overflow-hidden rounded-2xl border border-border shadow-lg">
+            <div className="overflow-hidden border border-border">
               <video
                 src="/videos/shop-tour-3.mp4"
                 controls
@@ -188,21 +192,20 @@ function AboutPage() {
       <section className="mt-20">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto">
-            <span className="eyebrow">Our Journey</span>
-            <h2 className="mt-4 font-serif text-3xl font-bold sm:text-4xl">Milestones Over 21+ Years</h2>
+            <h2 className="font-serif text-3xl font-medium sm:text-4xl">Milestones Over 21+ Years</h2>
             <p className="mt-2 text-sm text-muted-foreground">Key moments in our evolution as Talegaon Dabhade's trusted mobile destination.</p>
           </div>
         </Reveal>
 
-        <div className="mt-12 relative border-l-2 border-primary/30 ml-4 sm:ml-32 space-y-10">
+        <div className="mt-12 relative border-l border-gold ml-4 sm:ml-32 space-y-10">
           {TIMELINE.map((item, idx) => (
             <Reveal key={item.year} delay={idx * 80}>
               <div className="relative pl-8 sm:pl-10">
-                <div className="absolute -left-3.5 top-1 size-7 rounded-full bg-background border-2 border-primary flex items-center justify-center">
-                  <div className="size-2 rounded-full bg-primary" />
+                <div className="absolute -left-3.5 top-1 size-7 rounded-full bg-background border border-gold flex items-center justify-center">
+                  <div className="size-1.5 rounded-full bg-gold" />
                 </div>
-                <div className="card-surface rounded-2xl p-5 border border-border hover-glow">
-                  <span className="font-serif text-lg font-bold text-primary">{item.year}</span>
+                <div className="card-surface p-5 hover-glow">
+                  <span className="font-serif text-lg font-medium text-primary">{item.year}</span>
                   <h3 className="font-semibold text-foreground mt-1">{item.title}</h3>
                   <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
                 </div>
