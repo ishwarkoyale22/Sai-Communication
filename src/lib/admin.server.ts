@@ -41,47 +41,42 @@ export function assertAdmin(password: string) {
   if (password !== expected) throw new Error("Incorrect password");
 }
 
-// ─── Product Types ─────────────────────────────────────────────
+// ─── Inventory (new + refurbished products) ────────────────────
 
 export type ProductInput = {
   id?: string | undefined;
   name: string;
-  brand: string;
+  brand_id: string | null;
+  model?: string | null;
   category: string;
   price: number;
   original_price?: number | null | undefined;
-  stock_status: string;
-  stock_qty: number;
-  description: string;
-  specs: Record<string, string>;
+  stock: number;
   images: string[];
+  specs: Record<string, string>;
   is_featured: boolean;
-  finance_available?: boolean;
-  warranty?: string | null;
-  colors?: string[];
+  is_active?: boolean;
+  condition?: string | null;
+  grade?: string | null;
+  battery_health?: number | null;
+  warranty_months?: number | null;
 };
 
 export async function saveProduct(input: ProductInput) {
   const { id, ...rest } = input;
-  const payload = {
-    ...rest,
-    original_price: rest.original_price ?? null,
-    colors: rest.colors ?? [],
-    finance_available: rest.finance_available ?? false,
-    warranty: rest.warranty ?? null,
-  };
+  const payload = { ...rest, product_type: "new", original_price: rest.original_price ?? null, is_active: rest.is_active ?? true };
   if (id) {
-    const { error } = await supabaseAdmin.from("products").update(payload).eq("id", id);
+    const { error } = await supabaseAdmin.from("inventory").update(payload).eq("id", id);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("products").insert(payload).select("id").single();
+  const { data, error } = await supabaseAdmin.from("inventory").insert(payload).select("id").single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function removeProduct(id: string) {
-  const { error } = await supabaseAdmin.from("products").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("inventory").delete().eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
@@ -115,7 +110,7 @@ export async function saveSettings(entries: { key: string; value: string }[]) {
 
 // ─── Brands ───────────────────────────────────────────────────
 
-export async function saveBrand(input: { id?: string; name: string; logo_url?: string | null; display_order?: number; is_active?: boolean }) {
+export async function saveBrand(input: { id?: string; name: string; logo_url?: string | null; is_active?: boolean }) {
   const { id, ...rest } = input;
   if (id) {
     const { error } = await supabaseAdmin.from("brands").update(rest).eq("id", id);
@@ -134,7 +129,7 @@ export async function removeBrand(id: string) {
 }
 
 export async function listBrandsAdmin() {
-  const { data, error } = await supabaseAdmin.from("brands").select("*").order("display_order");
+  const { data, error } = await supabaseAdmin.from("brands").select("*").order("name");
   if (error) throw new Error(error.message);
   return data ?? [];
 }
@@ -156,18 +151,16 @@ export async function submitRepairEnquiry(input: {
   phone_model: string;
   problem_type: string;
   description?: string | null;
-  image_urls?: string[];
-  video_urls?: string[];
+  images?: string[];
   preferred_contact?: string;
 }) {
-  const enquiry_number = generateEnquiryNumber("RE");
   const { data, error } = await supabaseAdmin
     .from("repair_enquiries")
-    .insert({ ...input, enquiry_number, image_urls: input.image_urls ?? [], video_urls: input.video_urls ?? [] })
-    .select("id, enquiry_number")
+    .insert({ ...input, images: input.images ?? [] })
+    .select("id")
     .single();
   if (error) throw new Error(error.message);
-  return { id: data.id, enquiry_number: data.enquiry_number };
+  return { id: data.id };
 }
 
 export async function listRepairEnquiries(filters?: { status?: string }) {
@@ -181,37 +174,38 @@ export async function listRepairEnquiries(filters?: { status?: string }) {
   return data ?? [];
 }
 
-export async function updateRepairStatus(id: string, status: string, admin_notes?: string | null) {
+export async function updateRepairStatus(id: string, status: string) {
   const { error } = await supabaseAdmin
     .from("repair_enquiries")
-    .update({ status, ...(admin_notes !== undefined ? { admin_notes } : {}) })
+    .update({ status })
     .eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
-// ─── Refurbished Products ──────────────────────────────────────
+// ─── Refurbished Products (inventory, product_type='refurbished') ──
 
 export async function saveRefurbished(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
+  const payload = { ...rest, product_type: "refurbished" };
   if (id) {
-    const { error } = await supabaseAdmin.from("refurbished_products").update(rest).eq("id", id as string);
+    const { error } = await supabaseAdmin.from("inventory").update(payload).eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("refurbished_products").insert(rest).select("id").single();
+  const { data, error } = await supabaseAdmin.from("inventory").insert(payload).select("id").single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function removeRefurbished(id: string) {
-  const { error } = await supabaseAdmin.from("refurbished_products").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("inventory").delete().eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
 export async function listRefurbishedAdmin() {
-  const { data, error } = await supabaseAdmin.from("refurbished_products").select("*").order("created_at", { ascending: false });
+  const { data, error } = await supabaseAdmin.from("inventory").select("*").eq("product_type", "refurbished").order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data ?? [];
 }
@@ -243,7 +237,7 @@ export async function toggleOffer(id: string, is_active: boolean) {
 }
 
 export async function listOffersAdmin() {
-  const { data, error } = await supabaseAdmin.from("offers").select("*").order("display_order");
+  const { data, error } = await supabaseAdmin.from("offers").select("*").order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data ?? [];
 }
@@ -281,49 +275,49 @@ export async function listPopupsAdmin() {
 export async function saveGalleryItem(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("gallery_items").update(rest).eq("id", id as string);
+    const { error } = await supabaseAdmin.from("gallery").update(rest).eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("gallery_items").insert(rest).select("id").single();
+  const { data, error } = await supabaseAdmin.from("gallery").insert(rest).select("id").single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function removeGalleryItem(id: string) {
-  const { error } = await supabaseAdmin.from("gallery_items").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("gallery").delete().eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
 export async function listGalleryAdmin() {
-  const { data, error } = await supabaseAdmin.from("gallery_items").select("*").order("display_order");
+  const { data, error } = await supabaseAdmin.from("gallery").select("*").order("sort_order");
   if (error) throw new Error(error.message);
   return data ?? [];
 }
 
-// ─── Gift Hamper Products ──────────────────────────────────────
+// ─── Hamper Items ───────────────────────────────────────────────
 
 export async function saveHamperProduct(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("gift_hamper_products").update(rest).eq("id", id as string);
+    const { error } = await supabaseAdmin.from("hamper_items").update(rest).eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("gift_hamper_products").insert(rest).select("id").single();
+  const { data, error } = await supabaseAdmin.from("hamper_items").insert(rest).select("id").single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function removeHamperProduct(id: string) {
-  const { error } = await supabaseAdmin.from("gift_hamper_products").delete().eq("id", id);
+  const { error } = await supabaseAdmin.from("hamper_items").delete().eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
 export async function listHamperProductsAdmin() {
-  const { data, error } = await supabaseAdmin.from("gift_hamper_products").select("*").order("display_order");
+  const { data, error } = await supabaseAdmin.from("hamper_items").select("*").order("name");
   if (error) throw new Error(error.message);
   return data ?? [];
 }
@@ -334,113 +328,63 @@ export async function createOrder(input: {
   customer_name: string;
   customer_phone: string;
   customer_email?: string | null;
-  customer_address?: string | null;
   order_type?: string;
-  payment_type?: string;
-  finance_partner_id?: string | null;
-  finance_tenure?: number | null;
-  finance_down_payment?: number | null;
-  finance_monthly_emi?: number | null;
-  subtotal: number;
-  discount_amount?: number;
   total_amount: number;
-  delivery_type?: string;
+  payment_method?: string | null;
+  notes?: string | null;
   items: Array<{
     item_type: string;
-    product_id?: string | null;
-    refurbished_product_id?: string | null;
-    gift_hamper_product_id?: string | null;
-    name: string;
-    brand?: string | null;
+    inventory_id?: string | null;
+    hamper_item_id?: string | null;
+    item_name: string;
     quantity: number;
     unit_price: number;
     total_price: number;
-    variant_info?: Record<string, string>;
   }>;
 }) {
   const order_number = generateEnquiryNumber("SC");
 
-  // Upsert customer
-  let customer_id: string | null = null;
-  if (input.customer_phone) {
-    const { data: existingCustomer } = await supabaseAdmin
-      .from("customers")
-      .select("id")
-      .eq("phone", input.customer_phone)
-      .single();
-    if (existingCustomer) {
-      customer_id = existingCustomer.id;
-    } else {
-      const { data: newCustomer } = await supabaseAdmin
-        .from("customers")
-        .insert({ name: input.customer_name, phone: input.customer_phone, email: input.customer_email })
-        .select("id")
-        .single();
-      customer_id = newCustomer?.id ?? null;
-    }
-  }
-
   const { data: order, error: orderError } = await supabaseAdmin
-    .from("orders")
+    .from("website_orders")
     .insert({
       order_number,
-      customer_id,
       customer_name: input.customer_name,
       customer_phone: input.customer_phone,
       customer_email: input.customer_email ?? null,
-      customer_address: input.customer_address ?? null,
-      order_type: input.order_type ?? "direct",
-      payment_type: input.payment_type ?? "full",
-      finance_partner_id: input.finance_partner_id ?? null,
-      finance_tenure: input.finance_tenure ?? null,
-      finance_down_payment: input.finance_down_payment ?? null,
-      finance_monthly_emi: input.finance_monthly_emi ?? null,
-      subtotal: input.subtotal,
-      discount_amount: input.discount_amount ?? 0,
+      order_type: input.order_type ?? "product",
       total_amount: input.total_amount,
-      delivery_type: input.delivery_type ?? "collection",
+      payment_method: input.payment_method ?? null,
+      payment_status: "pending",
+      order_status: "pending",
+      notes: input.notes ?? null,
     })
     .select("id, order_number")
     .single();
   if (orderError) throw new Error(orderError.message);
 
-  // Insert order items
-  const orderItems = input.items.map((item) => ({
-    order_id: order.id,
-    ...item,
-    variant_info: item.variant_info ?? {},
-  }));
-  const { error: itemsError } = await supabaseAdmin.from("order_items").insert(orderItems);
+  const orderItems = input.items.map((item) => ({ order_id: order.id, ...item }));
+  const { error: itemsError } = await supabaseAdmin.from("website_order_items").insert(orderItems);
   if (itemsError) throw new Error(itemsError.message);
-
-  // Create initial payment record
-  const { error: paymentError } = await supabaseAdmin.from("payments").insert({
-    order_id: order.id,
-    amount: input.total_amount,
-    payment_status: "pending",
-  });
-  if (paymentError) throw new Error(paymentError.message);
 
   return { order_id: order.id, order_number: order.order_number };
 }
 
-export async function getOrderStatus(order_number: string, phone: string) {
-  // SAFE public query — NEVER returns internal fields
+export async function getOrderStatus(phone: string) {
+  // Returns all orders for a phone number (order tracking is phone-based).
   const { data, error } = await supabaseAdmin
-    .from("orders")
-    .select("order_number, customer_name, order_status, delivery_status, total_amount, payment_type, created_at")
-    .eq("order_number", order_number)
+    .from("website_orders")
+    .select("order_number, customer_name, order_status, payment_status, total_amount, created_at")
     .eq("customer_phone", phone)
-    .single();
-  if (error || !data) throw new Error("Order not found.");
-  return data;
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return data ?? [];
 }
 
 export async function listOrdersAdmin(filters?: { order_type?: string; order_status?: string }) {
   // Returns full order data INCLUDING internal fields — admin only
   let q = supabaseAdmin
-    .from("orders")
-    .select("*, order_items(*), payments(payment_status, payment_method, amount)")
+    .from("website_orders")
+    .select("*, website_order_items(*)")
     .order("created_at", { ascending: false });
   if (filters?.order_type && filters.order_type !== "all") q = q.eq("order_type", filters.order_type);
   if (filters?.order_status && filters.order_status !== "all") q = q.eq("order_status", filters.order_status);
@@ -450,58 +394,19 @@ export async function listOrdersAdmin(filters?: { order_type?: string; order_sta
 }
 
 export async function updateOrderStatus(id: string, order_status: string) {
-  const { error } = await supabaseAdmin.from("orders").update({ order_status }).eq("id", id);
+  const { error } = await supabaseAdmin.from("website_orders").update({ order_status }).eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
-export async function updateDeliveryStatus(id: string, delivery_status: string) {
-  const { error } = await supabaseAdmin.from("orders").update({ delivery_status }).eq("id", id);
-  if (error) throw new Error(error.message);
-  return { ok: true };
-}
+// ─── Payments (website_orders.payment_status/payment_method directly) ──
 
-export async function assignOrderBranches(id: string, source_branch_id: string | null, destination_branch_id: string | null) {
+export async function verifyAndMarkPaid(order_id: string, payment_method: string) {
   const { error } = await supabaseAdmin
-    .from("orders")
-    .update({ source_branch_id, destination_branch_id })
-    .eq("id", id);
-  if (error) throw new Error(error.message);
-  return { ok: true };
-}
-
-// ─── Payments ──────────────────────────────────────────────────
-
-export async function verifyAndMarkPaid(order_id: string, payment_data: {
-  payment_method: string;
-  payment_gateway: string;
-  gateway_payment_id?: string;
-  transaction_id?: string;
-  gateway_response?: Record<string, unknown>;
-}) {
-  // Update payment record — only server can set verified=true
-  const { error: payError } = await supabaseAdmin
-    .from("payments")
-    .update({
-      payment_method: payment_data.payment_method,
-      payment_gateway: payment_data.payment_gateway,
-      gateway_payment_id: payment_data.gateway_payment_id ?? null,
-      transaction_id: payment_data.transaction_id ?? null,
-      gateway_response: payment_data.gateway_response ?? {},
-      payment_status: "paid",
-      verified: true,
-      paid_at: new Date().toISOString(),
-    })
-    .eq("order_id", order_id);
-  if (payError) throw new Error(payError.message);
-
-  // Update order status
-  const { error: orderError } = await supabaseAdmin
-    .from("orders")
-    .update({ order_status: "confirmed" })
+    .from("website_orders")
+    .update({ payment_status: "paid", payment_method, order_status: "confirmed" })
     .eq("id", order_id);
-  if (orderError) throw new Error(orderError.message);
-
+  if (error) throw new Error(error.message);
   return { ok: true };
 }
 
@@ -695,4 +600,109 @@ export async function listDirectPartnersAdmin() {
   const { data, error } = await supabaseAdmin.from("direct_partners").select("*").order("name");
   if (error) throw new Error(error.message);
   return data ?? [];
+}
+
+// ─── Dashboard Stats (new schema: inventory / website_orders / repair_enquiries) ──
+
+export async function getDashboardStats() {
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const [todayOrders, pendingOrders, pendingRepairs, lowStock, recentOrders] = await Promise.all([
+    supabaseAdmin
+      .from("website_orders")
+      .select("total_amount")
+      .gte("created_at", todayStart.toISOString()),
+    supabaseAdmin
+      .from("website_orders")
+      .select("id", { count: "exact", head: true })
+      .eq("order_status", "pending"),
+    supabaseAdmin
+      .from("repair_enquiries")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending"),
+    supabaseAdmin
+      .from("inventory")
+      .select("id, name, stock, is_active")
+      .lt("stock", 5)
+      .eq("is_active", true)
+      .order("stock", { ascending: true }),
+    supabaseAdmin
+      .from("website_orders")
+      .select("id, order_number, customer_name, total_amount, order_status, created_at")
+      .order("created_at", { ascending: false })
+      .limit(5),
+  ]);
+
+  if (todayOrders.error) throw new Error(todayOrders.error.message);
+  if (pendingOrders.error) throw new Error(pendingOrders.error.message);
+  if (pendingRepairs.error) throw new Error(pendingRepairs.error.message);
+  if (lowStock.error) throw new Error(lowStock.error.message);
+  if (recentOrders.error) throw new Error(recentOrders.error.message);
+
+  const todaysSales = (todayOrders.data ?? []).reduce((sum, o) => sum + Number(o.total_amount ?? 0), 0);
+
+  return {
+    todays_sales: todaysSales,
+    pending_orders_count: pendingOrders.count ?? 0,
+    pending_repairs_count: pendingRepairs.count ?? 0,
+    low_stock_items: lowStock.data ?? [],
+    recent_orders: recentOrders.data ?? [],
+  };
+}
+
+// ─── Generic Admin CRUD (minimal, table-name-driven) ────────────────────
+// Used for the "new UI" tables that have no bespoke admin screen yet
+// (staff, sales, sales_items, services, wholesaler_invoices,
+// third_party_purchases, emi_finance, repairs) and can also serve tables
+// that do have bespoke screens where a plain list/save/delete is enough.
+// The Supabase JS client's generated Database type only lists tables known
+// at generation time; `as any` here is intentional — the table name is
+// restricted to this fixed allowlist, so this is not open to arbitrary
+// table access despite the loosened typing.
+const GENERIC_CRUD_TABLES = [
+  "staff", "sales", "sales_items", "services", "wholesaler_invoices",
+  "third_party_purchases", "emi_finance", "repairs", "customers",
+  "inventory", "brands", "hamper_items", "offers", "gallery",
+] as const;
+export type GenericCrudTable = typeof GENERIC_CRUD_TABLES[number];
+
+function assertGenericTable(table: string): asserts table is GenericCrudTable {
+  if (!GENERIC_CRUD_TABLES.includes(table as GenericCrudTable)) {
+    throw new Error(`Table "${table}" is not allowed for generic admin CRUD.`);
+  }
+}
+
+export async function genericList(
+  table: string,
+  orderBy = "created_at",
+  ascending = false,
+  filter?: { column: string; value: string }
+) {
+  assertGenericTable(table);
+  let q = (supabaseAdmin.from(table as never) as any).select("*").order(orderBy, { ascending });
+  if (filter) q = q.eq(filter.column, filter.value);
+  const { data, error } = await q;
+  if (error) throw new Error(error.message);
+  return data ?? [];
+}
+
+export async function genericSave(table: string, input: Record<string, unknown> & { id?: string }) {
+  assertGenericTable(table);
+  const { id, ...rest } = input;
+  if (id) {
+    const { error } = await (supabaseAdmin.from(table as never) as any).update(rest).eq("id", id);
+    if (error) throw new Error(error.message);
+    return { id };
+  }
+  const { data, error } = await (supabaseAdmin.from(table as never) as any).insert(rest).select("id").single();
+  if (error) throw new Error(error.message);
+  return { id: data.id as string };
+}
+
+export async function genericDelete(table: string, id: string) {
+  assertGenericTable(table);
+  const { error } = await (supabaseAdmin.from(table as never) as any).delete().eq("id", id);
+  if (error) throw new Error(error.message);
+  return { ok: true };
 }

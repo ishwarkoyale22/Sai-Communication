@@ -1,8 +1,11 @@
 import { queryOptions } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  normalizeProduct,
-  normalizeRefurbished,
+  normalizeInventoryProduct,
+  normalizeInventoryRefurbished,
+  normalizeHamperItem,
+  normalizeNewOffer,
+  normalizeNewGalleryItem,
   type Product,
   type SettingsMap,
   type Brand,
@@ -14,23 +17,41 @@ import {
   type FinancePartner,
 } from "./types";
 
+async function brandNameMap(): Promise<Record<string, string>> {
+  const { data, error } = await supabase.from("brands").select("id, name");
+  if (error) throw new Error(error.message);
+  const map: Record<string, string> = {};
+  for (const row of data ?? []) map[String(row.id)] = String(row.name ?? "");
+  return map;
+}
+
 export const productsQuery = queryOptions({
   queryKey: ["products"],
   queryFn: async (): Promise<Product[]> => {
-    const { data, error } = await supabase
-      .from("products")
-      .select("*")
-      .order("created_at", { ascending: true });
+    const [{ data, error }, brandNames] = await Promise.all([
+      supabase
+        .from("inventory")
+        .select("*")
+        .eq("product_type", "new")
+        .eq("is_active", true)
+        .order("created_at", { ascending: true }),
+      brandNameMap(),
+    ]);
     if (error) throw new Error(error.message);
-    return (data ?? []).map((row) => normalizeProduct(row as Record<string, unknown>));
+    return (data ?? []).map((row) => normalizeInventoryProduct(row as Record<string, unknown>, brandNames));
   },
 });
 
 export const settingsQuery = queryOptions({
   queryKey: ["settings"],
+  retry: false,
   queryFn: async (): Promise<SettingsMap> => {
+    // The `settings` table doesn't exist in the current schema (it was
+    // replaced by inventory/hamper_items/website_orders/etc.). Fall back to
+    // defaults rather than failing the whole page — nothing else in the
+    // storefront depends on live settings existing.
     const { data, error } = await supabase.from("settings").select("key,value");
-    if (error) throw new Error(error.message);
+    if (error) return { ...DEFAULT_SETTINGS };
     const map: SettingsMap = { ...DEFAULT_SETTINGS };
     for (const row of data ?? []) {
       if (row.key) {
@@ -81,11 +102,11 @@ export const brandsQuery = queryOptions({
   queryFn: async (): Promise<Brand[]> => {
     const { data, error } = await supabase
       .from("brands")
-      .select("id, name, logo_url, display_order, is_active, created_at")
+      .select("id, name, logo_url, is_active, created_at")
       .eq("is_active", true)
-      .order("display_order");
+      .order("name");
     if (error) throw new Error(error.message);
-    return (data ?? []) as Brand[];
+    return (data ?? []).map((row) => ({ ...row, display_order: 0 })) as Brand[];
   },
 });
 
@@ -96,14 +117,15 @@ export const offersQuery = queryOptions({
       .from("offers")
       .select("*")
       .eq("is_active", true)
-      .order("display_order");
+      .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return (data ?? []) as Offer[];
+    return (data ?? []).map((row) => normalizeNewOffer(row as Record<string, unknown>));
   },
 });
 
 export const activePopupQuery = queryOptions({
   queryKey: ["active-popup"],
+  retry: false,
   queryFn: async (): Promise<PromoPopup | null> => {
     const { data, error } = await supabase
       .from("promotional_popups")
@@ -118,35 +140,39 @@ export const activePopupQuery = queryOptions({
 
 export const galleryQuery = (category?: string) =>
   queryOptions({
+    // `category` is no longer a column on the new `gallery` table — kept in
+    // the key/signature for callers, but no longer used to filter.
     queryKey: ["gallery", category ?? "all"],
     queryFn: async (): Promise<GalleryItem[]> => {
-      let q = supabase
-        .from("gallery_items")
+      const { data, error } = await supabase
+        .from("gallery")
         .select("*")
-        .eq("is_active", true)
-        .order("display_order");
-      if (category && category !== "all") q = q.eq("category", category);
-      const { data, error } = await q;
+        .order("sort_order");
       if (error) throw new Error(error.message);
-      return (data ?? []) as GalleryItem[];
+      return (data ?? []).map((row) => normalizeNewGalleryItem(row as Record<string, unknown>));
     },
   });
 
 export const refurbishedQuery = queryOptions({
   queryKey: ["refurbished"],
   queryFn: async (): Promise<RefurbishedProduct[]> => {
-    const { data, error } = await supabase
-      .from("refurbished_products")
-      .select("*")
-      .eq("is_available", true)
-      .order("created_at", { ascending: false });
+    const [{ data, error }, brandNames] = await Promise.all([
+      supabase
+        .from("inventory")
+        .select("*")
+        .eq("product_type", "refurbished")
+        .eq("is_active", true)
+        .order("created_at", { ascending: false }),
+      brandNameMap(),
+    ]);
     if (error) throw new Error(error.message);
-    return (data ?? []).map((row) => normalizeRefurbished(row as Record<string, unknown>));
+    return (data ?? []).map((row) => normalizeInventoryRefurbished(row as Record<string, unknown>, brandNames));
   },
 });
 
 export const financePartnersQuery = queryOptions({
   queryKey: ["finance-partners"],
+  retry: false,
   queryFn: async (): Promise<FinancePartner[]> => {
     const { data, error } = await supabase
       .from("finance_partners")
@@ -162,12 +188,12 @@ export const hamperProductsQuery = queryOptions({
   queryKey: ["hamper-products"],
   queryFn: async (): Promise<GiftHamperProduct[]> => {
     const { data, error } = await supabase
-      .from("gift_hamper_products")
+      .from("hamper_items")
       .select("*")
-      .eq("is_available", true)
-      .order("display_order");
+      .eq("is_active", true)
+      .order("name");
     if (error) throw new Error(error.message);
-    return (data ?? []) as GiftHamperProduct[];
+    return (data ?? []).map((row) => normalizeHamperItem(row as Record<string, unknown>));
   },
 });
 

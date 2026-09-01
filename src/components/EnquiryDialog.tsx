@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,8 +56,7 @@ export function EnquiryForm({
       customer_name: parsed.data.customer_name,
       phone: parsed.data.phone,
       email: parsed.data.email || null,
-      product_id: product?.id ?? null,
-      product_name: product ? `${product.brand} ${product.name}` : null,
+      subject: product ? `${product.brand} ${product.name}` : "General Enquiry",
       message: parsed.data.message || null,
     });
     setSaving(false);

@@ -25,8 +25,7 @@ export type Enquiry = {
   customer_name: string;
   phone: string;
   email: string | null;
-  product_id: string | null;
-  product_name: string | null;
+  subject: string | null;
   message: string | null;
   status: string;
   created_at: string;
@@ -361,24 +360,163 @@ export function normalizeProduct(row: Record<string, unknown>): Product {
   const specs = row["specs"];
   const images = row["images"];
   const colors = row["colors"];
+
+  // price: prefer price column (bridge migration); fall back to sale_price
+  const price = row["price"] != null ? Number(row["price"]) : Number(row["sale_price"] ?? 0);
+
+  // images: prefer images jsonb array; fall back to image_url
+  let imageArr: string[] = [];
+  if (Array.isArray(images) && images.length > 0) {
+    imageArr = images as string[];
+  } else if (row["image_url"] && typeof row["image_url"] === "string" && row["image_url"] !== "") {
+    imageArr = [row["image_url"] as string];
+  }
+
+  // stock_status: prefer stock_status column or compute from stock_qty
+  let stockStatus = "in_stock";
+  if (row["stock_status"] && typeof row["stock_status"] === "string") {
+    stockStatus = row["stock_status"] as string;
+  } else {
+    const qty = Number(row["stock_qty"] ?? 0);
+    const minAlert = Number(row["min_stock_alert"] ?? 3);
+    if (qty === 0) stockStatus = "out_of_stock";
+    else if (qty <= minAlert) stockStatus = "low_stock";
+  }
+
   return {
     id: String(row["id"]),
     name: String(row["name"] ?? ""),
     brand: String(row["brand"] ?? ""),
     category: String(row["category"] ?? ""),
-    price: Number(row["price"] ?? 0),
+    price,
     original_price: row["original_price"] == null ? null : Number(row["original_price"]),
-    stock_status: String(row["stock_status"] ?? "in_stock"),
+    stock_status: stockStatus,
     stock_qty: Number(row["stock_qty"] ?? 0),
     description: String(row["description"] ?? ""),
     specs: (specs && typeof specs === "object" ? specs : {}) as Record<string, string>,
-    images: Array.isArray(images) ? (images as string[]) : [],
+    images: imageArr,
     is_featured: Boolean(row["is_featured"]),
     finance_available: Boolean(row["finance_available"]),
     warranty: row["warranty"] ? String(row["warranty"]) : null,
     colors: Array.isArray(colors) ? (colors as string[]) : [],
     created_at: String(row["created_at"] ?? ""),
     updated_at: String(row["updated_at"] ?? ""),
+  };
+}
+
+// ─── New schema (inventory / hamper_items / offers / gallery) normalizers ──
+// Map the new tables onto the existing UI-facing shapes so components
+// (ProductCard, ProductDetailDialog, refurbished/gift-hampers/offers/gallery
+// pages) don't need to change.
+
+function inventoryStockStatus(stock: number): string {
+  if (stock <= 0) return "out_of_stock";
+  if (stock < 5) return "low_stock";
+  return "in_stock";
+}
+
+export function normalizeInventoryProduct(
+  row: Record<string, unknown>,
+  brandNames: Record<string, string>
+): Product {
+  const specs = (row["specs"] && typeof row["specs"] === "object" ? row["specs"] : {}) as Record<string, string>;
+  const images = row["images"];
+  const stock = Number(row["stock"] ?? 0);
+  const warrantyMonths = row["warranty_months"] != null ? Number(row["warranty_months"]) : null;
+
+  return {
+    id: String(row["id"]),
+    name: String(row["name"] ?? ""),
+    brand: brandNames[String(row["brand_id"] ?? "")] ?? "",
+    category: String(row["category"] ?? ""),
+    price: Number(row["price"] ?? 0),
+    original_price: row["original_price"] == null ? null : Number(row["original_price"]),
+    stock_status: inventoryStockStatus(stock),
+    stock_qty: stock,
+    description: String(specs["description"] ?? specs["Description"] ?? ""),
+    specs,
+    images: Array.isArray(images) ? (images as string[]) : [],
+    is_featured: Boolean(row["is_featured"]),
+    finance_available: false,
+    warranty: warrantyMonths ? `${warrantyMonths} months` : null,
+    colors: [],
+    created_at: String(row["created_at"] ?? ""),
+    updated_at: String(row["updated_at"] ?? row["created_at"] ?? ""),
+  };
+}
+
+export function normalizeInventoryRefurbished(
+  row: Record<string, unknown>,
+  brandNames: Record<string, string>
+): RefurbishedProduct {
+  const specs = (row["specs"] && typeof row["specs"] === "object" ? row["specs"] : {}) as Record<string, string>;
+  const images = row["images"];
+  const warrantyMonths = row["warranty_months"] != null ? Number(row["warranty_months"]) : null;
+  const condition = String(row["condition"] ?? "good").toLowerCase();
+
+  return {
+    id: String(row["id"]),
+    brand: brandNames[String(row["brand_id"] ?? "")] ?? "",
+    model: String(row["model"] ?? row["name"] ?? ""),
+    storage: specs["Storage"] ?? specs["storage"] ?? null,
+    ram: specs["RAM"] ?? specs["ram"] ?? null,
+    condition: (["excellent", "good", "fair"].includes(condition) ? condition : "good") as RefurbishedProduct["condition"],
+    condition_grade: row["grade"] ? String(row["grade"]) : null,
+    battery_health: row["battery_health"] != null ? Number(row["battery_health"]) : null,
+    price: Number(row["price"] ?? 0),
+    original_price: row["original_price"] == null ? null : Number(row["original_price"]),
+    warranty: warrantyMonths ? `${warrantyMonths} months` : null,
+    description: null,
+    images: Array.isArray(images) ? (images as string[]) : [],
+    is_available: Boolean(row["is_active"]),
+    created_at: String(row["created_at"] ?? ""),
+  };
+}
+
+export function normalizeHamperItem(row: Record<string, unknown>): GiftHamperProduct {
+  return {
+    id: String(row["id"]),
+    name: String(row["name"] ?? ""),
+    description: null,
+    category: String(row["category"] ?? "general"),
+    price: Number(row["price"] ?? 0),
+    image_url: row["image"] ? String(row["image"]) : null,
+    is_available: Boolean(row["is_active"]),
+    display_order: 0,
+    created_at: String(row["created_at"] ?? ""),
+  };
+}
+
+export function normalizeNewOffer(row: Record<string, unknown>): Offer {
+  const discountPercent = row["discount_percent"] == null ? null : Number(row["discount_percent"]);
+  return {
+    id: String(row["id"]),
+    title: String(row["title"] ?? ""),
+    description: row["description"] ? String(row["description"]) : null,
+    banner_image_url: row["image"] ? String(row["image"]) : null,
+    discount_text: discountPercent != null ? `${discountPercent}% OFF` : null,
+    badge_text: null,
+    cta_label: "Shop Now",
+    cta_link: "/products",
+    is_active: Boolean(row["is_active"]),
+    valid_from: row["valid_from"] ? String(row["valid_from"]) : null,
+    valid_until: row["valid_until"] ? String(row["valid_until"]) : null,
+    display_order: 0,
+    created_at: String(row["created_at"] ?? ""),
+  };
+}
+
+export function normalizeNewGalleryItem(row: Record<string, unknown>): GalleryItem {
+  return {
+    id: String(row["id"]),
+    type: "photo",
+    category: "general",
+    title: row["caption"] ? String(row["caption"]) : null,
+    url: String(row["image_url"] ?? ""),
+    thumbnail_url: null,
+    display_order: Number(row["sort_order"] ?? 0),
+    is_active: true,
+    created_at: String(row["created_at"] ?? ""),
   };
 }
 

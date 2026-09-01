@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { productsQuery } from "@/lib/queries";
+import { useRealtimeRefetch } from "@/hooks/useRealtimeRefetch";
 import { formatINR } from "@/lib/format";
 import { CATEGORIES, type Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/products")({
 
 function ProductsPage() {
   const { data: products = [], isLoading } = useQuery(productsQuery);
+  useRealtimeRefetch("inventory", [productsQuery.queryKey]);
   const [category, setCategory] = useState<string>("All");
   const [brand, setBrand] = useState<string>("all");
   const [search, setSearch] = useState("");

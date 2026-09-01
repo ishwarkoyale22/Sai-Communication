@@ -20,6 +20,13 @@ dist-ssr
 .wrangler/
 .dev.vars
 
+# Environment secrets — never commit real keys
+.env
+.env.local
+
+# Supabase CLI local cache
+supabase/.temp/
+
 # Local scratch assets / tooling (not referenced by the app)
 /photo/
 /.claude/

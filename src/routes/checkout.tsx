@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useCart } from "@/context/CartContext";
 import { formatINR } from "@/lib/format";
 import { financePartnersQuery } from "@/lib/queries";
-import { publicCreateOrder } from "@/lib/admin.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { CheckoutFormData } from "@/lib/types";
@@ -74,38 +74,58 @@ function CheckoutPage() {
     }
     setLoading(true);
     try {
-      const result = await publicCreateOrder({
-        data: {
-          customer_name: form.customer_name,
-          customer_phone: form.customer_phone,
-          customer_email: form.customer_email || null,
-          customer_address: form.customer_address || null,
-          order_type: "direct",
-          payment_type: form.payment_type,
-          finance_partner_id: form.payment_type === "emi" ? form.finance_partner_id || null : null,
-          finance_tenure: form.payment_type === "emi" ? form.finance_tenure : null,
-          finance_down_payment: form.payment_type === "emi" ? form.finance_down_payment : null,
-          finance_monthly_emi: form.payment_type === "emi" ? monthlyEMI : null,
-          subtotal: total,
-          discount_amount: 0,
-          total_amount: total,
-          delivery_type: form.delivery_type,
-          items: items.map((item) => ({
-            item_type: item.item_type,
-            product_id: item.product?.id ?? null,
-            refurbished_product_id: item.refurbished?.id ?? null,
-            gift_hamper_product_id: item.hamperProduct?.id ?? null,
-            name: item.name,
-            brand: item.brand || null,
-            quantity: item.quantity,
-            unit_price: item.price,
-            total_price: item.price * item.quantity,
-            variant_info: item.variant_info,
-          })),
-        },
-      }) as { order_id: string; order_number: string };
+      const order_id = crypto.randomUUID();
+      const d = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+      const rand = Math.floor(1000 + Math.random() * 9000);
+      const order_number = `SC-${d}-${rand}`;
+
+      // website_orders has no columns for delivery address / finance detail —
+      // fold that context into `notes` so it isn't silently dropped.
+      const noteParts: string[] = [];
+      if (form.customer_address) noteParts.push(`Address: ${form.customer_address}`);
+      noteParts.push(`Delivery: ${form.delivery_type}`);
+      if (form.payment_type === "emi") {
+        const partnerName = selectedPartner?.name ?? "TBD";
+        noteParts.push(`EMI via ${partnerName}: ${form.finance_tenure} months, down payment ${formatINR(form.finance_down_payment)}, est. EMI ${formatINR(monthlyEMI)}/mo`);
+      }
+
+      // order_type is constrained to 'product' | 'hamper' | 'mixed'
+      const hasProduct = items.some((i) => i.item_type !== "hamper_product");
+      const hasHamper = items.some((i) => i.item_type === "hamper_product");
+      const order_type = hasProduct && hasHamper ? "mixed" : hasHamper ? "hamper" : "product";
+
+      const { error: orderError } = await supabase.from("website_orders").insert({
+        id: order_id,
+        order_number,
+        customer_name: form.customer_name,
+        customer_phone: form.customer_phone,
+        customer_email: form.customer_email || null,
+        order_type,
+        total_amount: total,
+        payment_method: form.payment_method || null,
+        payment_status: "pending",
+        order_status: "pending",
+        notes: noteParts.join(" | "),
+      });
+      if (orderError) throw new Error(orderError.message);
+
+      const { error: itemsError } = await supabase.from("website_order_items").insert(
+        items.map((item) => ({
+          order_id,
+          // item_type is constrained to 'product' | 'hamper_item'
+          item_type: item.item_type === "hamper_product" ? "hamper_item" : "product",
+          inventory_id: item.product?.id ?? item.refurbished?.id ?? null,
+          hamper_item_id: item.hamperProduct?.id ?? null,
+          item_name: item.name,
+          quantity: item.quantity,
+          unit_price: item.price,
+          total_price: item.price * item.quantity,
+        }))
+      );
+      if (itemsError) throw new Error(itemsError.message);
+
       clearCart();
-      navigate({ to: "/order-success", search: { order_number: result.order_number, phone: form.customer_phone } });
+      navigate({ to: "/order-success", search: { order_number, phone: form.customer_phone } });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to place order. Please try again.");
     } finally {

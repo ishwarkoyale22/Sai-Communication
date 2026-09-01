@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 import { refurbishedQuery } from "@/lib/queries";
+import { useRealtimeRefetch } from "@/hooks/useRealtimeRefetch";
 import { formatINR } from "@/lib/format";
 import { useSettings } from "@/hooks/useSettings";
 import type { RefurbishedProduct } from "@/lib/types";
@@ -32,6 +33,7 @@ const CONDITION_COLORS: Record<string, string> = {
 
 function RefurbishedPage() {
   const { data: phones = [], isLoading } = useQuery(refurbishedQuery);
+  useRealtimeRefetch("inventory", [refurbishedQuery.queryKey]);
   const settings = useSettings();
   const whatsapp = (settings["whatsapp"] || "917507575755").replace(/\D/g, "");
   const [condition, setCondition] = useState("All");

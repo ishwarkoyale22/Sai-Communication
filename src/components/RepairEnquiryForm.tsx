@@ -1,5 +1,4 @@
 ﻿import { useState, useRef } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { CheckCircle, Upload, X, FileImage, Video, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { publicSubmitRepair } from "@/lib/admin.functions";
 import { supabase } from "@/integrations/supabase/client";
 
 const PHONE_BRANDS = ["Samsung", "Apple", "Vivo", "Oppo", "Realme", "OnePlus", "Xiaomi", "Nokia", "Motorola", "Other"];
@@ -60,7 +58,12 @@ export function RepairEnquiryForm() {
   const [submitted, setSubmitted] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const submitRepair = useServerFn(publicSubmitRepair);
+
+  function generateEnquiryNumber(prefix: string): string {
+    const d = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const rand = Math.floor(1000 + Math.random() * 9000);
+    return `${prefix}-${d}-${rand}`;
+  }
 
   function set(k: keyof typeof EMPTY, v: string) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -185,22 +188,23 @@ export function RepairEnquiryForm() {
       }
 
       setUploadProgress("Submitting enquiry...");
-      const result = await submitRepair({
-        data: {
-          customer_name: form.customer_name,
-          phone: form.phone,
-          email: form.email || null,
-          phone_brand: form.phone_brand,
-          phone_model: form.phone_model,
-          problem_type: form.problem_type,
-          description: form.description || null,
-          image_urls: finalImages,
-          video_urls: finalVideos,
-          preferred_contact: form.preferred_contact,
-        },
+      // `enquiry_number` isn't a stored column in the current schema —
+      // generate one client-side purely for the success-screen reference.
+      const enquiry_number = generateEnquiryNumber("RE");
+      const { error } = await supabase.from("repair_enquiries").insert({
+        customer_name: form.customer_name,
+        phone: form.phone,
+        email: form.email || null,
+        phone_brand: form.phone_brand,
+        phone_model: form.phone_model,
+        problem_type: form.problem_type,
+        description: form.description || null,
+        images: [...finalImages, ...finalVideos],
+        preferred_contact: form.preferred_contact,
       });
+      if (error) throw new Error(error.message);
 
-      setSubmitted((result as { enquiry_number: string }).enquiry_number);
+      setSubmitted(enquiry_number);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not submit enquiry.");
     } finally {

@@ -34,8 +34,6 @@ import {
   getOrderStatus,
   listOrdersAdmin,
   updateOrderStatus,
-  updateDeliveryStatus,
-  assignOrderBranches,
   verifyAndMarkPaid,
   listCustomersAdmin,
   saveBranch,
@@ -58,6 +56,10 @@ import {
   listFinancePartnersAdmin,
   saveDirectPartner,
   listDirectPartnersAdmin,
+  getDashboardStats,
+  genericList,
+  genericSave,
+  genericDelete,
   type ProductInput,
 } from "./admin.server";
 
@@ -154,10 +156,10 @@ export const adminListRepairEnquiries = createServerFn({ method: "POST" })
   });
 
 export const adminUpdateRepairStatus = createServerFn({ method: "POST" })
-  .validator((d: { token: string; id: string; status: string; admin_notes?: string | null }) => d)
+  .validator((d: { token: string; id: string; status: string }) => d)
   .handler(async ({ data }) => {
     await assertAdminSession(data.token);
-    return updateRepairStatus(data.id, data.status, data.admin_notes);
+    return updateRepairStatus(data.id, data.status);
   });
 
 // ─── Refurbished ──────────────────────────────────────────────
@@ -283,8 +285,8 @@ export const publicCreateOrder = createServerFn({ method: "POST" })
   .handler(async ({ data }) => createOrder(data));
 
 export const publicGetOrderStatus = createServerFn({ method: "POST" })
-  .validator((d: { order_number: string; phone: string }) => d)
-  .handler(async ({ data }) => getOrderStatus(data.order_number, data.phone));
+  .validator((d: { phone: string }) => d)
+  .handler(async ({ data }) => getOrderStatus(data.phone));
 
 export const adminListOrders = createServerFn({ method: "POST" })
   .validator((d: { token: string; order_type?: string; order_status?: string }) => d)
@@ -300,29 +302,11 @@ export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
     return updateOrderStatus(data.id, data.order_status);
   });
 
-export const adminUpdateDeliveryStatus = createServerFn({ method: "POST" })
-  .validator((d: { token: string; id: string; delivery_status: string }) => d)
-  .handler(async ({ data }) => {
-    await assertAdminSession(data.token);
-    return updateDeliveryStatus(data.id, data.delivery_status);
-  });
-
-export const adminAssignOrderBranches = createServerFn({ method: "POST" })
-  .validator((d: { token: string; order_id: string; source_branch_id: string | null; destination_branch_id: string | null }) => d)
-  .handler(async ({ data }) => {
-    await assertAdminSession(data.token);
-    return assignOrderBranches(data.order_id, data.source_branch_id, data.destination_branch_id);
-  });
-
 export const adminVerifyPayment = createServerFn({ method: "POST" })
-  .validator((d: {
-    token: string; order_id: string;
-    payment_method: string; payment_gateway: string;
-    gateway_payment_id?: string; transaction_id?: string;
-  }) => d)
+  .validator((d: { token: string; order_id: string; payment_method: string }) => d)
   .handler(async ({ data }) => {
     await assertAdminSession(data.token);
-    return verifyAndMarkPaid(data.order_id, data);
+    return verifyAndMarkPaid(data.order_id, data.payment_method);
   });
 
 // ─── Customers ────────────────────────────────────────────────
@@ -478,4 +462,34 @@ export const adminListDirectPartners = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await assertAdminSession(data.token);
     return listDirectPartnersAdmin();
+  });
+
+// ─── Dashboard Stats ──────────────────────────────────────────
+export const adminGetDashboardStats = createServerFn({ method: "POST" })
+  .validator((d: { token: string }) => d)
+  .handler(async ({ data }) => {
+    await assertAdminSession(data.token);
+    return getDashboardStats();
+  });
+
+// ─── Generic CRUD (minimal admin screens) ──────────────────────
+export const adminGenericList = createServerFn({ method: "POST" })
+  .validator((d: { token: string; table: string; orderBy?: string; ascending?: boolean; filter?: { column: string; value: string } }) => d)
+  .handler(async ({ data }) => {
+    await assertAdminSession(data.token);
+    return genericList(data.table, data.orderBy, data.ascending, data.filter);
+  });
+
+export const adminGenericSave = createServerFn({ method: "POST" })
+  .validator((d: { token: string; table: string; record: Record<string, unknown> & { id?: string } }) => d)
+  .handler(async ({ data }) => {
+    await assertAdminSession(data.token);
+    return genericSave(data.table, data.record);
+  });
+
+export const adminGenericDelete = createServerFn({ method: "POST" })
+  .validator((d: { token: string; table: string; id: string }) => d)
+  .handler(async ({ data }) => {
+    await assertAdminSession(data.token);
+    return genericDelete(data.table, data.id);
   });

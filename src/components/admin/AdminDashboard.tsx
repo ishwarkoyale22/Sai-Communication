@@ -12,6 +12,10 @@ import { DashboardTab, OrdersTab, RepairTab, CustomersTab, EnquiriesTab } from "
 import { ProductsTab, BrandsTab, RefurbishedTab, HampersTab } from "./CatalogueTabs";
 import { BranchesTab, InventoryTab, TransfersTab, SuppliersTab, SourcesTab, ThirdPartyTab } from "./InternalTabs";
 import { OffersTab, PopupTab, GalleryTab, FinanceTab, DirectPartnersTab, SettingsTab } from "./MarketingFinanceTabs";
+import {
+  StaffTab, SalesTab, SalesItemsTab, ServicesTab,
+  WholesalerInvoicesTab, ThirdPartyPurchasesTab, EmiFinanceTab, RepairsTab,
+} from "./PosTabs";
 
 const NAV_SECTIONS = [
   {
@@ -41,6 +45,19 @@ const NAV_SECTIONS = [
       { tab: "suppliers", icon: Truck, label: "Suppliers" },
       { tab: "sources", icon: Package, label: "Product Sources" },
       { tab: "thirdparty", icon: Handshake, label: "3rd Party" },
+    ],
+  },
+  {
+    label: "POS & Staff",
+    items: [
+      { tab: "staff", icon: Users, label: "Staff" },
+      { tab: "sales", icon: ShoppingBag, label: "Sales" },
+      { tab: "sales_items", icon: Package, label: "Sale Items" },
+      { tab: "services", icon: Wrench, label: "Services" },
+      { tab: "wholesaler_invoices", icon: Banknote, label: "Wholesaler Invoices" },
+      { tab: "third_party_purchases", icon: Handshake, label: "3rd Party Purchases" },
+      { tab: "emi_finance", icon: Banknote, label: "EMI Finance" },
+      { tab: "repairs", icon: Wrench, label: "Repair Jobs" },
     ],
   },
   {
@@ -135,6 +152,14 @@ export function AdminDashboard({ token, onLogout }: { token: string; onLogout: (
           {tab === "directpartners" && <DirectPartnersTab token={token} />}
           {tab === "enquiries" && <EnquiriesTab token={token} />}
           {tab === "settings" && <SettingsTab token={token} />}
+          {tab === "staff" && <StaffTab token={token} />}
+          {tab === "sales" && <SalesTab token={token} />}
+          {tab === "sales_items" && <SalesItemsTab token={token} />}
+          {tab === "services" && <ServicesTab token={token} />}
+          {tab === "wholesaler_invoices" && <WholesalerInvoicesTab token={token} />}
+          {tab === "third_party_purchases" && <ThirdPartyPurchasesTab token={token} />}
+          {tab === "emi_finance" && <EmiFinanceTab token={token} />}
+          {tab === "repairs" && <RepairsTab token={token} />}
         </div>
       </main>
     </div>

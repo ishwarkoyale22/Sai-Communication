@@ -4,9 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { AlertTriangle, Pencil, Trash2, CheckCircle, XCircle } from "lucide-react";
 import {
-  adminSaveOffer, adminDeleteOffer, adminToggleOffer, adminListOffers,
   adminSavePopup, adminTogglePopup, adminListPopups,
-  adminSaveGalleryItem, adminDeleteGalleryItem, adminListGallery,
   adminSaveFinancePartner, adminDeleteFinancePartner, adminListFinancePartners,
   adminSaveDirectPartner, adminListDirectPartners,
   adminSaveSettings,
@@ -21,116 +19,19 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AdminTable, SectionHeader, FieldInput } from "./AdminShared";
+import { GenericCrudTab, type FieldConfig } from "./GenericCrudTab";
 
+const OFFER_FIELDS: FieldConfig[] = [
+  { key: "title", label: "Title" },
+  { key: "description", label: "Description", type: "textarea" },
+  { key: "discount_percent", label: "Discount %", type: "number" },
+  { key: "image", label: "Image URL" },
+  { key: "valid_from", label: "Valid From", type: "date" },
+  { key: "valid_until", label: "Valid Until", type: "date" },
+  { key: "is_active", label: "Active", type: "boolean" },
+];
 export function OffersTab({ token }: { token: string }) {
-  const [items, setItems] = useState<unknown[]>([]);
-  const [draft, setDraft] = useState<Record<string, unknown> | null>(null);
-  const listFn = useServerFn(adminListOffers);
-  const saveFn = useServerFn(adminSaveOffer);
-  const delFn = useServerFn(adminDeleteOffer);
-  const toggleFn = useServerFn(adminToggleOffer);
-
-  useEffect(() => {
-    listFn({ data: { token } }).then((d) => setItems((d ?? []) as unknown[])).catch(() => {});
-  }, [token]);
-
-  const refresh = () => listFn({ data: { token } }).then((d) => setItems((d ?? []) as unknown[]));
-  type OfferRow = { id: string; title: string; discount_text: string | null; is_active: boolean; valid_until: string | null };
-  const rows = items as OfferRow[];
-
-  async function save() {
-    if (!draft) return;
-    try {
-      await saveFn({ data: { token, offer: draft } });
-      toast.success("Saved.");
-      refresh();
-      setDraft(null);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed.");
-    }
-  }
-
-  return (
-    <div>
-      <SectionHeader
-        title="Offers"
-        onAdd={() =>
-          setDraft({
-            title: "",
-            description: "",
-            discount_text: "",
-            badge_text: "",
-            cta_label: "Shop Now",
-            cta_link: "/products",
-            is_active: true,
-            display_order: 0,
-          })
-        }
-      />
-      <AdminTable
-        headers={["Title", "Discount", "Active", "Valid Until", "Actions"]}
-        rows={rows.map((r) => [
-          r.title,
-          r.discount_text ?? "—",
-          <Switch
-            key="act"
-            checked={r.is_active}
-            onCheckedChange={async (v) => {
-              await toggleFn({ data: { token, id: r.id, is_active: v } });
-              refresh();
-            }}
-          />,
-          r.valid_until ? new Date(r.valid_until).toLocaleDateString("en-IN") : "—",
-          <div key="actions" className="flex gap-2">
-            <Button size="sm" variant="ghost" onClick={() => setDraft({ ...r })}>
-              <Pencil className="size-4" />
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-destructive-foreground"
-              onClick={async () => {
-                if (!confirm("Delete?")) return;
-                await delFn({ data: { token, id: r.id } });
-                refresh();
-              }}
-            >
-              <Trash2 className="size-4" />
-            </Button>
-          </div>,
-        ])}
-      />
-      <Dialog open={!!draft} onOpenChange={(o) => !o && setDraft(null)}>
-        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Offer</DialogTitle></DialogHeader>
-          {draft && (
-            <div className="space-y-3">
-              <FieldInput label="Title" value={String(draft["title"] ?? "")} onChange={(v) => setDraft((d) => (d ? { ...d, title: v } : d))} />
-              <FieldInput label="Discount Text (e.g. Up to 20% Off)" value={String(draft["discount_text"] ?? "")} onChange={(v) => setDraft((d) => (d ? { ...d, discount_text: v } : d))} />
-              <FieldInput label="Badge Text" value={String(draft["badge_text"] ?? "")} onChange={(v) => setDraft((d) => (d ? { ...d, badge_text: v } : d))} />
-              <FieldInput label="Banner Image URL" value={String(draft["banner_image_url"] ?? "")} onChange={(v) => setDraft((d) => (d ? { ...d, banner_image_url: v } : d))} />
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea value={String(draft["description"] ?? "")} onChange={(e) => setDraft((d) => (d ? { ...d, description: e.target.value } : d))} rows={2} />
-              </div>
-              <FieldInput label="CTA Label" value={String(draft["cta_label"] ?? "Shop Now")} onChange={(v) => setDraft((d) => (d ? { ...d, cta_label: v } : d))} />
-              <FieldInput label="CTA Link" value={String(draft["cta_link"] ?? "/products")} onChange={(v) => setDraft((d) => (d ? { ...d, cta_link: v } : d))} />
-              <FieldInput label="Valid Until" type="datetime-local" value={String(draft["valid_until"] ?? "")} onChange={(v) => setDraft((d) => (d ? { ...d, valid_until: v || null } : d))} />
-              <FieldInput label="Display Order" type="number" value={String(draft["display_order"] ?? 0)} onChange={(v) => setDraft((d) => (d ? { ...d, display_order: Number(v) } : d))} />
-              <div className="flex items-center gap-2">
-                <Switch checked={Boolean(draft["is_active"])} onCheckedChange={(v) => setDraft((d) => (d ? { ...d, is_active: v } : d))} id="o-active" />
-                <Label htmlFor="o-active">Active</Label>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="secondary" onClick={() => setDraft(null)}>Cancel</Button>
-                <Button onClick={save}>Save</Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
+  return <GenericCrudTab token={token} table="offers" title="Offers" fields={OFFER_FIELDS} />;
 }
 
 export function PopupTab({ token }: { token: string }) {
@@ -227,124 +128,13 @@ export function PopupTab({ token }: { token: string }) {
   );
 }
 
+const GALLERY_FIELDS: FieldConfig[] = [
+  { key: "image_url", label: "Image URL" },
+  { key: "caption", label: "Caption" },
+  { key: "sort_order", label: "Sort Order", type: "number" },
+];
 export function GalleryTab({ token }: { token: string }) {
-  const [items, setItems] = useState<unknown[]>([]);
-  const [draft, setDraft] = useState<Record<string, unknown> | null>(null);
-  const listFn = useServerFn(adminListGallery);
-  const saveFn = useServerFn(adminSaveGalleryItem);
-  const delFn = useServerFn(adminDeleteGalleryItem);
-
-  useEffect(() => {
-    listFn({ data: { token } }).then((d) => setItems((d ?? []) as unknown[])).catch(() => {});
-  }, [token]);
-
-  const refresh = () => listFn({ data: { token } }).then((d) => setItems((d ?? []) as unknown[]));
-  type GalleryRow = { id: string; type: string; category: string; title: string | null; url: string; is_active: boolean };
-  const rows = items as GalleryRow[];
-
-  return (
-    <div>
-      <SectionHeader
-        title="Gallery"
-        onAdd={() =>
-          setDraft({
-            type: "photo",
-            category: "general",
-            title: "",
-            url: "",
-            thumbnail_url: "",
-            display_order: 0,
-            is_active: true,
-          })
-        }
-      />
-      <AdminTable
-        headers={["Type", "Category", "Title", "URL", "Active", "Actions"]}
-        rows={rows.map((r) => [
-          r.type,
-          r.category,
-          r.title ?? "—",
-          <a key="link" href={r.url} target="_blank" rel="noopener noreferrer" className="text-xs text-primary truncate max-w-[120px] block">
-            {r.url}
-          </a>,
-          r.is_active ? <CheckCircle key="act" className="size-4 text-primary" /> : <XCircle key="act" className="size-4 text-muted-foreground" />,
-          <div key="acts" className="flex gap-2">
-            <Button size="sm" variant="ghost" onClick={() => setDraft({ ...r })}>
-              <Pencil className="size-4" />
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-destructive-foreground"
-              onClick={async () => {
-                if (!confirm("Delete?")) return;
-                await delFn({ data: { token, id: r.id } });
-                refresh();
-              }}
-            >
-              <Trash2 className="size-4" />
-            </Button>
-          </div>,
-        ])}
-      />
-      <Dialog open={!!draft} onOpenChange={(o) => !o && setDraft(null)}>
-        <DialogContent>
-          <DialogHeader><DialogTitle>Gallery Item</DialogTitle></DialogHeader>
-          {draft && (
-            <div className="space-y-3">
-              <div className="space-y-2">
-                <Label>Type</Label>
-                <Select value={String(draft["type"])} onValueChange={(v) => setDraft((d) => (d ? { ...d, type: v } : d))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="photo">Photo</SelectItem>
-                    <SelectItem value="video">Video</SelectItem>
-                    <SelectItem value="reel">Reel</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select value={String(draft["category"])} onValueChange={(v) => setDraft((d) => (d ? { ...d, category: v } : d))}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {["general", "store", "team", "products", "events", "promotions"].map((c) => (
-                      <SelectItem key={c} value={c}>{c}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <FieldInput label="Title" value={String(draft["title"] ?? "")} onChange={(v) => setDraft((d) => (d ? { ...d, title: v } : d))} />
-              <FieldInput label="URL" value={String(draft["url"] ?? "")} onChange={(v) => setDraft((d) => (d ? { ...d, url: v } : d))} />
-              <FieldInput label="Thumbnail URL (for videos)" value={String(draft["thumbnail_url"] ?? "")} onChange={(v) => setDraft((d) => (d ? { ...d, thumbnail_url: v } : d))} />
-              <FieldInput label="Display Order" type="number" value={String(draft["display_order"] ?? 0)} onChange={(v) => setDraft((d) => (d ? { ...d, display_order: Number(v) } : d))} />
-              <div className="flex items-center gap-2">
-                <Switch checked={Boolean(draft["is_active"])} onCheckedChange={(v) => setDraft((d) => (d ? { ...d, is_active: v } : d))} id="g-active" />
-                <Label htmlFor="g-active">Active</Label>
-              </div>
-              <div className="flex justify-end gap-2">
-                <Button variant="secondary" onClick={() => setDraft(null)}>Cancel</Button>
-                <Button
-                  onClick={async () => {
-                    try {
-                      await saveFn({ data: { token, item: draft } });
-                      toast.success("Saved.");
-                      refresh();
-                      setDraft(null);
-                    } catch (err) {
-                      toast.error(err instanceof Error ? err.message : "Failed.");
-                    }
-                  }}
-                >
-                  Save
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
+  return <GenericCrudTab token={token} table="gallery" title="Gallery" fields={GALLERY_FIELDS} orderBy="sort_order" />;
 }
 
 export function FinanceTab({ token }: { token: string }) {
