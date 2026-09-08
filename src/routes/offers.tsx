@@ -5,7 +5,10 @@ import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 import { Button } from "@/components/ui/button";
 import { Tag, Clock } from "lucide-react";
-import type { Offer } from "@/lib/types";
+import { offerDiscountText, type Offer } from "@/lib/types";
+
+const DEFAULT_CTA_LABEL = "View Offer";
+const DEFAULT_CTA_LINK = "/products";
 
 export const Route = createFileRoute("/offers")({
   head: () => ({
@@ -55,10 +58,13 @@ function OffersPage() {
 }
 
 function OfferCard({ offer }: { offer: Offer }) {
+  const discountText = offerDiscountText(offer);
+  const isCoupon = offer.offer_type === "coupon" && offer.coupon_code;
+
   return (
     <div className="card-surface hover-glow overflow-hidden">
-      {offer.banner_image_url ? (
-        <img src={offer.banner_image_url} alt={offer.title} className="w-full aspect-video object-cover" loading="lazy" />
+      {offer.image_url ? (
+        <img src={offer.image_url} alt={offer.title} className="w-full aspect-video object-cover" loading="lazy" />
       ) : (
         <div className="w-full aspect-video bg-gradient-to-br from-accent to-secondary/50 flex items-center justify-center">
           <span className="text-5xl">🎁</span>
@@ -67,25 +73,25 @@ function OfferCard({ offer }: { offer: Offer }) {
       <div className="p-5">
         <div className="flex items-start justify-between gap-2">
           <h2 className="font-semibold leading-tight">{offer.title}</h2>
-          {offer.badge_text && (
+          {isCoupon && (
             <span className="shrink-0 border border-gold bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold">
-              {offer.badge_text}
+              {offer.coupon_code}
             </span>
           )}
         </div>
-        {offer.discount_text && (
-          <p className="mt-1 text-primary font-semibold text-sm">{offer.discount_text}</p>
+        {discountText && !isCoupon && (
+          <p className="mt-1 text-primary font-semibold text-sm">{discountText}</p>
         )}
         {offer.description && (
           <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{offer.description}</p>
         )}
-        {offer.valid_until && (
+        {offer.ends_at && (
           <p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
-            <Clock className="size-3" /> Valid until {new Date(offer.valid_until).toLocaleDateString("en-IN")}
+            <Clock className="size-3" /> Valid until {new Date(offer.ends_at).toLocaleDateString("en-IN")}
           </p>
         )}
         <Button asChild className="mt-4 w-full" size="sm">
-          <Link to={offer.cta_link as "/products"}>{offer.cta_label}</Link>
+          <Link to={DEFAULT_CTA_LINK}>{DEFAULT_CTA_LABEL}</Link>
         </Button>
       </div>
     </div>

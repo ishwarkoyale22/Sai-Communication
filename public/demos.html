@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sai Communication | 4 Demo Template Showcases & Expert Recommendation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0A0D14;
+      --card-bg: #131722;
+      --card-bg-elevated: #1B2130;
+      --border: #242D3D;
+      --text: #F1F5F9;
+      --text-muted: #94A3B8;
+      --accent: #7B2FF7;
+      --cyan: #00F2FE;
+      --emerald: #10B981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding-bottom: 70px;
+    }
+    .header-banner {
+      background: linear-gradient(180deg, #161D2B 0%, #0A0D14 100%);
+      padding: 45px 20px 35px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+    }
+    .badge {
+      display: inline-block;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--emerald);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      padding: 5px 16px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 38px;
+      font-weight: 900;
+      letter-spacing: -0.8px;
+      margin-bottom: 10px;
+    }
+    h1 span {
+      background: linear-gradient(135deg, #10B981 0%, #00F2FE 50%, #7B2FF7 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 16px;
+      max-width: 800px;
+      margin: 0 auto 26px;
+      line-height: 1.6;
+    }
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 11px 20px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .tab-btn:hover, .tab-btn.active {
+      border-color: #00F2FE;
+      background: rgba(0, 242, 254, 0.12);
+      color: #00F2FE;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+    }
+    .tab-btn.special-btn {
+      border-color: rgba(16, 185, 129, 0.5);
+      background: rgba(16, 185, 129, 0.1);
+      color: #10B981;
+    }
+    .tab-btn.special-btn.active {
+      background: #10B981;
+      color: #07090E;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+    .dot-1 { background: #7B2FF7; box-shadow: 0 0 8px #7B2FF7; }
+    .dot-2 { background: #E2231A; box-shadow: 0 0 8px #E2231A; }
+    .dot-3 { background: #F5A623; box-shadow: 0 0 8px #F5A623; }
+    .dot-4 { background: #10B981; box-shadow: 0 0 8px #10B981; }
+
+    .container {
+      max-width: 1320px;
+      margin: 35px auto 0;
+      padding: 0 20px;
+    }
+
+    /* 4 Cards Grid */
+    .cards-overview {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+    .overview-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s;
+    }
+    .overview-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .overview-card.featured-card {
+      background: linear-gradient(180deg, #162224 0%, #10161D 100%);
+      border: 1px solid rgba(16, 185, 129, 0.4);
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.15);
+    }
+    .card-strip {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+    .strip-1 { background: linear-gradient(90deg, #7B2FF7, #00F2FE); }
+    .strip-2 { background: #E2231A; }
+    .strip-3 { background: linear-gradient(90deg, #3D6299, #F5A623); }
+    .strip-4 { background: linear-gradient(90deg, #10B981, #00F2FE); }
+
+    .overview-card h3 {
+      font-size: 17px;
+      font-weight: 800;
+      margin-top: 6px;
+      margin-bottom: 8px;
+      color: white;
+    }
+    .overview-tag {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--text-muted);
+    }
+    .overview-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+    .features-list {
+      list-style: none;
+      font-size: 11px;
+      color: #CBD5E1;
+      margin-bottom: 18px;
+    }
+    .features-list li {
+      margin-bottom: 5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .features-list li::before {
+      content: '✓';
+      color: #10B981;
+      font-weight: 900;
+    }
+    .btn-open {
+      margin-top: auto;
+      background: rgba(255, 255, 255, 0.08);
+      color: white;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 12px;
+      display: block;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      transition: all 0.2s;
+    }
+    .btn-open:hover {
+      background: white;
+      color: #0A0D14;
+    }
+    .overview-card.featured-card .btn-open {
+      background: var(--emerald);
+      color: #07090E;
+      font-weight: 800;
+      border-color: var(--emerald);
+    }
+
+    /* Live Preview Stage */
+    .preview-frame-wrapper {
+      background: #000;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+    }
+    .frame-bar {
+      background: #151A24;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      font-size: 12px;
+      color: #94A3B8;
+    }
+    .window-dots {
+      display: flex;
+      gap: 6px;
+    }
+    .window-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #334155;
+    }
+    .window-dot:nth-child(1) { background: #EF4444; }
+    .window-dot:nth-child(2) { background: #F59E0B; }
+    .window-dot:nth-child(3) { background: #10B981; }
+
+    .live-frame {
+      width: 100%;
+      height: 880px;
+      border: none;
+      background: white;
+      display: block;
+    }
+
+    @media (max-width: 1100px) {
+      .cards-overview { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .cards-overview { grid-template-columns: 1fr; }
+      .live-frame { height: 650px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header-banner">
+    <div class="badge">Sai Communication · 4 Redesign Concepts</div>
+    <h1>4 World-Class Demo Templates for <span>Sai Communication</span></h1>
+    <p class="subtitle">
+      Explore all 4 homepage redesigns — including the brand new <strong>"Template 4: Spatial Bento Studio"</strong> featuring an interactive 3D device stage, live EMI calculator slider, and 30-minute repair diagnostics.
+    </p>
+
+    <div class="nav-tabs">
+      <button class="tab-btn special-btn active" onclick="loadFrame('/demo4.html', this)">
+        <span class="dot dot-4"></span> Demo 4: Spatial Bento Studio (✨ UNIQUE)
+      </button>
+      <button class="tab-btn" onclick="loadFrame('/demo1.html', this)">
+        <span class="dot dot-1"></span> Demo 1: Bold Purple/Cyan (MOBO MART)
+      </button>
+      <button class="tab-btn" onclick="loadFrame('/demo2.html', this)">
+        <span class="dot dot-2"></span> Demo 2: Classic Red/White (MobileStore)
+      </button>
+      <button class="tab-btn" onclick="loadFrame('/demo3.html', this)">
+        <span class="dot dot-3"></span> Demo 3: Warm Orange/Blue-Grey (Editorial)
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- 4 Cards Overview -->
+    <div class="cards-overview">
+      
+      <!-- Demo 4 Card (Featured Unique) -->
+      <div class="overview-card featured-card">
+        <div class="card-strip strip-4"></div>
+        <div class="overview-tag" style="color:#10B981;">✨ UNIQUE 2026 NEO-STUDIO</div>
+        <h3>Spatial Bento Studio</h3>
+        <p class="overview-desc">
+          Apple & Nothing-style Spatial Bento Grid with interactive color swap, live 0% EMI slider, 30-min repair diagnostic, and hamper unboxer.
+        </p>
+        <ul class="features-list">
+          <li>Interactive 3D Stage device colorway switcher</li>
+          <li>Live EMI slider calculator (3 to 24 months)</li>
+          <li>30-minute repair reservation selector</li>
+          <li>52-point refurbished verification checklist</li>
+          <li>Storage size switcher (256GB/512GB/1TB)</li>
+        </ul>
+        <a href="/demo4.html" target="_blank" class="btn-open">Open Demo 4 in Full Screen ↗</a>
+      </div>
+
+      <!-- Demo 1 Card -->
+      <div class="overview-card">
+        <div class="card-strip strip-1"></div>
+        <div class="overview-tag">Prompt 1 · MOBO MART Style</div>
+        <h3>Bold Purple & Cyan</h3>
+        <p class="overview-desc">
+          Vibrant high-contrast gradient layout with floating phone hero, dual promo cards, trust strip & 4-column product grid.
+        </p>
+        <ul class="features-list">
+          <li>11 sections in exact sequential order</li>
+          <li>Dual promo cards (40% off & Flash sale)</li>
+          <li>Star ratings & discount strikethrough</li>
+          <li>Full-width near-black trust strip</li>
+          <li>Interactive repair slot modal</li>
+        </ul>
+        <a href="/demo1.html" target="_blank" class="btn-open">Open Demo 1 ↗</a>
+      </div>
+
+      <!-- Demo 2 Card -->
+      <div class="overview-card">
+        <div class="card-strip strip-2"></div>
+        <div class="overview-tag">Prompt 2 · MobileStore Style</div>
+        <h3>Classic Red & White</h3>
+        <p class="overview-desc">
+          Clean, trusted retail layout with bold red price highlights, lifestyle photography, and 5-column black footer.
+        </p>
+        <ul class="features-list">
+          <li>9 sections in exact sequential order</li>
+          <li>Lifestyle hero photo with red SALE badge</li>
+          <li>4 category highlight cards with prices</li>
+          <li>Second product row for repairs & refurb</li>
+          <li>5-column footer with red social squares</li>
+        </ul>
+        <a href="/demo2.html" target="_blank" class="btn-open">Open Demo 2 ↗</a>
+      </div>
+
+      <!-- Demo 3 Card -->
+      <div class="overview-card">
+        <div class="card-strip strip-3"></div>
+        <div class="overview-tag">Prompt 3 · Editorial Style</div>
+        <h3>Editorial Warm Orange</h3>
+        <p class="overview-desc">
+          Sophisticated editorial aesthetic featuring a blue-grey gradient hero, horizontal 4-brand tab strip, and sidebar catalog.
+        </p>
+        <ul class="features-list">
+          <li>8 sections in exact sequential order</li>
+          <li>Blue-grey gradient hero with phone pair</li>
+          <li>Warm orange 4-tab brand filter</li>
+          <li>Left sidebar + Right product grid</li>
+          <li>Facebook community box & navy footer</li>
+        </ul>
+        <a href="/demo3.html" target="_blank" class="btn-open">Open Demo 3 ↗</a>
+      </div>
+
+    </div>
+
+    <!-- Live Preview Stage -->
+    <div class="preview-frame-wrapper">
+      <div class="frame-bar">
+        <div class="window-dots">
+          <div class="window-dot"></div>
+          <div class="window-dot"></div>
+          <div class="window-dot"></div>
+        </div>
+        <div id="frameAddress" style="background:rgba(0,0,0,0.5); padding:5px 16px; border-radius:4px; font-family:monospace; font-size:12px; color:#10B981;">
+          http://localhost:8081/demo4.html
+        </div>
+        <div>
+          <a id="externalLink" href="/demo4.html" target="_blank" style="color:#10B981; text-decoration:none; font-weight:700;">
+            Open Full Screen ↗
+          </a>
+        </div>
+      </div>
+      <iframe id="previewIframe" src="/demo4.html" class="live-frame"></iframe>
+    </div>
+  </div>
+
+  <script>
+    function loadFrame(url, btn) {
+      document.getElementById('previewIframe').src = url;
+      document.getElementById('frameAddress').textContent = 'http://localhost:8081' + url;
+      document.getElementById('externalLink').href = url;
+      
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+    }
+  </script>
+</body>
+</html>

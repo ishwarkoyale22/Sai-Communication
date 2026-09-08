@@ -42,34 +42,33 @@ export type Brand = {
   created_at: string;
 };
 
+export type Review = {
+  id: string;
+  customer_name: string;
+  rating: number | null;
+  review_text: string | null;
+  is_featured: boolean;
+  source: string | null;
+  created_at: string;
+};
+
+export type OfferType = "percentage" | "bogo" | "rupee_off" | "coupon";
+export type OfferDisplayMode = "image" | "popup" | "hero_banner";
+
 export type Offer = {
   id: string;
   title: string;
   description: string | null;
-  banner_image_url: string | null;
-  discount_text: string | null;
-  badge_text: string | null;
-  cta_label: string;
-  cta_link: string;
-  is_active: boolean;
-  valid_from: string | null;
-  valid_until: string | null;
-  display_order: number;
-  created_at: string;
-};
-
-export type PromoPopup = {
-  id: string;
-  title: string | null;
-  description: string | null;
+  offer_type: OfferType;
+  discount_value: number | null;
+  coupon_code: string | null;
   image_url: string | null;
-  discount_text: string | null;
-  cta_label: string;
-  cta_link: string;
-  is_enabled: boolean;
-  show_after_seconds: number;
-  session_frequency_hours: number;
+  display_mode: OfferDisplayMode;
+  starts_at: string | null;
+  ends_at: string | null;
+  is_active: boolean;
   created_at: string;
+  updated_at: string;
 };
 
 export type GalleryItem = {
@@ -333,11 +332,73 @@ export type CartItemType = {
   image: string;
 };
 
+export type CustomerAddress = {
+  id: string;
+  customer_id: string;
+  label: string;
+  full_name: string;
+  phone: string;
+  address_line: string;
+  city: string | null;
+  state: string | null;
+  pincode: string | null;
+  is_default: boolean;
+  created_at: string;
+};
+
+export type WishlistItem = {
+  id: string;
+  customer_id: string;
+  inventory_id: string;
+  created_at: string;
+};
+
+export type ReturnRequest = {
+  id: string;
+  customer_id: string;
+  order_id: string;
+  reason: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AccountOrder = {
+  id: string;
+  customer_id: string | null;
+  order_number: string;
+  order_type: string | null;
+  total_amount: number;
+  discount_amount: number | null;
+  coupon_code: string | null;
+  payment_method: string | null;
+  payment_status: string;
+  order_status: string;
+  notes: string | null;
+  created_at: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_email: string | null;
+};
+
+export type AccountOrderItem = {
+  id: string;
+  order_id: string;
+  item_type: string;
+  item_name: string;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  inventory_id: string | null;
+  hamper_item_id: string | null;
+};
+
 export type CheckoutFormData = {
   customer_name: string;
   customer_phone: string;
   customer_email: string;
   customer_address: string;
+  customer_birthday: string;
   delivery_type: 'collection' | 'delivery';
   payment_type: 'full' | 'emi';
   finance_partner_id: string;
@@ -487,23 +548,22 @@ export function normalizeHamperItem(row: Record<string, unknown>): GiftHamperPro
   };
 }
 
-export function normalizeNewOffer(row: Record<string, unknown>): Offer {
-  const discountPercent = row["discount_percent"] == null ? null : Number(row["discount_percent"]);
-  return {
-    id: String(row["id"]),
-    title: String(row["title"] ?? ""),
-    description: row["description"] ? String(row["description"]) : null,
-    banner_image_url: row["image"] ? String(row["image"]) : null,
-    discount_text: discountPercent != null ? `${discountPercent}% OFF` : null,
-    badge_text: null,
-    cta_label: "Shop Now",
-    cta_link: "/products",
-    is_active: Boolean(row["is_active"]),
-    valid_from: row["valid_from"] ? String(row["valid_from"]) : null,
-    valid_until: row["valid_until"] ? String(row["valid_until"]) : null,
-    display_order: 0,
-    created_at: String(row["created_at"] ?? ""),
-  };
+// Derives the presentational "discount line" for an offer from its raw
+// offer_type/discount_value/coupon_code columns (there's no stored text
+// column for this anymore).
+export function offerDiscountText(offer: Pick<Offer, "offer_type" | "discount_value" | "coupon_code">): string | null {
+  switch (offer.offer_type) {
+    case "percentage":
+      return offer.discount_value != null ? `${offer.discount_value}% OFF` : null;
+    case "rupee_off":
+      return offer.discount_value != null ? `₹${offer.discount_value} OFF` : null;
+    case "bogo":
+      return "Buy 1 Get 1";
+    case "coupon":
+      return offer.coupon_code ? offer.coupon_code : null;
+    default:
+      return null;
+  }
 }
 
 export function normalizeNewGalleryItem(row: Record<string, unknown>): GalleryItem {

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -24,8 +25,11 @@ import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as ProductsRouteImport } from './routes/products'
 import { Route as RefurbishedRouteImport } from './routes/refurbished'
 import { Route as RepairRouteImport } from './routes/repair'
+import { Route as RepairTrackRouteImport } from './routes/repair-track'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
+import { Route as FeedbackTokenRouteImport } from './routes/feedback.$token'
+import { Route as AccountOrdersOrderIdRouteImport } from './routes/account.orders.$orderId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -35,6 +39,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -102,6 +111,11 @@ const RepairRoute = RepairRouteImport.update({
   path: '/repair',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RepairTrackRoute = RepairTrackRouteImport.update({
+  id: '/repair-track',
+  path: '/repair-track',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ServicesRoute = ServicesRouteImport.update({
   id: '/services',
   path: '/services',
@@ -112,10 +126,21 @@ const TermsAndConditionsRoute = TermsAndConditionsRouteImport.update({
   path: '/terms-and-conditions',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedbackTokenRoute = FeedbackTokenRouteImport.update({
+  id: '/feedback/$token',
+  path: '/feedback/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountOrdersOrderIdRoute = AccountOrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => AccountRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRouteWithChildren
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
@@ -129,12 +154,16 @@ export interface FileRoutesByFullPath {
   '/products': typeof ProductsRoute
   '/refurbished': typeof RefurbishedRoute
   '/repair': typeof RepairRoute
+  '/repair-track': typeof RepairTrackRoute
   '/services': typeof ServicesRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/feedback/$token': typeof FeedbackTokenRoute
+  '/account/orders/$orderId': typeof AccountOrdersOrderIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRouteWithChildren
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
@@ -148,13 +177,17 @@ export interface FileRoutesByTo {
   '/products': typeof ProductsRoute
   '/refurbished': typeof RefurbishedRoute
   '/repair': typeof RepairRoute
+  '/repair-track': typeof RepairTrackRoute
   '/services': typeof ServicesRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/feedback/$token': typeof FeedbackTokenRoute
+  '/account/orders/$orderId': typeof AccountOrdersOrderIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account': typeof AccountRouteWithChildren
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
@@ -168,14 +201,18 @@ export interface FileRoutesById {
   '/products': typeof ProductsRoute
   '/refurbished': typeof RefurbishedRoute
   '/repair': typeof RepairRoute
+  '/repair-track': typeof RepairTrackRoute
   '/services': typeof ServicesRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
+  '/feedback/$token': typeof FeedbackTokenRoute
+  '/account/orders/$orderId': typeof AccountOrdersOrderIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/account'
     | '/admin'
     | '/cart'
     | '/checkout'
@@ -189,12 +226,16 @@ export interface FileRouteTypes {
     | '/products'
     | '/refurbished'
     | '/repair'
+    | '/repair-track'
     | '/services'
     | '/terms-and-conditions'
+    | '/feedback/$token'
+    | '/account/orders/$orderId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/account'
     | '/admin'
     | '/cart'
     | '/checkout'
@@ -208,12 +249,16 @@ export interface FileRouteTypes {
     | '/products'
     | '/refurbished'
     | '/repair'
+    | '/repair-track'
     | '/services'
     | '/terms-and-conditions'
+    | '/feedback/$token'
+    | '/account/orders/$orderId'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/account'
     | '/admin'
     | '/cart'
     | '/checkout'
@@ -227,13 +272,17 @@ export interface FileRouteTypes {
     | '/products'
     | '/refurbished'
     | '/repair'
+    | '/repair-track'
     | '/services'
     | '/terms-and-conditions'
+    | '/feedback/$token'
+    | '/account/orders/$orderId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AccountRoute: typeof AccountRouteWithChildren
   AdminRoute: typeof AdminRoute
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
@@ -247,8 +296,10 @@ export interface RootRouteChildren {
   ProductsRoute: typeof ProductsRoute
   RefurbishedRoute: typeof RefurbishedRoute
   RepairRoute: typeof RepairRoute
+  RepairTrackRoute: typeof RepairTrackRoute
   ServicesRoute: typeof ServicesRoute
   TermsAndConditionsRoute: typeof TermsAndConditionsRoute
+  FeedbackTokenRoute: typeof FeedbackTokenRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -265,6 +316,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -358,6 +416,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RepairRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/repair-track': {
+      id: '/repair-track'
+      path: '/repair-track'
+      fullPath: '/repair-track'
+      preLoaderRoute: typeof RepairTrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/services': {
       id: '/services'
       path: '/services'
@@ -372,12 +437,38 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsAndConditionsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feedback/$token': {
+      id: '/feedback/$token'
+      path: '/feedback/$token'
+      fullPath: '/feedback/$token'
+      preLoaderRoute: typeof FeedbackTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/orders/$orderId': {
+      id: '/account/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/account/orders/$orderId'
+      preLoaderRoute: typeof AccountOrdersOrderIdRouteImport
+      parentRoute: typeof AccountRoute
+    }
   }
 }
+
+interface AccountRouteChildren {
+  AccountOrdersOrderIdRoute: typeof AccountOrdersOrderIdRoute
+}
+
+const AccountRouteChildren: AccountRouteChildren = {
+  AccountOrdersOrderIdRoute: AccountOrdersOrderIdRoute,
+}
+
+const AccountRouteWithChildren =
+  AccountRoute._addFileChildren(AccountRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AccountRoute: AccountRouteWithChildren,
   AdminRoute: AdminRoute,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
@@ -391,8 +482,10 @@ const rootRouteChildren: RootRouteChildren = {
   ProductsRoute: ProductsRoute,
   RefurbishedRoute: RefurbishedRoute,
   RepairRoute: RepairRoute,
+  RepairTrackRoute: RepairTrackRoute,
   ServicesRoute: ServicesRoute,
   TermsAndConditionsRoute: TermsAndConditionsRoute,
+  FeedbackTokenRoute: FeedbackTokenRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

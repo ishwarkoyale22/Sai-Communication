@@ -2,18 +2,25 @@
 @source "../src";
 @import "tw-animate-css";
 
-@custom-variant dark (&:is(.dark *));
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 2px);
-  --radius-md: var(--radius);
-  --radius-lg: calc(var(--radius) + 2px);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 6px);
-  --radius-3xl: calc(var(--radius) + 8px);
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Fraunces", ui-serif, Georgia, serif;
-  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, monospace;
+  /* ── Radius scale ── */
+  --radius-xs:  4px;
+  --radius-sm:  6px;
+  --radius-md:  10px;
+  --radius-lg:  14px;
+  --radius-xl:  20px;
+  --radius-2xl: 28px;
+  --radius-3xl: 40px;
+
+  /* ── Font families ── */
+  --font-display: "Outfit", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-sans:    "Plus Jakarta Sans", "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif:   "Outfit", "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-brand:   "Philosopher", "Marcellus", "Outfit", sans-serif;
+  --font-loving:  "Philosopher", "Playfair Display", "Marcellus", serif;
+  --font-mono:    "Space Grotesk", ui-monospace, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -52,68 +59,194 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-chrome: var(--chrome);
+  --color-chrome-deep: var(--chrome-deep);
+  --color-on-chrome: var(--on-chrome);
+  --color-on-chrome-muted: var(--on-chrome-muted);
 }
 
 :root {
-  /* Heritage Boutique — small radii everywhere; pill shapes are opt-in via rounded-full */
-  --radius: 0.375rem;
+  /* ── Warm Orange & Blue-Grey Editorial Theme ── */
+  --radius: 0.75rem;
 
-  --background: #fbf9f6;
-  --foreground: #1b1b1b;
+  --background: #FFFFFF;
+  --foreground: #1B2430;
 
-  --card: #ffffff;
-  --card-foreground: #1b1b1b;
-  --popover: #ffffff;
-  --popover-foreground: #1b1b1b;
+  --card: #FFFFFF;
+  --card-foreground: #1B2430;
+  --popover: #FFFFFF;
+  --popover-foreground: #1B2430;
 
-  --primary: #1f3a8a;
-  --primary-foreground: #ffffff;
-  --primary-glow: #3355c0;
+  /* Warm Orange #F5A623 */
+  --primary: #F5A623;
+  --primary-foreground: #1B2430;
+  --primary-glow: #FFB540;
 
-  --secondary: #f2ede4;
-  --secondary-foreground: #1b1b1b;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #1B2430;
 
-  --muted: #f2ede4;
-  --muted-foreground: #78716a;
+  --muted: #F8FAFC;
+  --muted-foreground: #5B6B82;
 
-  --accent: #f6f1e7;
-  --accent-foreground: #1f3a8a;
+  --accent: #FBEFE8;
+  --accent-foreground: #8B4423;
 
-  --gold: #b8894b;
+  --gold: #F5A623;
 
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
 
-  --success: #e5f7ec;
-  --success-foreground: #14804a;
-  --warning: #d9600f;
+  --success: #DCFCE7;
+  --success-foreground: #15803D;
+  --warning: #F5A623;
 
-  --border: #e5e0d8;
-  --input: #e5e0d8;
-  --ring: #1f3a8a;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #F5A623;
 
-  --chart-1: #1f3a8a;
-  --chart-2: #b8894b;
-  --chart-3: #14804a;
-  --chart-4: #78716a;
-  --chart-5: #cbc3b4;
+  --chart-1: #F5A623;
+  --chart-2: #4A6FA5;
+  --chart-3: #1B2430;
+  --chart-4: #5B6B82;
+  --chart-5: #E2E8F0;
 
-  --sidebar: #ffffff;
-  --sidebar-foreground: #1b1b1b;
-  --sidebar-primary: #1f3a8a;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f2ede4;
-  --sidebar-accent-foreground: #1f3a8a;
-  --sidebar-border: #e5e0d8;
-  --sidebar-ring: #1f3a8a;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #1B2430;
+  --sidebar-primary: #F5A623;
+  --sidebar-primary-foreground: #1B2430;
+  --sidebar-accent: #FBEFE8;
+  --sidebar-accent-foreground: #8B4423;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #F5A623;
 
-  --gradient-hero: linear-gradient(160deg, #fbf9f6 0%, #f6f1e7 55%, #fbf9f6 100%);
-  --gradient-primary: linear-gradient(135deg, #1f3a8a, #3355c0);
-  --gradient-card: linear-gradient(160deg, #ffffff, #fdfcfa);
-  --shadow-glow: 0 0 0 1px rgba(184, 137, 75, 0.35);
-  --shadow-card: 0 1px 2px rgba(27, 27, 27, 0.03);
-  --shadow-lift: 0 10px 24px -16px rgba(27, 27, 27, 0.16);
-  --transition-smooth: 300ms ease;
+  /* Blue-Grey Chrome & Deep Navy #1B2430 */
+  --chrome: #4A6FA5;
+  --chrome-deep: #1B2430;
+  --on-chrome: #FFFFFF;
+  --on-chrome-muted: #94A3B8;
+
+  --gradient-hero: linear-gradient(135deg, #4A6FA5 0%, #6D94C4 50%, #8FB7DE 100%);
+  --gradient-primary: linear-gradient(135deg, #F5A623 0%, #FFB540 100%);
+  --gradient-card: linear-gradient(180deg, #FFFFFF, #F8FAFC);
+  --shadow-glow: 0 0 0 2px rgba(245, 166, 35, 0.4);
+  --shadow-card: 0 4px 14px rgba(27, 36, 48, 0.05);
+  --shadow-hover: 0 14px 28px rgba(27, 36, 48, 0.12);
+  --shadow-lift: 0 10px 24px -16px rgba(27, 36, 48, 0.25);
+  --transition-smooth: 250ms ease;
+}
+
+/* ─── Dark Mode — Crisp High-Contrast Editorial Dark Theme ─── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --background: #0F172A;
+    --foreground: #FFFFFF;
+    --card: #1E293B;
+    --card-foreground: #FFFFFF;
+    --popover: #24304A;
+    --popover-foreground: #FFFFFF;
+    --primary: #F5A623;
+    --primary-foreground: #101722;
+    --primary-glow: #FFAE33;
+    --secondary: #24304A;
+    --secondary-foreground: #FFFFFF;
+    --muted: #16202F;
+    --muted-foreground: #94A3B8;
+    --accent: #2A1F14;
+    --accent-foreground: #FDBA74;
+    --gold: #F5A623;
+    --destructive: #EF4444;
+    --destructive-foreground: #FFFFFF;
+    --success: #064E3B;
+    --success-foreground: #34D399;
+    --warning: #F5A623;
+    --border: #38465F;
+    --input: #38465F;
+    --ring: #F5A623;
+    --chrome: #1E293B;
+    --chrome-deep: #0F172A;
+    --on-chrome: #FFFFFF;
+    --on-chrome-muted: #94A3B8;
+    --gradient-hero: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #172554 100%);
+    --gradient-primary: linear-gradient(135deg, #F5A623 0%, #FFB540 100%);
+    --gradient-card: linear-gradient(180deg, #202B40, #17202F);
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
+    --shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.65);
+  }
+}
+
+/* Explicit dark override (user toggled or set via data-theme or class) */
+:root[data-theme="dark"],
+.dark {
+  --background: #0F172A;
+  --foreground: #FFFFFF;
+  --card: #1E293B;
+  --card-foreground: #FFFFFF;
+  --popover: #24304A;
+  --popover-foreground: #FFFFFF;
+  --primary: #F5A623;
+  --primary-foreground: #101722;
+  --primary-glow: #FFAE33;
+  --secondary: #24304A;
+  --secondary-foreground: #FFFFFF;
+  --muted: #16202F;
+  --muted-foreground: #94A3B8;
+  --accent: #2A1F14;
+  --accent-foreground: #FDBA74;
+  --gold: #F5A623;
+  --destructive: #EF4444;
+  --destructive-foreground: #FFFFFF;
+  --success: #064E3B;
+  --success-foreground: #34D399;
+  --warning: #F5A623;
+  --border: #38465F;
+  --input: #38465F;
+  --ring: #F5A623;
+  --chrome: #1E293B;
+  --chrome-deep: #0F172A;
+  --on-chrome: #FFFFFF;
+  --on-chrome-muted: #94A3B8;
+  --gradient-hero: linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #172554 100%);
+  --gradient-primary: linear-gradient(135deg, #F5A623 0%, #FFB540 100%);
+  --gradient-card: linear-gradient(180deg, #202B40, #17202F);
+  --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.5);
+  --shadow-hover: 0 16px 40px rgba(0, 0, 0, 0.65);
+}
+
+/* Explicit light override (user toggled) */
+:root[data-theme="light"] {
+  --background: #FFFFFF;
+  --foreground: #1B2430;
+  --card: #FFFFFF;
+  --card-foreground: #1B2430;
+  --popover: #FFFFFF;
+  --popover-foreground: #1B2430;
+  --primary: #B85C2B;
+  --primary-foreground: #FFFFFF;
+  --primary-glow: #D98A54;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #1B2430;
+  --muted: #F8FAFC;
+  --muted-foreground: #5B6B82;
+  --accent: #FBEFE8;
+  --accent-foreground: #8B4423;
+  --gold: #B85C2B;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #B85C2B;
+  --chrome: #4A6FA5;
+  --chrome-deep: #1B2430;
+  --on-chrome: #FFFFFF;
+  --on-chrome-muted: #94A3B8;
+  --gradient-hero: linear-gradient(135deg, #4A6FA5 0%, #6D94C4 50%, #8FB7DE 100%);
+  --shadow-card: 0 4px 14px rgba(27, 36, 48, 0.05);
+  --shadow-hover: 0 14px 28px rgba(27, 36, 48, 0.12);
+}
+
+/* Smooth theme transition on all elements */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
 }
 
 @layer base {
@@ -123,11 +256,10 @@
 
   html {
     scroll-behavior: smooth;
+    /* Fluid font root for clamp() usage */
+    font-size: 16px;
   }
 
-  /* Lenis owns scroll physics once it attaches — let it, instead of
-     fighting the native CSS smoothing above (only matters on desktop;
-     Lenis leaves touch scrolling native, see SmoothScroll.tsx). */
   html.lenis {
     scroll-behavior: auto;
   }
@@ -136,34 +268,104 @@
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    font-size: 15px;
     font-weight: 400;
+    line-height: 1.65;
+    letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: var(--font-serif);
-    font-weight: 500;
+  /* ── Premium Heading Scale ──
+     Fraunces is a serif with real texture — the tight negative tracking
+     that suited the old grotesk (Outfit) would collide its serifs at
+     display sizes, so tracking is much closer to normal here. */
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw + 1rem, 4.5rem);
+    font-weight: 600;
+    line-height: 1.05;
     letter-spacing: -0.01em;
   }
+  h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.6rem, 3vw + 0.5rem, 2.75rem);
+    font-weight: 600;
+    line-height: 1.12;
+    letter-spacing: -0.01em;
+  }
+  h3 {
+    font-family: var(--font-display);
+    font-size: clamp(1.15rem, 2vw + 0.25rem, 1.6rem);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.005em;
+  }
+  h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0;
+  }
 
+  /* strong text highlight in body copy — Fraunces's italic is one of its
+     signature features, worth using instead of a bolded upright cut */
   em {
-    font-family: var(--font-serif);
+    font-family: var(--font-display);
     font-style: italic;
     font-weight: 500;
     color: var(--primary);
   }
 
+  strong {
+    font-weight: 700;
+  }
+
+  p {
+    line-height: 1.7;
+    color: var(--foreground);
+  }
+
+  .material-symbols-outlined {
+    font-family: "Material Symbols Outlined";
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
   button,
-  nav a {
+  nav a,
+  a {
     font-family: var(--font-sans);
   }
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: #d8cfbf #fbf9f6;
+    scrollbar-color: var(--border) var(--background);
   }
 
   ::-webkit-scrollbar {
@@ -171,10 +373,10 @@
     height: 8px;
   }
   ::-webkit-scrollbar-track {
-    background: #fbf9f6;
+    background: var(--background);
   }
   ::-webkit-scrollbar-thumb {
-    background: #d8cfbf;
+    background: var(--border);
     border-radius: 20px;
   }
 }
@@ -501,3 +703,594 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   PREMIUM DESIGN SYSTEM — Buttons, Cards, Badges, Typography
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Shimmer keyframe for button hover ── */
+@keyframes shimmer-slide {
+  0%   { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(220%) skewX(-12deg); }
+}
+
+/* ── Pulse ring for primary CTA ── */
+@keyframes pulse-ring {
+  0%   { box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.45); }
+  70%  { box-shadow: 0 0 0 12px rgba(245, 166, 35, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(245, 166, 35, 0); }
+}
+
+/* ── Float-up entrance ── */
+@keyframes float-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ════════ BUTTON PRIMITIVES ════════ */
+
+/* btn-primary — filled gradient orange, shimmer on hover */
+@utility btn-primary {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  background: linear-gradient(135deg, #B85C2B 0%, #FFB540 50%, #F59E0B 100%);
+  color: #1B2430;
+  border: none;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow:
+    0 2px 8px rgba(245, 166, 35, 0.3),
+    0 6px 20px rgba(245, 166, 35, 0.2),
+    inset 0 1px 0 rgba(255,255,255,0.35);
+  transition:
+    transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 200ms ease,
+    filter 150ms ease;
+
+  /* Shimmer overlay */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.55) 50%,
+      transparent 65%
+    );
+    transform: translateX(-100%) skewX(-12deg);
+    transition: none;
+  }
+
+  &:hover {
+    transform: translateY(-2px) scale(1.015);
+    box-shadow:
+      0 4px 14px rgba(245, 166, 35, 0.45),
+      0 12px 32px rgba(245, 166, 35, 0.25),
+      inset 0 1px 0 rgba(255,255,255,0.35);
+    filter: brightness(1.04);
+  }
+
+  &:hover::after {
+    animation: shimmer-slide 600ms ease forwards;
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+    box-shadow: 0 2px 8px rgba(245, 166, 35, 0.3);
+  }
+}
+
+/* btn-primary-pulse — same as above but with continuous ring pulse for hero CTA */
+@utility btn-primary-pulse {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px 32px;
+  border-radius: 14px;
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  background: linear-gradient(135deg, #B85C2B 0%, #FFB540 50%, #F59E0B 100%);
+  color: #1B2430;
+  border: none;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow:
+    0 2px 8px rgba(245, 166, 35, 0.35),
+    0 8px 24px rgba(245, 166, 35, 0.22),
+    inset 0 1px 0 rgba(255,255,255,0.4);
+  animation: pulse-ring 2.5s cubic-bezier(0.66, 0, 0, 1) infinite;
+  transition:
+    transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    filter 150ms ease;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.5) 50%,
+      transparent 65%
+    );
+    transform: translateX(-100%) skewX(-12deg);
+  }
+
+  &:hover {
+    transform: translateY(-2px) scale(1.02);
+    filter: brightness(1.06);
+    animation: none;
+  }
+
+  &:hover::after {
+    animation: shimmer-slide 550ms ease forwards;
+  }
+
+  &:active {
+    transform: scale(0.98);
+    animation: none;
+  }
+}
+
+/* btn-outline — glass border on dark/hero backgrounds */
+@utility btn-outline {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 13px 28px;
+  border-radius: 12px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.7);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
+}
+
+/* btn-ghost — subtle bordered, for inside cards */
+@utility btn-ghost {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  background: var(--muted);
+  color: var(--foreground);
+  border: 1.5px solid var(--border);
+  cursor: pointer;
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  &:hover {
+    background: var(--card);
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+/* btn-dark — filled dark/navy, "Visit Store", "Details" etc. */
+@utility btn-dark {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1;
+  background: var(--chrome-deep);
+  color: var(--on-chrome);
+  border: 1.5px solid transparent;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+  transition:
+    opacity 180ms ease,
+    transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 180ms ease;
+
+  &:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  }
+
+  &:active {
+    transform: scale(0.97);
+    opacity: 1;
+  }
+}
+
+/* ════════ CARD PRIMITIVES ════════ */
+
+/* card-premium — main elevated product card */
+@utility card-premium {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.04),
+    0 4px 12px rgba(0,0,0,0.06);
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 320ms ease;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow:
+      0 2px 6px rgba(0,0,0,0.04),
+      0 12px 32px rgba(0,0,0,0.10),
+      0 24px 48px rgba(0,0,0,0.06);
+    border-color: rgba(245, 166, 35, 0.3);
+  }
+}
+
+/* card-glass — frosted glass panel for hero overlays / stat badges */
+@utility card-glass {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 14px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+}
+
+/* card-inset — muted well inside a section */
+@utility card-inset {
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.03);
+  transition: box-shadow 250ms ease;
+
+  &:hover {
+    box-shadow:
+      inset 0 1px 3px rgba(0,0,0,0.03),
+      0 4px 16px rgba(0,0,0,0.07);
+  }
+}
+
+/* ════════ BADGE / LABEL PRIMITIVES ════════ */
+
+/* badge-primary — orange pill badge */
+@utility badge-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: linear-gradient(135deg, #B85C2B, #FFB540);
+  color: #1B2430;
+  box-shadow: 0 2px 8px rgba(245,166,35,0.28);
+}
+
+/* festive-strip — gold gradient hero pill for gift/festival offers
+   (Diwali, Christmas, Holi, gift-themed campaigns), distinct from the
+   plain glass strip other hero offers use. */
+@utility festive-strip {
+  background: linear-gradient(135deg, rgba(184,92,43,0.35), rgba(255,181,64,0.28));
+  border-color: color-mix(in srgb, var(--gold) 55%, transparent);
+  animation: pulse-ring 2.5s cubic-bezier(0.66, 0, 0, 1) infinite;
+}
+
+@keyframes sparkle-pop {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50%      { transform: scale(1.15) rotate(-8deg); }
+}
+
+@utility festive-strip-icon {
+  animation: sparkle-pop 1.8s ease-in-out infinite;
+}
+
+/* badge-dark — navy pill badge */
+@utility badge-dark {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: var(--chrome-deep);
+  color: var(--on-chrome);
+}
+
+/* badge-success — green in-stock pill */
+@utility badge-success {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+/* badge-outline — thin border tag */
+@utility badge-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: transparent;
+  color: var(--muted-foreground);
+  border: 1.5px solid var(--border);
+}
+
+/* ════════ TYPOGRAPHY UTILITIES ════════ */
+
+/* eyebrow — section label above headings (common in 2024/25 premium sites) */
+@utility eyebrow-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--primary);
+
+  &::before {
+    content: "";
+    display: inline-block;
+    width: 24px;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #B85C2B, #FFB540);
+  }
+}
+
+/* heading-display — max-weight display heading */
+@utility heading-display {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.0;
+}
+
+/* text-gradient-brand — orange gradient text clipping */
+@utility text-gradient-brand {
+  background: linear-gradient(135deg, #B85C2B 0%, #FFB540 60%, #F59E0B 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* price-tag — large price number */
+@utility price-tag {
+  font-family: var(--font-display);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  color: var(--primary);
+}
+
+/* section-title — h2 with left accent line */
+@utility section-title {
+  position: relative;
+  padding-left: 16px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #B85C2B, #F59E0B);
+  }
+}
+
+/* ════════ INTERACTIVE MICRO-ANIMATIONS ════════ */
+
+/* tab-chip — brand filter / category pill */
+@utility tab-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  border: 1.5px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  transition:
+    background 180ms ease,
+    border-color 180ms ease,
+    color 180ms ease,
+    transform 150ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 180ms ease;
+
+  &:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245,166,35,0.25);
+  }
+}
+
+@utility tab-chip-active {
+  border-color: #F5A623 !important;
+  background: linear-gradient(135deg, #F5A623 0%, #FFB540 100%) !important;
+  color: #101722 !important;
+  font-weight: 800 !important;
+  box-shadow: 0 4px 14px rgba(245,166,35,0.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* ════════ IMAGE TREATMENTS ════════ */
+
+/* img-cover — product image container */
+@utility img-cover-frame {
+  position: relative;
+  overflow: hidden;
+  border-radius: 12px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  &:hover img {
+    transform: scale(1.06);
+  }
+}
+
+/* ════════ SECTION SPACING ════════ */
+@utility section-py {
+  padding-top: clamp(48px, 6vw, 96px);
+  padding-bottom: clamp(48px, 6vw, 96px);
+}
+
+@utility section-px {
+  padding-left: clamp(16px, 4vw, 48px);
+  padding-right: clamp(16px, 4vw, 48px);
+}
+
+/* ════════ PROMO MARQUEE TICKER ANIMATION ════════ */
+@keyframes ticker-slide {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@utility ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker-slide 32s linear infinite;
+  will-change: transform;
+
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+/* ════════ PROMO AD BANNER UTILITIES ════════ */
+@utility ad-card-glow {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 300ms ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.18), transparent 70%);
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 36px rgba(0,0,0,0.18);
+  }
+}
+
+/* ════════ BRAND LOGO UNIQUE & LOVING TYPOGRAPHY ════════ */
+@utility font-brand {
+  font-family: "Philosopher", "Marcellus", "Outfit", sans-serif;
+}
+
+@utility font-loving {
+  font-family: "Philosopher", "Playfair Display", "Marcellus", serif;
+}
+
+@utility logo-text-gradient {
+  background: linear-gradient(135deg, #F5A623 0%, #FFB03A 45%, #F59E0B 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+

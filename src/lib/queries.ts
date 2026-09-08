@@ -4,13 +4,12 @@ import {
   normalizeInventoryProduct,
   normalizeInventoryRefurbished,
   normalizeHamperItem,
-  normalizeNewOffer,
   normalizeNewGalleryItem,
   type Product,
   type SettingsMap,
   type Brand,
   type Offer,
-  type PromoPopup,
+  type Review,
   type GalleryItem,
   type RefurbishedProduct,
   type GiftHamperProduct,
@@ -110,31 +109,81 @@ export const brandsQuery = queryOptions({
   },
 });
 
+// Both offersQuery, activePopupQuery and heroBannerQuery share the same
+// "currently running" window: null starts_at/ends_at means unbounded on
+// that side.
+function withinOfferWindow<T extends { or: (filter: string) => T }>(query: T): T {
+  const now = new Date().toISOString();
+  return query
+    .or(`starts_at.is.null,starts_at.lte.${now}`)
+    .or(`ends_at.is.null,ends_at.gte.${now}`);
+}
+
 export const offersQuery = queryOptions({
   queryKey: ["offers"],
   queryFn: async (): Promise<Offer[]> => {
-    const { data, error } = await supabase
-      .from("offers")
-      .select("*")
-      .eq("is_active", true)
-      .order("created_at", { ascending: false });
+    const { data, error } = await withinOfferWindow(
+      supabase
+        .from("offers")
+        .select("*")
+        .eq("is_active", true)
+        .neq("display_mode", "popup")
+    ).order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return (data ?? []).map((row) => normalizeNewOffer(row as Record<string, unknown>));
+    return (data ?? []) as Offer[];
   },
 });
 
 export const activePopupQuery = queryOptions({
   queryKey: ["active-popup"],
   retry: false,
-  queryFn: async (): Promise<PromoPopup | null> => {
-    const { data, error } = await supabase
-      .from("promotional_popups")
-      .select("*")
-      .eq("is_enabled", true)
+  queryFn: async (): Promise<Offer | null> => {
+    const { data, error } = await withinOfferWindow(
+      supabase
+        .from("offers")
+        .select("*")
+        .eq("is_active", true)
+        .eq("display_mode", "popup")
+    )
+      .order("created_at", { ascending: false })
       .limit(1)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return data as PromoPopup | null;
+    return data as Offer | null;
+  },
+});
+
+export const heroBannerOfferQuery = queryOptions({
+  queryKey: ["hero-banner-offer"],
+  retry: false,
+  queryFn: async (): Promise<Offer | null> => {
+    const { data, error } = await withinOfferWindow(
+      supabase
+        .from("offers")
+        .select("*")
+        .eq("is_active", true)
+        .eq("display_mode", "hero_banner")
+    )
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return data as Offer | null;
+  },
+});
+
+export const reviewsQuery = queryOptions({
+  queryKey: ["reviews"],
+  retry: false,
+  queryFn: async (): Promise<Review[]> => {
+    const { data, error } = await supabase
+      .from("reviews")
+      .select("*")
+      .eq("is_featured", true)
+      .order("created_at", { ascending: false })
+      .limit(9);
+    if (error) throw new Error(error.message);
+    return (data ?? []) as Review[];
   },
 });
 

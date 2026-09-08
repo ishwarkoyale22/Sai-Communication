@@ -1,158 +1,296 @@
 import { Link } from "@tanstack/react-router";
-import { Facebook, Instagram, Youtube, MapPin, MessageCircle, Phone, Twitter, Package, Wrench, Star } from "lucide-react";
+import {
+  Send,
+  Phone,
+  Mail,
+  Twitter,
+  Facebook,
+  Linkedin,
+  Instagram,
+  MessageCircle,
+} from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
-
-const QUICK_LINKS = [
-  { to: "/products", label: "Products" },
-  { to: "/repair", label: "Mobile Repair" },
-  { to: "/refurbished", label: "Refurbished Phones" },
-  { to: "/gift-hampers", label: "Gift Hampers" },
-  { to: "/offers", label: "Offers & Deals" },
-  { to: "/gallery", label: "Gallery" },
-];
-
-const INFO_LINKS = [
-  { to: "/about", label: "About Us" },
-  { to: "/services", label: "Services" },
-  { to: "/contact", label: "Contact" },
-  { to: "/order-track", label: "Track Order" },
-  { to: "/privacy-policy", label: "Privacy Policy" },
-  { to: "/terms-and-conditions", label: "Terms & Conditions" },
-];
 
 export function SiteFooter() {
   const settings = useSettings();
   const year = new Date().getFullYear();
+  const phone = settings["phone"] || "09845458942";
+  const whatsapp = settings["whatsapp"] || "917507575755";
+  const address =
+    settings["address"] ||
+    "Shop No. 30, P.L. Khandge Plaza, Opp. Talegaon Railway Station, Talegaon Dabhade, Pune 410507";
+  const email = settings["email"] || "saicommunication.talegaon@gmail.com";
+
+  const QUICK_LINKS = [
+    { to: "/products", search: { q: "", category: "Smartphones" }, label: "Smartphones (All Brands)" },
+    { to: "/refurbished", label: "Certified Refurbished Handsets" },
+    { to: "/repair", label: "Chip-Level Laboratory Repair" },
+    { to: "/gift-hampers", label: "Custom Festive Gift Hampers" },
+    { to: "/contact", label: "0% Down Payment EMI Schemes" },
+    { to: "/products", search: { q: "", category: "Accessories" }, label: "Mobile Accessories & Earbuds" },
+    { to: "/order-track", label: "Track Live Repair / Order Status" },
+  ];
+
+  const SERVICES = [
+    { to: "/repair", label: "30-Min Display & Screen Replacement" },
+    { to: "/repair", label: "Battery & Fast Charging Port Fix" },
+    { to: "/repair", label: "Motherboard IC Micro-Soldering" },
+    { to: "/repair", label: "Water & Liquid Damage Recovery" },
+    { to: "/products", search: { q: "", category: "Smartphones" }, label: "Old Phone Exchange Bonus (₹3,500)" },
+    { to: "/contact", label: "Bajaj Finserv & TVS Credit Approvals" },
+    { to: "/refurbished", label: "42-Point Handset Quality Inspection" },
+  ];
+
+  const SOCIAL_UPDATES = [
+    {
+      text: "Festival Special: Exchange any old 4G/5G handset and get flat ₹3,500 extra bonus. In-store only...",
+      link: "https://sai-communication.in/deals",
+      to: "/products" as const,
+    },
+    {
+      text: "New Stock: iPhone 16 & Samsung S24 Series now available with zero-down payment EMI in Talegaon...",
+      link: "https://sai-communication.in/smartphones",
+      to: "/products" as const,
+    },
+    {
+      text: "Express Lab: 30-minute display replacement with 90-day warranty running daily by Vijay Sir...",
+      link: "https://sai-communication.in/repair",
+      to: "/repair" as const,
+    },
+  ];
 
   return (
-    <footer className="relative overflow-hidden border-t border-border bg-card/40">
-      {/* Thin gold hairline, echoes the header's premium strip instead of a flat cutoff */}
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent"
-        aria-hidden="true"
-      />
-      <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-14 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Brand */}
-        <div>
-          <h2 className="text-lg font-medium font-serif text-primary">{settings["shop_name"]}</h2>
-          <p className="mt-2 text-sm text-muted-foreground">{settings["tagline"]}</p>
-          <p className="caption-mono mt-3">Est. {settings["established"]} · {settings["verification"]}</p>
-          <div className="mt-4 flex gap-2">
-            {settings["facebook"] && (
-              <a href={settings["facebook"]} target="_blank" rel="noopener noreferrer" aria-label="Facebook"
-                className="flex size-9 items-center justify-center rounded-full border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:text-white"
-                style={{ borderColor: "#1877F233", color: "#1877F2" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#1877F2")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "")}>
-                <Facebook className="size-4" />
-              </a>
-            )}
-            {settings["instagram"] && (
-              <a href={settings["instagram"]} target="_blank" rel="noopener noreferrer" aria-label="Instagram"
-                className="flex size-9 items-center justify-center rounded-full border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:text-white"
-                style={{ borderColor: "#E1306C33", color: "#E1306C" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "linear-gradient(45deg,#F58529,#DD2A7B,#8134AF,#515BD4)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "")}>
-                <Instagram className="size-4" />
-              </a>
-            )}
-            {settings["youtube"] && (
-              <a href={settings["youtube"]} target="_blank" rel="noopener noreferrer" aria-label="YouTube"
-                className="flex size-9 items-center justify-center rounded-full border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:text-white"
-                style={{ borderColor: "#FF000033", color: "#FF0000" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "#FF0000")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "")}>
-                <Youtube className="size-4" />
-              </a>
-            )}
-            <a href={`https://wa.me/${settings["whatsapp"]}`} target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
-              className="flex size-9 items-center justify-center rounded-full border bg-card transition-all duration-300 hover:-translate-y-0.5 hover:text-white"
-              style={{ borderColor: "#25D36633", color: "#25D366" }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#25D366")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "")}>
-              <MessageCircle className="size-4" />
-            </a>
+    <footer
+      className="w-full text-slate-300"
+      style={{
+        backgroundColor: "#1F2732",
+      }}
+    >
+      {/* ── Top Main Footer Grid (4 Columns matching Bootstrap 4 Footer reference) ── */}
+      <div className="mx-auto max-w-7xl px-5 py-14 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-12">
+          {/* Column 1: Brand & Find us (4 cols) */}
+          <div className="lg:col-span-4 space-y-4">
+            <Link to="/" className="inline-flex items-center gap-2.5 group select-none">
+              <div
+                className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5A623] via-[#FF9820] to-[#E55A1B] text-white font-bold text-lg shadow-md ring-1 ring-white/20"
+                style={{ fontFamily: "'Philosopher', 'Playfair Display', serif" }}
+              >
+                S
+              </div>
+              <div
+                className="font-bold text-lg tracking-tight leading-none"
+                style={{ fontFamily: "'Philosopher', 'Marcellus', serif" }}
+              >
+                <span className="text-white">Sai </span>
+                <span className="logo-text-gradient">Communication</span>
+              </div>
+            </Link>
+
+            <p className="text-xs leading-relaxed text-slate-400 max-w-sm">
+              Serving Talegaon Dabhade &amp; Pune since 2005. Sai Communication is your trusted multi-brand smartphone showroom, certified refurbished center, and express chip-level repair laboratory headed by Vijay Sir.
+            </p>
+
+            <div className="space-y-2.5 pt-2 text-xs text-slate-300">
+              {/* Location */}
+              <div className="flex items-start gap-3">
+                <Send className="size-4 shrink-0 text-[#F5A623] mt-0.5" />
+                <span className="leading-snug text-slate-300">{address}</span>
+              </div>
+
+              {/* Phone */}
+              <div className="flex items-center gap-3">
+                <Phone className="size-4 shrink-0 text-[#F5A623]" />
+                <a
+                  href={`tel:${phone}`}
+                  className="hover:text-[#F5A623] transition-colors font-medium text-slate-200"
+                >
+                  +91-{phone.replace(/^(\+91|0)/, "")}
+                </a>
+              </div>
+
+              {/* Email */}
+              <div className="flex items-center gap-3">
+                <Mail className="size-4 shrink-0 text-[#F5A623]" />
+                <a
+                  href={`mailto:${email}`}
+                  className="hover:text-[#F5A623] transition-colors text-slate-200"
+                >
+                  {email}
+                </a>
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Quick Links */}
-        <div>
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Quick Links</h3>
-          <ul className="mt-3 space-y-2 text-sm">
-            {QUICK_LINKS.map((l) => (
-              <li key={l.to}>
-                <Link to={l.to} className="link-underline text-foreground/80 hover:text-primary">{l.label}</Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* Column 2: Quick links (3 cols) */}
+          <div className="lg:col-span-3 space-y-4">
+            <h3 className="text-base font-bold text-white tracking-wide">
+              Quick links
+            </h3>
+            <ul className="space-y-2.5 text-xs text-slate-400">
+              {QUICK_LINKS.map((item, idx) => (
+                <li key={idx}>
+                  <Link
+                    to={item.to}
+                    search={"search" in item ? item.search : undefined}
+                    className="hover:text-[#F5A623] hover:translate-x-1 inline-block transition-all"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* Info */}
-        <div>
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Information</h3>
-          <ul className="mt-3 space-y-2 text-sm">
-            {INFO_LINKS.map((l) => (
-              <li key={l.to}>
-                <Link to={l.to} className="link-underline text-foreground/80 hover:text-primary">{l.label}</Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* Column 3: Quick links / Services (2 cols) */}
+          <div className="lg:col-span-2 space-y-4">
+            <h3 className="text-base font-bold text-white tracking-wide">
+              Quick links
+            </h3>
+            <ul className="space-y-2.5 text-xs text-slate-400">
+              {SERVICES.map((item, idx) => (
+                <li key={idx}>
+                  <Link
+                    to={item.to}
+                    search={"search" in item ? item.search : undefined}
+                    className="hover:text-[#F5A623] hover:translate-x-1 inline-block transition-all"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-        {/* Contact */}
-        <div>
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Visit & Contact</h3>
-          <a href={`tel:${settings["phone"]}`} className="mt-3 flex items-center gap-2 text-sm text-foreground/80 hover:text-primary">
-            <Phone className="size-4 text-gold" /> {settings["phone"]}
-          </a>
-          {settings["phone_alt"] && (
-            <a href={`tel:${settings["phone_alt"]}`} className="mt-2 flex items-center gap-2 text-sm text-foreground/80 hover:text-primary">
-              <Phone className="size-4 text-gold" /> {settings["phone_alt"]}
-            </a>
-          )}
-          <a href={`https://wa.me/${settings["whatsapp"]}`} target="_blank" rel="noopener noreferrer"
-            className="mt-2 flex items-center gap-2 text-sm text-foreground/80 hover:text-primary">
-            <MessageCircle className="size-4 text-gold" /> WhatsApp Chat
-          </a>
-          <p className="mt-3 flex gap-2 text-xs text-muted-foreground">
-            <MapPin className="mt-0.5 size-4 shrink-0 text-gold" />
-            {settings["address"]}
-          </p>
-          <p className="mt-2 text-xs text-muted-foreground">{settings["hours"]}</p>
+          {/* Column 4: Follow us with Twitter update stream (3 cols) */}
+          <div className="lg:col-span-3 space-y-4">
+            <h3 className="text-base font-bold text-white tracking-wide">
+              Follow us
+            </h3>
+            <div className="space-y-3.5 text-xs">
+              {SOCIAL_UPDATES.map((update, idx) => (
+                <div key={idx} className="flex items-start gap-2.5">
+                  <Twitter className="size-4 shrink-0 text-[#00ACEE] mt-0.5" />
+                  <p className="text-slate-400 leading-relaxed">
+                    {update.text}{" "}
+                    <Link
+                      to={update.to}
+                      className="text-[#00ACEE] hover:underline break-all"
+                    >
+                      {update.link}
+                    </Link>
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
+      {/* ── Divider line ── */}
       <div
-        className="relative flex flex-wrap items-center justify-center gap-x-3 gap-y-2 border-t px-4 py-5 text-center text-xs"
-        style={{ borderColor: "#2A2E22", background: "#14150F", color: "#9A9E8C" }}
-      >
-        <span>
-          © {year} {settings["shop_name"]}. All rights reserved. · Talegaon Dabhade, Pune, Maharashtra
-        </span>
-        <span className="hidden h-3 w-px sm:block" style={{ background: "#2A2E22" }} />
-        <span className="inline-flex items-center gap-3">
-          <Link to="/privacy-policy" style={{ color: "#9A9E8C" }} className="hover:text-white transition-colors">
-            Privacy Policy
+        className="w-full border-t"
+        style={{ borderColor: "rgba(255, 255, 255, 0.08)" }}
+      />
+
+      {/* ── Bottom Section (Horizontal Nav + Copyright + Circular Social Icons) ── */}
+      <div className="mx-auto max-w-7xl px-4 py-8 text-center sm:px-6">
+        {/* Horizontal Navigation row */}
+        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-slate-300">
+          <Link to="/" className="hover:text-[#F5A623] transition-colors">
+            Home
           </Link>
-          <span style={{ color: "#2A2E22" }}>·</span>
-          <Link to="/terms-and-conditions" style={{ color: "#9A9E8C" }} className="hover:text-white transition-colors">
-            Terms &amp; Conditions
+          <Link to="/about" className="hover:text-[#F5A623] transition-colors">
+            About
           </Link>
-        </span>
-        <span className="hidden h-3 w-px sm:block" style={{ background: "#2A2E22" }} />
-        <span className="inline-flex items-center gap-1.5">
-          Designed by
+          <Link to="/repair" className="hover:text-[#F5A623] transition-colors">
+            Services
+          </Link>
+          <Link to="/products" className="hover:text-[#F5A623] transition-colors">
+            Pricing
+          </Link>
+          <Link to="/gift-hampers" className="hover:text-[#F5A623] transition-colors">
+            Hampers
+          </Link>
+          <Link to="/contact" className="hover:text-[#F5A623] transition-colors">
+            Contact
+          </Link>
+        </nav>
+
+        {/* Copyright notice */}
+        <p className="mt-4 text-xs text-slate-400">
+          Copyright © {year} | Designed with ❤️ for{" "}
+          <span
+            className="font-bold text-white tracking-wide"
+            style={{ fontFamily: "'Philosopher', 'Marcellus', serif" }}
+          >
+            Sai <span className="logo-text-gradient">Communication</span>
+          </span>{" "}
+          | Founder: <span className="text-slate-300 font-medium">Vijay Sir</span>
+        </p>
+
+        {/* Circular Social Media Icon Buttons */}
+        <div className="mt-5 flex items-center justify-center gap-3">
+          {/* Facebook */}
           <a
-            href="https://relentix.in"
+            href={settings["facebook"] || "https://facebook.com"}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-full border px-3 py-1 font-semibold uppercase tracking-[0.5px] transition-colors hover:bg-gold/10"
-            style={{ borderColor: "#B8894B", color: "#D9B57C" }}
+            aria-label="Facebook"
+            className="flex size-9 items-center justify-center rounded-full border text-slate-300 transition-all hover:bg-[#F5A623] hover:text-[#1B2430] hover:border-[#F5A623] hover:scale-110"
+            style={{
+              backgroundColor: "#19212A",
+              borderColor: "rgba(255, 255, 255, 0.2)",
+            }}
           >
-            <Star className="size-3 fill-current" />
-            Relentix
+            <Facebook className="size-4 fill-current" />
           </a>
-        </span>
+
+          {/* Twitter / X */}
+          <a
+            href="https://twitter.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Twitter"
+            className="flex size-9 items-center justify-center rounded-full border text-slate-300 transition-all hover:bg-[#F5A623] hover:text-[#1B2430] hover:border-[#F5A623] hover:scale-110"
+            style={{
+              backgroundColor: "#19212A",
+              borderColor: "rgba(255, 255, 255, 0.2)",
+            }}
+          >
+            <Twitter className="size-4 fill-current" />
+          </a>
+
+          {/* LinkedIn / WhatsApp */}
+          <a
+            href={`https://wa.me/${whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="WhatsApp"
+            className="flex size-9 items-center justify-center rounded-full border text-slate-300 transition-all hover:bg-[#F5A623] hover:text-[#1B2430] hover:border-[#F5A623] hover:scale-110"
+            style={{
+              backgroundColor: "#19212A",
+              borderColor: "rgba(255, 255, 255, 0.2)",
+            }}
+          >
+            <Linkedin className="size-4 fill-current" />
+          </a>
+
+          {/* Instagram */}
+          <a
+            href={settings["instagram"] || "https://instagram.com"}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Instagram"
+            className="flex size-9 items-center justify-center rounded-full border text-slate-300 transition-all hover:bg-[#F5A623] hover:text-[#1B2430] hover:border-[#F5A623] hover:scale-110"
+            style={{
+              backgroundColor: "#19212A",
+              borderColor: "rgba(255, 255, 255, 0.2)",
+            }}
+          >
+            <Instagram className="size-4" />
+          </a>
+        </div>
       </div>
     </footer>
   );

@@ -1,4 +1,4 @@
-﻿import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from "react";
 import type { CartItemType, Product, RefurbishedProduct, GiftHamperProduct } from "@/lib/types";
 
 interface CartContextType {
@@ -15,8 +15,59 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | null>(null);
 
+// Cart items only ever hold product/quantity/display info (see CartItemType)
+// — no customer or payment details — so it's safe to persist as-is.
+const CART_STORAGE_KEY = "sc_cart_v1";
+
+function isCartItem(v: unknown): v is CartItemType {
+  if (!v || typeof v !== "object") return false;
+  const item = v as Record<string, unknown>;
+  return (
+    typeof item["id"] === "string" &&
+    typeof item["name"] === "string" &&
+    typeof item["price"] === "number" &&
+    typeof item["quantity"] === "number" &&
+    typeof item["item_type"] === "string"
+  );
+}
+
+function loadStoredCart(): CartItemType[] {
+  try {
+    const raw = localStorage.getItem(CART_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed: unknown = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter(isCartItem) : [];
+  } catch {
+    // Corrupted JSON, storage blocked (private mode), or unavailable —
+    // fall back to an empty cart rather than throwing.
+    return [];
+  }
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
+  // Always starts empty on both server and the client's first render, so
+  // there is nothing for hydration to mismatch on. The persisted cart (if
+  // any) is restored client-side after mount, below — a normal post-mount
+  // state update, not a hydration diff.
   const [items, setItems] = useState<CartItemType[]>([]);
+  const hydratedRef = useRef(false);
+
+  useEffect(() => {
+    setItems(loadStoredCart());
+    hydratedRef.current = true;
+  }, []);
+
+  useEffect(() => {
+    // Skip the very first run (before the restore effect above has fired)
+    // so we never clobber a saved cart with the initial empty array.
+    if (!hydratedRef.current) return;
+    try {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
+    } catch {
+      // Storage full or blocked — cart still works for this session, it
+      // just won't survive a refresh.
+    }
+  }, [items]);
 
   const addProduct = useCallback((product: Product, qty = 1, variant: Record<string, string> = {}) => {
     const key = `product-${product.id}-${JSON.stringify(variant)}`;

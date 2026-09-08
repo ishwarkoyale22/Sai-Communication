@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sai Communication | The Neo-Studio Edition (Spatial Bento & Interactive Lab)</title>
+  <meta name="description" content="A revolutionary, next-generation mobile showroom experience for Sai Communication, Talegaon Dabhade, Pune. Interactive phone studio, live EMI slider, 30-min repair diagnostics & certified refurbished vault.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Syne:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-space: #07090E;
+      --bg-surface: #0E121B;
+      --bg-surface-elevated: #151B28;
+      --bg-glass: rgba(21, 27, 40, 0.7);
+      --border-glass: rgba(255, 255, 255, 0.09);
+      --border-glow: rgba(0, 242, 254, 0.35);
+      
+      --accent-emerald: #10B981;
+      --accent-cyan: #00F2FE;
+      --accent-indigo: #6366F1;
+      --accent-amber: #F59E0B;
+      
+      --text-white: #FFFFFF;
+      --text-soft: #E2E8F0;
+      --text-muted: #8290A5;
+      
+      --radius-pill: 9999px;
+      --radius-xl: 20px;
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      
+      --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      background-color: var(--bg-space);
+      color: var(--text-soft);
+      line-height: 1.6;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 85% 30%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 50% 80%, rgba(0, 242, 254, 0.08) 0%, transparent 55%);
+      background-attachment: fixed;
+    }
+
+    h1, h2, h3, h4, .font-display {
+      font-family: 'Syne', sans-serif;
+      color: var(--text-white);
+      letter-spacing: -0.5px;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: var(--transition);
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Template Switcher Bar */
+    .demo-bar {
+      background: rgba(7, 9, 14, 0.85);
+      color: #94A3B8;
+      font-size: 12px;
+      padding: 9px 20px;
+      border-bottom: 1px solid var(--border-glass);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(14px);
+    }
+    .demo-bar-badge {
+      background: linear-gradient(135deg, var(--accent-emerald), var(--accent-cyan));
+      color: #07090E;
+      padding: 3px 10px;
+      border-radius: var(--radius-pill);
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+    .demo-bar-links {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .demo-bar-links a {
+      color: #CBD5E1;
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .demo-bar-links a:hover,
+    .demo-bar-links a.active {
+      background: rgba(16, 185, 129, 0.18);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    /* FLOATING GLASS HEADER */
+    .spatial-header {
+      padding: 20px 0;
+      position: sticky;
+      top: 38px;
+      z-index: 950;
+    }
+    .header-pill-inner {
+      background: rgba(14, 18, 27, 0.8);
+      border: 1px solid var(--border-glass);
+      backdrop-filter: blur(20px);
+      padding: 12px 28px;
+      border-radius: var(--radius-pill);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-logo-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10B981, #00F2FE);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #07090E;
+      font-size: 18px;
+      font-weight: 900;
+      font-family: 'Syne', sans-serif;
+      box-shadow: 0 0 16px rgba(0, 242, 254, 0.35);
+    }
+    .brand-meta h1 {
+      font-size: 18px;
+      font-weight: 900;
+      line-height: 1.1;
+      color: white;
+    }
+    .brand-meta p {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .header-nav a {
+      font-size: 13px;
+      font-weight: 600;
+      color: #94A3B8;
+      position: relative;
+    }
+    .header-nav a:hover,
+    .header-nav a.active {
+      color: white;
+    }
+    .header-nav a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 8px var(--accent-emerald);
+    }
+
+    .header-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .btn-live-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--accent-emerald);
+      padding: 6px 14px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .live-pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-emerald);
+      box-shadow: 0 0 10px var(--accent-emerald);
+      animation: livePulse 1.8s infinite;
+    }
+    @keyframes livePulse {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
+    }
+    .btn-cart-studio {
+      background: white;
+      color: #07090E;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(255, 255, 255, 0.2);
+    }
+    .btn-cart-studio:hover {
+      background: var(--accent-cyan);
+      transform: translateY(-2px);
+    }
+    .cart-pill-count {
+      background: #07090E;
+      color: white;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 1px 7px;
+      border-radius: 10px;
+    }
+
+    /* 1. HERO: SPATIAL DEVICE STAGE */
+    .hero-spatial {
+      padding: 40px 0 60px;
+      position: relative;
+    }
+    .hero-spatial-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: center;
+      gap: 40px;
+    }
+    .hero-badge-strip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      padding: 6px 16px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      margin-bottom: 22px;
+    }
+    .hero-spatial h2 {
+      font-size: 56px;
+      font-weight: 900;
+      line-height: 1.05;
+      margin-bottom: 20px;
+      letter-spacing: -1.5px;
+    }
+    .hero-spatial h2 span.gradient-text {
+      background: linear-gradient(135deg, #00F2FE 0%, #10B981 50%, #6366F1 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-spatial p.lead-copy {
+      font-size: 17px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      max-width: 530px;
+      margin-bottom: 34px;
+    }
+
+    .hero-cta-cluster {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-spatial-primary {
+      background: linear-gradient(135deg, #10B981 0%, #00F2FE 100%);
+      color: #07090E;
+      font-size: 15px;
+      font-weight: 900;
+      padding: 15px 34px;
+      border-radius: var(--radius-pill);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 242, 254, 0.35);
+    }
+    .btn-spatial-primary:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 14px 40px rgba(0, 242, 254, 0.5);
+    }
+    .btn-spatial-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--border-glass);
+      color: white;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 14px 28px;
+      border-radius: var(--radius-pill);
+      backdrop-filter: blur(10px);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-spatial-secondary:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Spatial Hero Display Stage */
+    .hero-stage-card {
+      background: var(--bg-glass);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-xl);
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+      text-align: center;
+    }
+    .hero-stage-card::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      left: -30%;
+      width: 160%;
+      height: 160%;
+      background: radial-gradient(circle, rgba(0, 242, 254, 0.1) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .stage-device-img {
+      max-height: 380px;
+      margin: 0 auto;
+      filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.6));
+      transition: all 0.5s ease;
+    }
+    .stage-hud-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid var(--border-glass);
+    }
+    .hud-stat-item {
+      text-align: left;
+    }
+    .hud-stat-item small {
+      display: block;
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .hud-stat-item strong {
+      font-size: 15px;
+      color: white;
+    }
+    .color-picker-dots {
+      display: flex;
+      gap: 8px;
+    }
+    .color-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: var(--transition);
+    }
+    .color-dot:hover, .color-dot.active {
+      transform: scale(1.25);
+      border-color: white;
+    }
+
+    /* 2. THE BENTO GRID SERVICE MATRIX (The Heart of All-in-One) */
+    .bento-section {
+      padding: 50px 0 60px;
+    }
+    .section-eyebrow {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 6px;
+    }
+    .section-headline-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 36px;
+    }
+    .section-headline-row h3 {
+      font-size: 34px;
+      font-weight: 900;
+      letter-spacing: -0.8px;
+    }
+
+    .bento-matrix {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 24px;
+    }
+    .bento-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-xl);
+      padding: 30px;
+      position: relative;
+      overflow: hidden;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .bento-card:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    /* BENTO 1: LIVE EMI CALCULATOR */
+    .bento-emi {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+      background: linear-gradient(145deg, #111726 0%, #0C1019 100%);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+    }
+    .bento-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      background: rgba(99, 102, 241, 0.2);
+      color: #A5B4FC;
+      margin-bottom: 14px;
+    }
+    .bento-emi h4 {
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .bento-emi p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+    .emi-slider-box {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 18px;
+      border-radius: var(--radius-md);
+      margin-bottom: 18px;
+    }
+    .emi-calc-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 12px;
+    }
+    .emi-amount {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--accent-cyan);
+      font-family: 'Syne', sans-serif;
+    }
+    .range-slider {
+      width: 100%;
+      accent-color: var(--accent-cyan);
+      cursor: pointer;
+    }
+
+    /* BENTO 2: 30-MIN IN-STORE LAB DIAGNOSTIC */
+    .bento-repair {
+      grid-column: 2 / 3;
+      grid-row: 1 / 3;
+      background: linear-gradient(145deg, #141D1D 0%, #0D1414 100%);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .bento-repair-tag {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--accent-emerald);
+    }
+    .repair-option-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      margin-bottom: 10px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: var(--transition);
+    }
+    .repair-option-pill:hover, .repair-option-pill.selected {
+      background: rgba(16, 185, 129, 0.15);
+      border-color: var(--accent-emerald);
+      color: white;
+    }
+    .repair-option-pill strong {
+      font-size: 13px;
+    }
+    .repair-option-pill span {
+      font-size: 12px;
+      color: var(--accent-emerald);
+      font-weight: 700;
+    }
+
+    /* BENTO 3: CERTIFIED 52-POINT REFURBISHED VAULT */
+    .bento-refurb {
+      grid-column: 3 / 4;
+      grid-row: 1 / 2;
+      background: linear-gradient(145deg, #1A1426 0%, #100C19 100%);
+      border: 1px solid rgba(192, 132, 252, 0.3);
+    }
+    .refurb-checklist {
+      list-style: none;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 16px 0 20px;
+      font-size: 12px;
+    }
+    .refurb-checklist li {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 6px 10px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #E9D5FF;
+    }
+    .refurb-checklist li svg {
+      width: 14px;
+      height: 14px;
+      stroke: #C084FC;
+      flex-shrink: 0;
+    }
+
+    /* BENTO 4: FESTIVE GIFT HAMPER UNBOXING */
+    .bento-hamper {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+      background: linear-gradient(145deg, #261D12 0%, #171109 100%);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .hamper-items-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .hamper-item-box {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(245, 158, 11, 0.2);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      text-align: center;
+      font-size: 11px;
+    }
+    .hamper-item-box strong {
+      display: block;
+      color: #FDE68A;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    /* BENTO 5: VIJAY SIR'S 2005 TRUST VAULT */
+    .bento-founder {
+      grid-column: 3 / 4;
+      grid-row: 2 / 3;
+      background: linear-gradient(145deg, #151A24 0%, #0E121B 100%);
+    }
+    .founder-mini-profile {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+    .founder-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent-cyan);
+    }
+
+    /* 3. INTERACTIVE CURATED FLAGSHIP SHOWCASE */
+    .catalog-section {
+      padding: 60px 0;
+      background: rgba(0, 0, 0, 0.25);
+    }
+    .catalog-filters {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+    .filter-chip {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      color: var(--text-muted);
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .filter-chip:hover, .filter-chip.active {
+      background: white;
+      color: #07090E;
+      border-color: white;
+    }
+
+    .studio-product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+    .studio-product-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-glass);
+      border-radius: var(--radius-lg);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      transition: var(--transition);
+    }
+    .studio-product-card:hover {
+      border-color: var(--border-glow);
+      transform: translateY(-6px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5);
+    }
+    .card-top-pill {
+      position: absolute;
+      top: 14px;
+      left: 14px;
+      background: rgba(0, 242, 254, 0.12);
+      border: 1px solid rgba(0, 242, 254, 0.3);
+      color: var(--accent-cyan);
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: var(--radius-pill);
+      text-transform: uppercase;
+    }
+    .product-stage-mini {
+      height: 190px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 10px 0 16px;
+    }
+    .product-stage-mini img {
+      max-height: 160px;
+      object-fit: contain;
+      transition: var(--transition);
+    }
+    .studio-product-card:hover .product-stage-mini img {
+      transform: scale(1.08);
+    }
+    .brand-eyebrow {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.6px;
+      margin-bottom: 4px;
+    }
+    .product-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: white;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    
+    /* Interactive Storage Selector on Cards */
+    .storage-selector-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .storage-pill {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-glass);
+      color: #94A3B8;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .storage-pill.active {
+      background: rgba(0, 242, 254, 0.15);
+      border-color: var(--accent-cyan);
+      color: white;
+    }
+
+    .card-bottom-bar {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-glass);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .price-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .price-main {
+      font-size: 19px;
+      font-weight: 900;
+      color: white;
+      font-family: 'Syne', sans-serif;
+    }
+    .price-emi-sub {
+      font-size: 11px;
+      color: var(--accent-emerald);
+      font-weight: 700;
+    }
+    .btn-card-add {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border-glass);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+    .btn-card-add:hover {
+      background: var(--accent-cyan);
+      color: #07090E;
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+    }
+
+    /* 4. INTERACTIVE WHATSAPP / CONCIERGE HUD */
+    .concierge-strip {
+      padding: 60px 0;
+    }
+    .concierge-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(0, 242, 254, 0.08) 100%);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: var(--radius-xl);
+      padding: 36px 45px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 30px;
+    }
+    .concierge-text h3 {
+      font-size: 26px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+    .concierge-text p {
+      color: var(--text-muted);
+      font-size: 15px;
+      max-width: 600px;
+    }
+    .btn-wa-direct {
+      background: #25D366;
+      color: #07090E;
+      font-size: 15px;
+      font-weight: 900;
+      padding: 15px 32px;
+      border-radius: var(--radius-pill);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 10px 25px rgba(37, 211, 102, 0.35);
+      white-space: nowrap;
+    }
+    .btn-wa-direct:hover {
+      background: #1EBE5D;
+      transform: translateY(-3px);
+      box-shadow: 0 14px 35px rgba(37, 211, 102, 0.5);
+    }
+
+    /* FOOTER SPATIAL */
+    .spatial-footer {
+      background: #05060A;
+      border-top: 1px solid var(--border-glass);
+      padding: 65px 0 30px;
+    }
+    .footer-grid-spatial {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr 1.3fr;
+      gap: 40px;
+      margin-bottom: 45px;
+    }
+    .footer-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 20px;
+    }
+    .footer-spatial-links {
+      list-style: none;
+    }
+    .footer-spatial-links li {
+      margin-bottom: 10px;
+    }
+    .footer-spatial-links a {
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .footer-spatial-links a:hover {
+      color: var(--accent-cyan);
+    }
+    .store-address-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      padding: 18px;
+      border-radius: var(--radius-md);
+    }
+    .store-address-box p {
+      font-size: 13px;
+      color: #CBD5E1;
+      margin-bottom: 8px;
+    }
+    .footer-copyright-spatial {
+      border-top: 1px solid var(--border-glass);
+      padding-top: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Toast */
+    .spatial-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--bg-surface-elevated);
+      color: white;
+      border: 1px solid var(--accent-emerald);
+      padding: 14px 22px;
+      border-radius: var(--radius-pill);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transform: translateY(160%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+    }
+    .spatial-toast.show {
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 1080px) {
+      .bento-matrix {
+        grid-template-columns: 1fr;
+      }
+      .bento-card {
+        grid-column: 1 / -1 !important;
+        grid-row: auto !important;
+      }
+      .studio-product-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .hero-spatial-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-grid-spatial {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .concierge-card {
+        flex-direction: column;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-nav { display: none; }
+      .studio-product-grid { grid-template-columns: 1fr; }
+      .footer-grid-spatial { grid-template-columns: 1fr; }
+      .hero-spatial h2 { font-size: 38px; }
+      .footer-copyright-spatial {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Hub Bar -->
+  <div class="demo-bar">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="demo-bar-badge">Template 4: UNIQUE</span>
+      <strong style="color:white;">Spatial Bento & Interactive Lab</strong> (Next-Gen 2026 Experience)
+    </div>
+    <div class="demo-bar-links">
+      <a href="/demo1.html">Demo 1: Purple/Cyan</a>
+      <a href="/demo2.html">Demo 2: Classic Red</a>
+      <a href="/demo3.html">Demo 3: Editorial Orange</a>
+      <a href="/demo4.html" class="active">Demo 4: Spatial Bento</a>
+      <a href="/demos.html" style="background:rgba(255,255,255,0.12); color:#00F2FE;">⇄ Showcase Hub</a>
+    </div>
+  </div>
+
+  <!-- FLOATING SPATIAL HEADER -->
+  <header class="spatial-header">
+    <div class="container">
+      <div class="header-pill-inner">
+        <div class="brand-cluster">
+          <div class="brand-logo-mark">S</div>
+          <div class="brand-meta">
+            <h1>SAI COMMUNICATION</h1>
+            <p>Talegaon Dabhade · Est. 2005 · Pune</p>
+          </div>
+        </div>
+
+        <nav class="header-nav">
+          <a href="#hero" class="active">Studio</a>
+          <a href="#services">Service Matrix</a>
+          <a href="#catalog">Flagships</a>
+          <a href="#lab">Express Lab</a>
+          <a href="#refurb">Certified Refurb</a>
+          <a href="#concierge">Contact</a>
+        </nav>
+
+        <div class="header-right-actions">
+          <div class="btn-live-status">
+            <span class="live-pulse-dot"></span>
+            <span>Open: 10 AM - 10 PM</span>
+          </div>
+          <button class="btn-cart-studio" onclick="toastNotify('Shopping Bag: 3 devices & hampers ready')">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+            <span>Cart</span>
+            <span class="cart-pill-count" id="spatialCartCount">3</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- 1. HERO: SPATIAL DEVICE STAGE -->
+  <section class="hero-spatial" id="hero">
+    <div class="container">
+      <div class="hero-spatial-grid">
+        <div class="hero-copy-stage">
+          <div class="hero-badge-strip">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            21+ YEARS OF TRUST · VIJAY SIR FOUNDER
+          </div>
+          <h2>
+            The Future of Mobile.<br>
+            <span class="gradient-text">All in One Place.</span>
+          </h2>
+          <p class="lead-copy">
+            Talegaon Dabhade's most advanced smartphone showroom and certified chip-level repair lab. Buy genuine sealed 5G phones, experience 30-minute in-store display repairs, and unbox free festive gift hampers.
+          </p>
+          <div class="hero-cta-cluster">
+            <a href="#catalog" class="btn-spatial-primary">
+              Explore 2026 Flagships
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+            <a href="#services" class="btn-spatial-secondary">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+              View Service Matrix
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-stage-card">
+          <img id="mainStagePhone" src="/assets/hero_phones_transparent.png" alt="iPhone 16 Pro Desert Titanium" class="stage-device-img">
+          
+          <div class="stage-hud-bar">
+            <div class="hud-stat-item">
+              <small>Active Flagship</small>
+              <strong id="activePhoneName">iPhone 16 Pro Max</strong>
+            </div>
+            <div class="color-picker-dots">
+              <div class="color-dot active" style="background:#C4A482;" title="Desert Titanium" onclick="swapHeroDevice('Desert Titanium', '/assets/hero_phones_transparent.png', this)"></div>
+              <div class="color-dot" style="background:#708090;" title="Titanium Gray" onclick="swapHeroDevice('Galaxy S24 Ultra Titanium', '/assets/hero_phones_selected.png', this)"></div>
+              <div class="color-dot" style="background:#10B981;" title="Flowy Emerald" onclick="swapHeroDevice('OnePlus 12 Emerald', '/assets/img1_transparent.png', this)"></div>
+            </div>
+            <div class="hud-stat-item" style="text-align:right;">
+              <small>Starting At</small>
+              <strong style="color:var(--accent-cyan);">₹1,34,900</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. BENTO MATRIX SERVICE GRID (Unique All-in-One Powerhouse) -->
+  <section class="bento-section" id="services">
+    <div class="container">
+      <div class="section-headline-row">
+        <div>
+          <div class="section-eyebrow">Interactive Ecosystem</div>
+          <h3>The All-in-One Service Matrix</h3>
+        </div>
+        <p style="color:var(--text-muted); max-width:400px; font-size:13px;">
+          Everything a modern smartphone customer needs — from 0% finance to chip-level lab fixes.
+        </p>
+      </div>
+
+      <div class="bento-matrix">
+        
+        <!-- BENTO 1: LIVE EMI CALCULATOR SLIDER -->
+        <div class="bento-card bento-emi">
+          <span class="bento-tag">Instant Finance</span>
+          <h4>Live 0% EMI Calculator</h4>
+          <p>Bajaj Finserv, HDB Financial & All Major Credit/Debit Cards</p>
+          
+          <div class="emi-slider-box">
+            <div class="emi-calc-display">
+              <span style="font-size:13px; color:#94A3B8;">Selected: <strong id="emiDevice" style="color:white;">₹64,999 Device</strong></span>
+              <div class="emi-amount" id="emiResult">₹5,416<small style="font-size:13px; color:#94A3B8; font-weight:normal;">/mo</small></div>
+            </div>
+            <input type="range" min="3" max="24" value="12" step="3" class="range-slider" id="emiSlider" oninput="calculateEMI(this.value)">
+            <div style="display:flex; justify-content:space-between; font-size:11px; color:#94A3B8; margin-top:6px;">
+              <span>3 Months</span>
+              <span>6 Months</span>
+              <span>12 Months (0% Interest)</span>
+              <span>24 Months</span>
+            </div>
+          </div>
+
+          <button class="btn-spatial-primary" style="padding:10px 20px; font-size:13px; justify-content:center;" onclick="toastNotify('Approved! 0% EMI pre-check sent to your WhatsApp.')">
+            Check Instant EMI Eligibility
+          </button>
+        </div>
+
+        <!-- BENTO 2: 30-MIN IN-STORE REPAIR DIAGNOSTIC -->
+        <div class="bento-card bento-repair" id="lab">
+          <span class="bento-tag bento-repair-tag">Express In-House Lab</span>
+          <h4>30-Min Live Repair Lab</h4>
+          <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+            Watch our certified micro-soldering technicians repair your phone in store with a 90-day warranty.
+          </p>
+
+          <div class="repair-option-pill selected" onclick="selectRepair('OLED Display Swap', '₹1,899', this)">
+            <div>
+              <strong>Broken AMOLED / OLED Screen</strong>
+              <div style="font-size:11px; color:#94A3B8;">Done in 35 mins · 90-Day Warranty</div>
+            </div>
+            <span>From ₹1,899</span>
+          </div>
+
+          <div class="repair-option-pill" onclick="selectRepair('High-Health Battery', '₹1,299', this)">
+            <div>
+              <strong>Battery Replacement (100% Health)</strong>
+              <div style="font-size:11px; color:#94A3B8;">Done in 25 mins · Official Grade</div>
+            </div>
+            <span>From ₹1,299</span>
+          </div>
+
+          <div class="repair-option-pill" onclick="selectRepair('Motherboard IC Repair', '₹1,499', this)">
+            <div>
+              <strong>Motherboard IC / Water Damage</strong>
+              <div style="font-size:11px; color:#94A3B8;">Free diagnostic in store</div>
+            </div>
+            <span>Free Check</span>
+          </div>
+
+          <button class="btn-spatial-secondary" style="margin-top:auto; justify-content:center; width:100%; border-color:rgba(16,185,129,0.4);" onclick="toastNotify('Reserved 30-Min Express Lab Slot for ' + activeRepairItem)">
+            Reserve Slot: <strong id="repairPriceLabel" style="color:var(--accent-emerald); margin-left:6px;">₹1,899</strong>
+          </button>
+        </div>
+
+        <!-- BENTO 3: CERTIFIED 52-POINT REFURBISHED VAULT -->
+        <div class="bento-card bento-refurb" id="refurb">
+          <span class="bento-tag" style="background:rgba(192, 132, 252, 0.2); color:#C084FC;">Certified Pre-Owned</span>
+          <h4>52-Point Refurbished Vault</h4>
+          <p style="font-size:13px; color:var(--text-muted);">
+            Save up to 45% compared to brand new. Every device passes our 52-point lab protocol.
+          </p>
+
+          <ul class="refurb-checklist">
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Battery Health 85%+
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Original Cameras
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Clean IMEI Tax Bill
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              6-Month Warranty
+            </li>
+          </ul>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto;">
+            <div>
+              <span style="font-size:11px; color:#94A3B8;">iPhone 13 128GB Refurb</span>
+              <div style="font-size:18px; font-weight:800; color:white;">₹37,500 <strike style="font-size:12px; color:#64748B;">₹52,000</strike></div>
+            </div>
+            <button class="btn-card-add" onclick="toastNotify('Added Refurbished iPhone 13 to Cart')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- BENTO 4: FESTIVE GIFT HAMPER UNBOXING -->
+        <div class="bento-card bento-hamper">
+          <span class="bento-tag" style="background:rgba(245, 158, 11, 0.2); color:#FBBF24;">Complimentary Gift Kit</span>
+          <h4>Free Smartwatch & Accessories Hamper</h4>
+          <p style="font-size:13px; color:var(--text-muted);">
+            Included 100% FREE with every 5G smartphone purchase this month!
+          </p>
+
+          <div class="hamper-items-row">
+            <div class="hamper-item-box">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" style="margin:0 auto;"><rect x="6" y="2" width="12" height="20" rx="4"/><line x1="6" y1="6" x2="18" y2="6"/><line x1="6" y1="18" x2="18" y2="18"/></svg>
+              <strong>Smartwatch</strong>
+              <span>Worth ₹2,499</span>
+            </div>
+            <div class="hamper-item-box">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" style="margin:0 auto;"><path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/></svg>
+              <strong>TWS Earbuds</strong>
+              <span>Worth ₹1,999</span>
+            </div>
+            <div class="hamper-item-box">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FBBF24" stroke-width="2" style="margin:0 auto;"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+              <strong>Tempered Kit</strong>
+              <span>Free Pasting</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- BENTO 5: VIJAY SIR'S 2005 TRUST VAULT -->
+        <div class="bento-card bento-founder">
+          <span class="bento-tag" style="background:rgba(0, 242, 254, 0.15); color:var(--accent-cyan);">Founder Legacy</span>
+          <div class="founder-mini-profile">
+            <img src="/assets/vijay-sir.jpg" alt="Vijay Sir" class="founder-avatar">
+            <div>
+              <h4 style="font-size:16px;">Vijay Sir</h4>
+              <p style="font-size:12px; color:var(--accent-cyan); margin:0;">Guiding Talegaon since 2005</p>
+            </div>
+          </div>
+          <p style="font-size:13px; color:#94A3B8; font-style:italic; line-height:1.5;">
+            "We never sell a device we wouldn't hand to our own family. Walk into Shop No. 30 anytime for honest guidance."
+          </p>
+          <div style="margin-top:auto; font-size:12px; color:#CBD5E1;">
+            ★ <strong>4.8 Rating</strong> (242+ Verified Google & Justdial Reviews)
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. INTERACTIVE CURATED FLAGSHIP SHOWCASE -->
+  <section class="catalog-section" id="catalog">
+    <div class="container">
+      <div class="section-headline-row">
+        <div>
+          <div class="section-eyebrow">Authorized Storefront</div>
+          <h3>2026 Flagship Showcase</h3>
+        </div>
+        <div class="catalog-filters">
+          <button class="filter-chip active" onclick="filterCatalog('All', this)">All Devices</button>
+          <button class="filter-chip" onclick="filterCatalog('Apple', this)">Apple iPhone</button>
+          <button class="filter-chip" onclick="filterCatalog('Samsung', this)">Samsung Galaxy</button>
+          <button class="filter-chip" onclick="filterCatalog('OnePlus', this)">OnePlus 5G</button>
+          <button class="filter-chip" onclick="filterCatalog('Vivo', this)">Vivo Zeiss</button>
+        </div>
+      </div>
+
+      <div class="studio-product-grid">
+        <!-- Item 1: iPhone 16 Pro Max -->
+        <div class="studio-product-card" data-brand="Apple">
+          <span class="card-top-pill">Apple Pro</span>
+          <div class="product-stage-mini">
+            <img src="/assets/hero_phones_transparent.png" alt="iPhone 16 Pro Max">
+          </div>
+          <span class="brand-eyebrow">Apple Inc.</span>
+          <h4 class="product-title">iPhone 16 Pro Max (Desert Titanium)</h4>
+          
+          <div class="storage-selector-row">
+            <span class="storage-pill active" onclick="setStoragePrice(this, '₹1,34,900', '₹5,620/mo')">256GB</span>
+            <span class="storage-pill" onclick="setStoragePrice(this, '₹1,54,900', '₹6,450/mo')">512GB</span>
+            <span class="storage-pill" onclick="setStoragePrice(this, '₹1,74,900', '₹7,280/mo')">1TB</span>
+          </div>
+
+          <div class="card-bottom-bar">
+            <div class="price-group">
+              <span class="price-main">₹1,34,900</span>
+              <span class="price-emi-sub">0% EMI from ₹5,620/mo</span>
+            </div>
+            <button class="btn-card-add" title="Add to Bag" onclick="addSpatialItem('iPhone 16 Pro Max')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Item 2: Galaxy S24 Ultra -->
+        <div class="studio-product-card" data-brand="Samsung">
+          <span class="card-top-pill" style="color:var(--accent-emerald); border-color:rgba(16,185,129,0.3); background:rgba(16,185,129,0.12);">Galaxy AI</span>
+          <div class="product-stage-mini">
+            <img src="/assets/hero_phones_selected.png" alt="Galaxy S24 Ultra">
+          </div>
+          <span class="brand-eyebrow">Samsung</span>
+          <h4 class="product-title">Galaxy S24 Ultra 5G (Titanium Gray)</h4>
+          
+          <div class="storage-selector-row">
+            <span class="storage-pill active" onclick="setStoragePrice(this, '₹1,19,999', '₹4,999/mo')">256GB</span>
+            <span class="storage-pill" onclick="setStoragePrice(this, '₹1,29,999', '₹5,416/mo')">512GB</span>
+            <span class="storage-pill" onclick="setStoragePrice(this, '₹1,49,999', '₹6,250/mo')">1TB</span>
+          </div>
+
+          <div class="card-bottom-bar">
+            <div class="price-group">
+              <span class="price-main">₹1,19,999</span>
+              <span class="price-emi-sub">0% EMI from ₹4,999/mo</span>
+            </div>
+            <button class="btn-card-add" title="Add to Bag" onclick="addSpatialItem('Galaxy S24 Ultra')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Item 3: OnePlus 12 -->
+        <div class="studio-product-card" data-brand="OnePlus">
+          <span class="card-top-pill" style="color:#F59E0B; border-color:rgba(245,158,11,0.3); background:rgba(245,158,11,0.12);">Hasselblad</span>
+          <div class="product-stage-mini">
+            <img src="/assets/img1_transparent.png" alt="OnePlus 12">
+          </div>
+          <span class="brand-eyebrow">OnePlus</span>
+          <h4 class="product-title">OnePlus 12 5G (Flowy Emerald 16GB)</h4>
+          
+          <div class="storage-selector-row">
+            <span class="storage-pill active" onclick="setStoragePrice(this, '₹64,999', '₹2,708/mo')">256GB</span>
+            <span class="storage-pill" onclick="setStoragePrice(this, '₹69,999', '₹2,916/mo')">512GB</span>
+          </div>
+
+          <div class="card-bottom-bar">
+            <div class="price-group">
+              <span class="price-main">₹64,999</span>
+              <span class="price-emi-sub">0% EMI from ₹2,708/mo</span>
+            </div>
+            <button class="btn-card-add" title="Add to Bag" onclick="addSpatialItem('OnePlus 12')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Item 4: Vivo V40 Pro -->
+        <div class="studio-product-card" data-brand="Vivo">
+          <span class="card-top-pill">Zeiss Optics</span>
+          <div class="product-stage-mini">
+            <img src="/assets/hero_phones_transparent.png" alt="Vivo V40 Pro">
+          </div>
+          <span class="brand-eyebrow">Vivo</span>
+          <h4 class="product-title">Vivo V40 Pro 5G (Zeiss Multi-Portrait)</h4>
+          
+          <div class="storage-selector-row">
+            <span class="storage-pill active" onclick="setStoragePrice(this, '₹49,999', '₹2,083/mo')">256GB</span>
+            <span class="storage-pill" onclick="setStoragePrice(this, '₹54,999', '₹2,291/mo')">512GB</span>
+          </div>
+
+          <div class="card-bottom-bar">
+            <div class="price-group">
+              <span class="price-main">₹49,999</span>
+              <span class="price-emi-sub">0% EMI from ₹2,083/mo</span>
+            </div>
+            <button class="btn-card-add" title="Add to Bag" onclick="addSpatialItem('Vivo V40 Pro')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. DIRECT CONCIERGE HUD STRIP -->
+  <section class="concierge-strip" id="concierge">
+    <div class="container">
+      <div class="concierge-card">
+        <div class="concierge-text">
+          <h3>Need Personal Assistance from Vijay Sir?</h3>
+          <p>
+            Connect instantly on WhatsApp for live in-store stock checks, exact exchange valuation of your old handset, or customized festive gift hamper bundles.
+          </p>
+        </div>
+        <a href="https://wa.me/917507575755?text=Hello%20Vijay%20Sir%2C%20I%20am%20interested%20in%20a%20smartphone%20from%20Sai%20Communication." target="_blank" class="btn-wa-direct">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+          Direct WhatsApp Concierge
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- SPATIAL FOOTER -->
+  <footer class="spatial-footer">
+    <div class="container">
+      <div class="footer-grid-spatial">
+        <div>
+          <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
+            <div class="brand-logo-mark" style="width:36px; height:36px; font-size:15px;">S</div>
+            <h4 style="font-size:17px; margin:0;">SAI COMMUNICATION</h4>
+          </div>
+          <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-bottom:18px;">
+            Talegaon Dabhade's benchmark mobile destination since 2005. Serving Pune with 100% authentic smartphones, in-house chip-level micro-soldering, and 0% paperless EMI.
+          </p>
+          <span style="font-size:12px; color:var(--accent-cyan); font-weight:700;">
+            Est. 2005 · Justdial & Google 4.8★ Verified
+          </span>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Store Ecosystem</h4>
+          <ul class="footer-spatial-links">
+            <li><a href="#catalog">New 5G Smartphones</a></li>
+            <li><a href="#lab">30-Min Screen Replacement</a></li>
+            <li><a href="#refurb">Certified Pre-Owned Vault</a></li>
+            <li><a href="#services">Festive Gift Hampers</a></li>
+            <li><a href="#services">Bajaj 0% EMI Finance</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Customer Care</h4>
+          <ul class="footer-spatial-links">
+            <li><a href="tel:09845458942">Helpline: 09845458942</a></li>
+            <li><a href="tel:7507575755">Alternate: 7507575755</a></li>
+            <li><a href="#concierge">Track Repair Ticket</a></li>
+            <li><a href="#concierge">Old Phone Exchange Policy</a></li>
+            <li><a href="#concierge">Official Warranty Claims</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="footer-title">Flagship Showroom</h4>
+          <div class="store-address-box">
+            <p><strong>Shop No. 30, P.L. Khandge Plaza</strong></p>
+            <p>Near Saraswat Bank, Chakan-Talegaon Road, Talegaon Dabhade, Pune - 410507</p>
+            <p style="color:var(--accent-emerald); font-weight:700; margin-top:8px;">
+              Open Daily: 10:00 AM - 10:00 PM
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-copyright-spatial">
+        <div>
+          © 2026 <strong>Sai Communication</strong>. All rights reserved. Talegaon Dabhade, Pune.
+        </div>
+        <div>
+          Template 4: The 2026 Spatial Bento & Interactive Lab Edition
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notice -->
+  <div class="spatial-toast" id="spatialToast">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span id="spatialToastText">Cart updated</span>
+  </div>
+
+  <script>
+    let cartTotal = 3;
+    let activeRepairItem = 'OLED Display Swap (₹1,899)';
+
+    function toastNotify(msg) {
+      const toast = document.getElementById('spatialToast');
+      const text = document.getElementById('spatialToastText');
+      text.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3400);
+    }
+
+    function addSpatialItem(name) {
+      cartTotal++;
+      document.getElementById('spatialCartCount').textContent = cartTotal;
+      toastNotify('Added ' + name + ' to your bag! (Total: ' + cartTotal + ' items)');
+    }
+
+    function swapHeroDevice(name, imgSrc, el) {
+      document.getElementById('activePhoneName').textContent = name;
+      document.getElementById('mainStagePhone').src = imgSrc;
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+      el.classList.add('active');
+      toastNotify('Viewing ' + name);
+    }
+
+    function calculateEMI(months) {
+      const principal = 64999;
+      const emi = Math.round(principal / months);
+      document.getElementById('emiResult').innerHTML = '₹' + emi.toLocaleString('en-IN') + '<small style="font-size:13px; color:#94A3B8; font-weight:normal;">/mo (' + months + ' mo)</small>';
+    }
+
+    function selectRepair(name, price, el) {
+      document.querySelectorAll('.repair-option-pill').forEach(p => p.classList.remove('selected'));
+      el.classList.add('selected');
+      activeRepairItem = name + ' (' + price + ')';
+      document.getElementById('repairPriceLabel').textContent = price;
+    }
+
+    function setStoragePrice(el, price, emi) {
+      const card = el.closest('.studio-product-card');
+      card.querySelectorAll('.storage-pill').forEach(p => p.classList.remove('active'));
+      el.classList.add('active');
+      card.querySelector('.price-main').textContent = price;
+      card.querySelector('.price-emi-sub').textContent = '0% EMI from ' + emi;
+    }
+
+    function filterCatalog(brand, el) {
+      document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+
+      const cards = document.querySelectorAll('.studio-product-card');
+      cards.forEach(card => {
+        const b = card.getAttribute('data-brand');
+        if (brand === 'All' || b === brand) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      toastNotify('Filtered showcase: ' + brand);
+    }
+  </script>
+</body>
+</html>

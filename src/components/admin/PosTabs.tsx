@@ -34,7 +34,19 @@ const SALES_FIELDS: FieldConfig[] = [
   { key: "notes", label: "Notes", type: "textarea" },
 ];
 export function SalesTab({ token }: { token: string }) {
-  return <GenericCrudTab token={token} table="sales" title="Sales" fields={SALES_FIELDS} />;
+  return (
+    <GenericCrudTab
+      token={token}
+      table="sales"
+      title="Sales"
+      fields={SALES_FIELDS}
+      // Every new sale draft starts on Cash — the most common payment
+      // method — and goes back to it the next time "Add" is opened, right
+      // after the previous sale is saved. Only affects the blank draft;
+      // never touches already-saved records (openEdit reads the real row).
+      extraFieldsOnNew={{ payment_method: "cash" }}
+    />
+  );
 }
 
 const SALES_ITEMS_FIELDS: FieldConfig[] = [

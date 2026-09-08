@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { EnquiryDialog } from "@/components/EnquiryDialog";
@@ -22,6 +22,10 @@ import { cn } from "@/lib/utils";
 import { TextReveal } from "@/components/TextReveal";
 
 export const Route = createFileRoute("/products")({
+  validateSearch: (search: Record<string, unknown>): { q?: string | undefined; category?: string | undefined } => ({
+    q: search["q"] ? String(search["q"]) : undefined,
+    category: search["category"] ? String(search["category"]) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Products — Smartphones, Tablets & Accessories | Sai Communication" },
@@ -41,14 +45,46 @@ export const Route = createFileRoute("/products")({
 });
 
 function ProductsPage() {
+  const { q: initialSearch, category: initialCategory } = Route.useSearch();
+  const navigate = Route.useNavigate();
   const { data: products = [], isLoading } = useQuery(productsQuery);
   useRealtimeRefetch("inventory", [productsQuery.queryKey]);
-  const [category, setCategory] = useState<string>("All");
+  const [category, setCategory] = useState<string>(initialCategory ?? "All");
   const [brand, setBrand] = useState<string>("all");
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(initialSearch ?? "");
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [enquiry, setEnquiry] = useState<Product | null>(null);
   const [detail, setDetail] = useState<Product | null>(null);
+
+  useEffect(() => {
+    setCategory(initialCategory || "All");
+  }, [initialCategory]);
+
+  useEffect(() => {
+    setSearch(initialSearch ?? "");
+  }, [initialSearch]);
+
+  function handleSelectCategory(c: string) {
+    setCategory(c);
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        category: c === "All" ? undefined : c,
+      }),
+      replace: true,
+    });
+  }
+
+  function handleSearchChange(val: string) {
+    setSearch(val);
+    navigate({
+      search: (prev) => ({
+        ...prev,
+        q: val.trim() ? val : undefined,
+      }),
+      replace: true,
+    });
+  }
 
   const brands = useMemo(
     () => Array.from(new Set(products.map((p) => p.brand))).sort(),
@@ -82,9 +118,9 @@ function ProductsPage() {
         {CATEGORIES.map((c) => (
           <button
             key={c}
-            onClick={() => setCategory(c)}
+            onClick={() => handleSelectCategory(c)}
             className={cn(
-              "border px-4 py-2 text-sm font-medium transition-colors",
+              "border px-4 py-2 text-sm font-medium transition-colors cursor-pointer",
               category === c
                 ? "border-primary bg-primary text-primary-foreground"
                 : "border-border bg-card text-muted-foreground hover:border-gold hover:text-gold",
@@ -103,7 +139,7 @@ function ProductsPage() {
             placeholder="Search phones..."
             value={search}
             maxLength={60}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             aria-label="Search products"
           />
         </div>

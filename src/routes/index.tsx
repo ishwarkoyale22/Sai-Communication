@@ -1,37 +1,36 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
-  Award,
-  BadgeCheck,
-  Headphones,
-  MapPin,
   ShieldCheck,
-  Star,
-  Clock,
   Wrench,
-  Gift,
   RefreshCw,
-  CreditCard,
+  CheckCircle,
   ArrowRight,
-  Instagram,
+  Phone,
+  MessageCircle,
+  Clock,
+  Award,
+  Sparkles,
   Facebook,
-  Youtube,
-  Twitter,
+  ShoppingCart,
+  Smartphone,
+  Gift,
+  BatteryMedium,
+  Flame,
+  CreditCard,
 } from "lucide-react";
 import vijaySirPhoto from "@/assets/vijay-sir.jpg";
-import { Button } from "@/components/ui/button";
-import { ProductCard } from "@/components/ProductCard";
-import img1 from "@/assets/hero_phones_transparent.png";
+import heroPhonesImg from "@/assets/hero_phones_transparent.png";
+import { useSettings } from "@/hooks/useSettings";
+import { useCart } from "@/context/CartContext";
+import { toast } from "sonner";
+import { productsQuery, refurbishedQuery, heroBannerOfferQuery } from "@/lib/queries";
+import { formatINR } from "@/lib/format";
+import { offerDiscountText, type Offer, type Product } from "@/lib/types";
+import { cn } from "@/lib/utils";
 import { EnquiryDialog } from "@/components/EnquiryDialog";
 import { ProductDetailDialog } from "@/components/ProductDetailDialog";
-import { Reveal } from "@/components/Reveal";
-import { TextReveal } from "@/components/TextReveal";
-import { CountUp } from "@/components/CountUp";
-import { useSettings } from "@/hooks/useSettings";
-import { productsQuery, refurbishedQuery, offersQuery } from "@/lib/queries";
-import { formatINR } from "@/lib/format";
-import type { Product } from "@/lib/types";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -40,533 +39,711 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Sai Communication in Talegaon Dabhade Pune: Latest smartphones, same-day mobile repair, certified refurbished phones, custom gift hampers and easy EMI finance.",
+          "Sai Communication in Talegaon Dabhade, Pune: brand-new smartphones, same-day phone repair, certified refurbished phones and zero-down EMI.",
       },
-      { property: "og:title", content: "Sai Communication — Mobile Store & Repair Hub" },
+      { property: "og:title", content: "Sai Communication — Mobile Store & Repair, Talegaon Dabhade" },
     ],
   }),
   component: HomePage,
 });
 
-const PILLARS = [
-  { icon: Wrench, title: "Phone Repair", desc: "45-min screen & battery fixes", to: "/repair" },
-  { icon: RefreshCw, title: "Refurbished Phones", desc: "Tested with warranty", to: "/refurbished" },
-  { icon: Gift, title: "Gift Hampers", desc: "Custom accessory kits", to: "/gift-hampers" },
-  { icon: CreditCard, title: "Easy EMI", desc: "Zero down payment plans", to: "/products" },
+const SERVICE_LINKS = [
+  { label: "Certified Refurbished", to: "/refurbished" as const, badge: "Warranty" },
+  { label: "Repair & Service", to: "/repair" as const, badge: "Same-day" },
+  { label: "Custom Gift Hampers", to: "/gift-hampers" as const, badge: "New" },
 ];
 
-const WHY = [
-  { icon: Award, title: "21+ Years of Trust", text: "Serving Talegaon Dabhade and Pune since 2005." },
-  { icon: ShieldCheck, title: "100% Genuine Products", text: "Original sealed devices with official brand warranty." },
-  { icon: BadgeCheck, title: "Certified Technicians", text: "Fast in-house repairs with genuine, quality-grade parts." },
-  { icon: Headphones, title: "Friendly After-Sale Support", text: "Walk in anytime for data transfer, setup & help." },
-];
+// No dedicated "gift"/"festive" flag exists on the offers table, so we
+// detect a festival or gift-themed campaign from its title/description —
+// matches the site's own naming for seasonal pushes (Diwali, Christmas,
+// Holi, gift hampers, etc.) and gives it a distinct, celebratory look in
+// the hero strip instead of blending in with every other offer.
+const FESTIVE_KEYWORDS = ["diwali", "christmas", "holi", "festival", "festive", "gift", "hamper", "new year", "eid", "rakhi"];
 
-const BRANDS = ["Samsung", "Apple", "Vivo", "Oppo", "Realme", "OnePlus", "Xiaomi", "Motorola"];
+function isFestiveOffer(offer: Offer): boolean {
+  const text = `${offer.title} ${offer.description ?? ""}`.toLowerCase();
+  return FESTIVE_KEYWORDS.some((kw) => text.includes(kw));
+}
 
-const REVIEWS = [
-  {
-    name: "Priya Deshmukh",
-    text: "Got my Galaxy S24 here at a better price than online. Vijay Sir and his team handled the complete data transfer in store seamlessly.",
-  },
-  {
-    name: "Imran Shaikh",
-    text: "Screen replacement finished in 40 minutes with genuine quality display. Very fair and honest pricing.",
-  },
-  {
-    name: "Ankit Verma",
-    text: "Purchased a refurbished iPhone 13 for my brother. Excellent battery health and 3 months warranty included. Highly recommended.",
-  },
-];
+function HeroBannerOfferStrip({ offer }: { offer: Offer }) {
+  const festive = isFestiveOffer(offer);
+  return (
+    <div
+      className={cn(
+        "inline-flex items-center gap-2.5 rounded-full px-4 py-1.5 backdrop-blur-md border",
+        festive ? "festive-strip border-gold/40" : "bg-white/15 border-white/20"
+      )}
+    >
+      {festive && <Gift className="festive-strip-icon size-3.5 text-gold" />}
+      <span className="badge-primary text-[10px]">{offerDiscountText(offer)}</span>
+      <span className={cn("text-xs font-semibold tracking-tight", festive ? "text-white" : "text-white/90")}>
+        {offer.title || "Limited Time Offer"}
+      </span>
+    </div>
+  );
+}
+
+function ProductThumbnail({ src, alt }: { src?: string; alt: string }) {
+  if (!src)
+    return (
+      <div className="flex flex-col items-center gap-1.5">
+        <Smartphone className="size-10 text-muted-foreground/30" />
+        <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground/40">
+          In-Store Stock
+        </span>
+      </div>
+    );
+  return <img src={src} alt={alt} loading="lazy" className="h-full w-full object-contain" />;
+}
 
 function HomePage() {
   const settings = useSettings();
+  const { addProduct } = useCart();
+
+  const [selectedBrand, setSelectedBrand] = useState("All");
+  const [enquiryProduct, setEnquiryProduct] = useState<Product | null>(null);
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+
   const { data: products = [] } = useQuery(productsQuery);
   const { data: refurbs = [] } = useQuery(refurbishedQuery);
-  const [enquiry, setEnquiry] = useState<Product | null>(null);
-  const [detail, setDetail] = useState<Product | null>(null);
+  const { data: heroBanner } = useQuery(heroBannerOfferQuery);
 
-  const featured = products.filter((p) => p.is_featured).slice(0, 4);
-  const strip = featured.length ? featured : products.slice(0, 4);
-  const refurbStrip = refurbs.slice(0, 3);
-
+  const phone = settings["phone"] || "09845458942";
+  const whatsapp = settings["whatsapp"] || phone.replace(/\D/g, "");
   const rating = settings["rating"] || "4.8";
-  const totalRatings = settings["total_ratings"] || "242";
+  const totalRatings = settings["total_ratings"] || "500";
+  const ownerName = settings["owner_name"] || "Vijay Sir";
+  const ownerPhoto = settings["owner_photo"] || vijaySirPhoto;
+
+  const brands = useMemo(() => {
+    const b = new Set(products.map((p) => p.brand));
+    return Array.from(b).sort();
+  }, [products]);
+
+  const brandCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    products.forEach((p) => m.set(p.brand, (m.get(p.brand) ?? 0) + 1));
+    return m;
+  }, [products]);
+
+  const cheapestPrice = useMemo(
+    () => (products.length ? Math.min(...products.map((p) => p.price)) : null),
+    [products],
+  );
+
+  const filteredProducts = useMemo(() => {
+    if (selectedBrand === "All") return products.slice(0, 9);
+    const matches = products.filter((p) => p.brand.toLowerCase() === selectedBrand.toLowerCase());
+    return matches.length > 0 ? matches : products.slice(0, 6);
+  }, [products, selectedBrand]);
+
+  const refurbShowcase = useMemo(() => refurbs.slice(0, 3), [refurbs]);
+
+  function handleAddToCart(p: Product) {
+    addProduct(p, 1);
+    toast.success(`${p.name} added to cart!`, {
+      description: "Item saved. Proceed to checkout anytime.",
+    });
+  }
 
   return (
-    <div>
-      {/* Hero Section */}
+    <div style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}>
+
+      {/* ─── HERO ─────────────────────────────────────────────── */}
       <section
-        className="relative overflow-hidden"
-        style={{ background: "linear-gradient(180deg, #FBF7EE 0%, #F7F2E6 100%)" }}
+        className="relative overflow-hidden text-white"
+        style={{ background: "var(--gradient-hero)" }}
       >
-        <div className="relative mx-auto max-w-6xl px-4 py-14 sm:py-20">
-          <div className="hero-stagger flex flex-col items-center text-center">
-            {/* Title */}
-            <TextReveal
-              as="h1"
-              trigger="mount"
-              delayStep={55}
-              className="font-serif text-[32px] font-bold leading-[1.12] tracking-[-0.5px] text-foreground sm:text-[56px] max-w-2xl"
-            >
-              Premium Phones &amp; <em className="font-semibold text-[#1F3A8A]">Expert Repairs</em>
-            </TextReveal>
+        {/* Ambient blobs */}
+        <div className="pointer-events-none absolute -right-24 -top-24 size-[480px] rounded-full bg-white/8 blur-[80px]" />
+        <div className="pointer-events-none absolute -left-12 bottom-0 size-80 rounded-full bg-primary/20 blur-[60px]" />
 
-            {/* Subtitle */}
-            <p className="mx-auto mt-5 max-w-[540px] text-[13px] leading-[1.8] sm:text-[15px]" style={{ color: "#5B5B5B" }}>
-              Your local store for brand-new smartphones, genuine accessories, tested second-hand and ady repairs — honest advice and easy EMI.
-            </p>
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-24">
+          <div className="grid items-center gap-12 lg:grid-cols-12">
 
-            {/* Feature chips */}
-            <div className="mx-auto mt-6 flex w-full max-w-[460px] flex-row gap-3 justify-center">
-              <div
-                className="flex flex-1 items-center gap-3 rounded-2xl bg-white p-3 shadow-sm"
-                style={{ border: "1px solid #E6E0D2" }}
-              >
+            {/* ── Left copy ── */}
+            <div className="lg:col-span-7 space-y-7 text-left">
+              {/* Eyebrow */}
+              {heroBanner ? (
+                <HeroBannerOfferStrip offer={heroBanner} />
+              ) : (
+                <div className="inline-flex items-center gap-2.5 rounded-full bg-white/15 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-white backdrop-blur-md border border-white/20">
+                  <span className="size-1.5 rounded-full bg-primary animate-pulse" />
+                  Talegaon Dabhade's Store Since 2005
+                </div>
+              )}
+
+              {/* Display heading */}
+              <h1 className="font-serif font-black leading-[1.0] tracking-[-0.04em] text-white"
+                  style={{ fontSize: "clamp(2.4rem, 5vw + 1rem, 4.8rem)" }}>
+                Honest Advice.{" "}
                 <span
-                  className="flex size-9 shrink-0 items-center justify-center rounded-full"
-                  style={{ background: "#EEF1FD", color: "#1F3A8A" }}
+                  className="text-gradient-brand"
+                  style={{
+                    background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-glow) 60%, var(--primary-glow) 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                  }}
                 >
-                  <Clock className="size-4" />
+                  Genuine Devices.
                 </span>
-                <div className="text-left">
-                  <p className="text-xs font-bold leading-tight text-foreground">Same-day repairs</p>
-                  <p className="text-[10.5px] text-muted-foreground">Screen &amp; battery in 60 min</p>
-                </div>
-              </div>
-              <div
-                className="flex flex-1 items-center gap-3 rounded-2xl bg-white p-3 shadow-sm"
-                style={{ border: "1px solid #E6E0D2" }}
-              >
-                <span
-                  className="flex size-9 shrink-0 items-center justify-center rounded-full"
-                  style={{ background: "#EEF1FD", color: "#1F3A8A" }}
-                >
-                  <CreditCard className="size-4" />
-                </span>
-                <div className="text-left">
-                  <p className="text-xs font-bold leading-tight text-foreground">Easy EMI</p>
-                  <p className="text-[10.5px] text-muted-foreground">Zero down payment plans</p>
-                </div>
-              </div>
-            </div>
+              </h1>
 
-            {/* Centered Image with Blue Glow Background */}
-            <div className="relative w-full max-w-2xl my-8 flex justify-center items-center">
-              {/* Radial gradient glow behind the devices */}
-              <div
-                className="absolute inset-0 mx-auto max-w-[500px] aspect-square rounded-full blur-3xl -z-10 opacity-70"
-                style={{
-                  background: "radial-gradient(circle, rgba(31,58,138,0.25) 0%, rgba(31,58,138,0.05) 50%, transparent 70%)",
-                }}
-              />
-              <img
-                src={img1}
-                alt="Fanned display of premium smartphones and a smartwatch available at Sai Communication"
-                className="mx-auto w-full max-w-[550px] h-auto object-contain"
-              />
-            </div>
-
-            {/* CTAs (Buttons stacked vertically) */}
-            <div className="mt-4 flex flex-col gap-3 w-full max-w-[280px] sm:max-w-[320px] mx-auto">
-              <Button
-                asChild
-                size="lg"
-                className="w-full rounded-2xl py-6 font-semibold shadow-sm cursor-pointer"
-                style={{ background: "#1F3A8A", color: "#fff" }}
-              >
-                <Link to="/products">Shop New Phones</Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                variant="outline"
-                className="w-full rounded-2xl py-6 font-semibold bg-[#F2EDE4] border border-[#E6E0D2] text-[#1b1b1b] shadow-sm cursor-pointer"
-                style={{ borderWidth: 1 }}
-              >
-                <Link to="/repair">Book a Repair</Link>
-              </Button>
-              <Button
-                asChild
-                size="lg"
-                className="w-full rounded-2xl py-6 font-semibold shadow-sm cursor-pointer"
-                style={{ background: "#C99A4F", color: "#fff" }}
-              >
-                <Link to="/refurbished">Refurbished deals</Link>
-              </Button>
-            </div>
-
-            {/* Trust row & Social icons */}
-            <div
-              className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-x-6 gap-y-3 border-t border-[#E6E0D2]/60 pt-6 w-full max-w-4xl mx-auto text-xs"
-              style={{ color: "#5B5B5B" }}
-            >
-              <div className="flex items-center gap-1.5">
-                <div className="flex text-gold">
-                  {Array.from({ length: 5 }).map((_, s) => (
-                    <Star key={s} className="size-3.5 fill-current" />
-                  ))}
-                </div>
-                <span>
-                  <span className="font-bold text-foreground">4.7/5</span> · 118 Justdial reviews
-                </span>
-              </div>
-              <span className="hidden h-3 w-px bg-[#E6E0D2] sm:block" />
-              <p>
-                <span className="font-bold text-foreground">21+ years</span> ·{" "}
-                <span className="font-bold text-foreground">25,000+</span> happy customers
+              {/* Subline */}
+              <p className="max-w-lg text-[15px] leading-[1.75] text-white/80 font-medium">
+                Brand-new sealed handsets, same-day repairs, and tested refurbished phones —
+                all from the same counter{" "}
+                <strong className="text-white font-bold">{ownerName}</strong> has run
+                in Talegaon Dabhade since 2005.
               </p>
-              <span className="hidden h-3 w-px bg-[#E6E0D2] sm:block" />
-              <div className="flex items-center gap-4">
-                <a
-                  href={settings["instagram"] || "https://instagram.com"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-[#1F3A8A] transition-colors"
-                >
-                  <Instagram className="size-4" />
-                </a>
-                <a
-                  href={settings["twitter"] || "https://twitter.com"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-[#1F3A8A] transition-colors"
-                >
-                  <Twitter className="size-4" />
-                </a>
-                <a
-                  href={settings["facebook"] || "https://facebook.com"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-[#1F3A8A] transition-colors"
-                >
-                  <Facebook className="size-4" />
-                </a>
-                <a
-                  href={settings["youtube"] || "https://youtube.com"}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-[#1F3A8A] transition-colors"
-                >
-                  <Youtube className="size-4" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* Quick Pillars */}
-      <section className="mx-auto max-w-6xl px-4 pb-16 pt-2 sm:pb-20">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {PILLARS.map((p) => (
-            <Link
-              key={p.title}
-              to={p.to as "/repair"}
-              className="group card-surface hover-glow flex items-center gap-3 p-4 text-left sm:flex-col sm:items-start sm:gap-3"
-            >
-              <span className="medallion-ring-sm shrink-0 transition-colors group-hover:bg-gold group-hover:text-primary-foreground">
-                <p.icon className="size-4.5" />
-              </span>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground">{p.title}</p>
-                <p className="text-[11px] text-muted-foreground">{p.desc}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="mx-auto max-w-6xl px-4 py-24">
-        <Reveal>
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div>
-              <TextReveal as="h2" className="text-2xl font-medium sm:text-3xl">Featured Smartphones</TextReveal>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Brand new, official warranty, live stock ready for checkout or store collection.
-              </p>
-            </div>
-            <Button asChild variant="secondary">
-              <Link to="/products">View All Products ({products.length})</Link>
-            </Button>
-          </div>
-        </Reveal>
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {strip.map((product, i) => (
-            <Reveal key={product.id} delay={i * 80}>
-              <ProductCard product={product} onEnquire={setEnquiry} onOpen={setDetail} />
-            </Reveal>
-          ))}
-        </div>
-      </section>
-
-      {/* Refurbished Phones Showcase Strip */}
-      {refurbStrip.length > 0 && (
-        <section className="border-y border-border py-24">
-          <div className="mx-auto max-w-6xl px-4">
-            <Reveal>
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <TextReveal as="h2" className="text-2xl font-medium sm:text-3xl">Certified Refurbished Phones</TextReveal>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Every device is inspected, graded honestly and backed by our warranty.
-                  </p>
+              {/* Price badge */}
+              {cheapestPrice != null && (
+                <div className="card-glass inline-flex items-baseline gap-2.5 px-5 py-2.5">
+                  <span className="text-xs font-bold uppercase tracking-widest text-white/70">
+                    Starting from
+                  </span>
+                  <span className="price-tag text-2xl sm:text-3xl text-primary">
+                    {formatINR(cheapestPrice)}
+                  </span>
+                  <span className="text-[11px] text-white/60">· In-store today</span>
                 </div>
-                <Button asChild variant="outline">
-                  <Link to="/refurbished">Browse Refurbished</Link>
-                </Button>
+              )}
+
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap items-center gap-4 pt-1">
+                <Link
+                  to="/products"
+                  search={{ q: "", category: "All" }}
+                  className="btn-primary-pulse"
+                >
+                  <ShoppingCart className="size-4" />
+                  Explore New Phones
+                </Link>
+                <Link to="/repair" className="btn-outline">
+                  <Wrench className="size-4 text-primary" />
+                  Book a Repair
+                </Link>
               </div>
-            </Reveal>
-            <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {refurbStrip.map((item, i) => (
-                <Reveal key={item.id} delay={i * 80}>
-                  <div className="card-surface hover-glow p-5">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <span className="caption-mono">{item.brand}</span>
-                        <h3 className="font-semibold text-base mt-0.5">{item.model}</h3>
-                      </div>
-                      <span className="border border-gold/50 px-2 py-0.5 text-xs text-gold font-medium">
-                        Grade {item.condition_grade ?? item.condition}
-                      </span>
-                    </div>
-                    <div className="mt-3 flex gap-2 text-xs text-muted-foreground">
-                      {item.storage && <span>{item.storage}</span>}
-                      {item.battery_health && <span>· 🔋 {item.battery_health}%</span>}
-                      {item.warranty && <span>· ✅ {item.warranty}</span>}
-                    </div>
-                    <hr className="mt-4 border-border" />
-                    <div className="mt-4 flex items-center justify-between">
-                      <p className="font-semibold text-primary text-lg">{formatINR(item.price)}</p>
-                      <Button asChild size="sm">
-                        <Link to="/refurbished">View Details</Link>
-                      </Button>
+
+              {/* Trust micro-badges */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2 max-w-xl">
+                {[
+                  { icon: Clock, label: "Same-day Repairs", sub: "Screen & battery" },
+                  { icon: ShieldCheck, label: "Zero-Down EMI", sub: "In-store approval" },
+                  { icon: CheckCircle, label: "Genuine Devices", sub: "Official warranty" },
+                  { icon: Award, label: settings["years_in_business"] || "21+" + " Yrs", sub: "Community trust" },
+                ].map(({ icon: Icon, label, sub }) => (
+                  <div key={label} className="card-glass flex items-center gap-2.5 p-2.5">
+                    <Icon className="size-4 text-primary shrink-0" />
+                    <div>
+                      <p className="text-[11px] font-bold leading-tight text-white">{label}</p>
+                      <p className="text-[10px] text-white/65 mt-0.5">{sub}</p>
                     </div>
                   </div>
-                </Reveal>
-              ))}
+                ))}
+              </div>
+            </div>
+
+            {/* ── Right phone image ── */}
+            <div className="relative lg:col-span-5 flex justify-center items-center">
+              <div className="relative w-full max-w-lg">
+                <img
+                  src={heroPhonesImg}
+                  alt="Smartphones available at Sai Communication, Talegaon Dabhade"
+                  className="w-full h-auto object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.4)] hover:scale-[1.03] transition-transform duration-700"
+                />
+
+                {/* Floating card — bottom left */}
+                <div className="absolute -bottom-5 left-2 sm:left-4 card-glass px-4 py-3 flex items-center gap-3">
+                  <div className="flex size-9 items-center justify-center rounded-lg bg-primary/20 text-primary">
+                    <CheckCircle className="size-5" />
+                  </div>
+                  <div>
+                    <p className="text-[12px] font-bold leading-tight text-white">100% Genuine Devices</p>
+                    <p className="text-[10px] text-white/65 mt-0.5">Official brand warranty</p>
+                  </div>
+                </div>
+
+                {/* Floating card — top right */}
+                <div className="absolute -top-4 right-2 sm:right-4 card-glass flex items-center gap-2 px-3.5 py-2.5">
+                  <Award className="size-4 text-primary" />
+                  <span className="text-[12px] font-bold text-white">
+                    {settings["years_in_business"] || "21+"} Years Trust
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── 1. LIVE STORE TICKER STRIP ──────────────────────── */}
+      <div
+        className="relative overflow-hidden border-y py-2.5 text-xs font-bold shadow-xs"
+        style={{
+          backgroundColor: "var(--card)",
+          borderColor: "var(--border)",
+          color: "var(--foreground)",
+        }}
+      >
+        <div className="ticker-track flex items-center gap-8 whitespace-nowrap">
+          {/* Duplicated for seamless loop */}
+          {[1, 2].map((loop) => (
+            <div key={loop} className="flex items-center gap-8">
+              <span className="flex items-center gap-2 text-primary">
+                <Flame className="size-4 animate-bounce" />
+                <span className="font-extrabold uppercase tracking-wider">FESTIVAL EXCHANGE BONANZA:</span>
+                <span style={{ color: "var(--foreground)" }}>Get Extra ₹3,500 Bonus on Old Handsets</span>
+              </span>
+              <span className="text-muted-foreground/40">✦</span>
+              <span className="flex items-center gap-2">
+                <CreditCard className="size-4 text-emerald-500" />
+                <span className="font-bold">ZERO-DOWN EMI:</span>
+                <span style={{ color: "var(--muted-foreground)" }}>Bajaj Finserv &amp; TVS Credit — Approval in 10 Mins</span>
+              </span>
+              <span className="text-muted-foreground/40">✦</span>
+              <span className="flex items-center gap-2 text-amber-500">
+                <Wrench className="size-4" />
+                <span className="font-bold">CHIP-LEVEL LAB:</span>
+                <span style={{ color: "var(--foreground)" }}>30-Minute Screen &amp; Battery Replacement in Talegaon</span>
+              </span>
+              <span className="text-muted-foreground/40">✦</span>
+              <span className="flex items-center gap-2 text-purple-500">
+                <Gift className="size-4" />
+                <span className="font-bold">COMPLIMENTARY HAMPER:</span>
+                <span style={{ color: "var(--muted-foreground)" }}>Free 20W Charger + 9D Tempered Glass with Every New Phone</span>
+              </span>
+              <span className="text-muted-foreground/40">✦</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ─── BRAND FILTER STRIP ──────────────────────────────── */}
+      {brands.length > 0 && (
+        <section
+          // top-0, not a hardcoded header-height offset — SiteHeader hides
+          // itself on scroll-down (see SiteHeader.tsx), so by the time this
+          // bar reaches the top of the viewport the header is out of the
+          // way. A fixed offset here would fight that and overlap it.
+          className="sticky top-0 z-30 border-y shadow-xs"
+          style={{
+            backgroundColor: "var(--background)",
+            borderColor: "var(--border)",
+          }}
+        >
+          <div className="mx-auto max-w-7xl px-4 sm:px-6">
+            <div className="flex items-center justify-between gap-4 py-3 overflow-x-auto no-scrollbar">
+              <div className="flex items-center gap-1.5 shrink-0 text-[11px] font-bold uppercase tracking-widest pr-3"
+                   style={{ color: "var(--foreground)" }}>
+                <span className="material-symbols-outlined text-[15px] text-primary">tune</span>
+                Filter:
+              </div>
+              <div className="flex items-center gap-2">
+                {["All", ...brands].map((brand) => {
+                  const isActive = selectedBrand === brand;
+                  return (
+                    <button
+                      key={brand}
+                      type="button"
+                      onClick={() => setSelectedBrand(brand)}
+                      className={isActive ? "tab-chip tab-chip-active" : "tab-chip"}
+                    >
+                      {brand === "All" ? "All Handsets" : brand}
+                    </button>
+                  );
+                })}
+              </div>
+              <Link
+                to="/products"
+                search={{ q: "", category: "All" }}
+                className="hidden md:inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline shrink-0"
+              >
+                Full List ({products.length}) →
+              </Link>
             </div>
           </div>
         </section>
       )}
 
-      {/* Repair & Service Highlight Banner */}
-      <section className="mx-auto max-w-6xl px-4 py-24">
-        <Reveal>
-          <div className="card-surface p-8 sm:p-14 flex flex-col lg:flex-row items-center justify-between gap-8">
-            <div className="max-w-2xl space-y-3">
-              <TextReveal as="h2" className="font-serif text-3xl font-medium sm:text-4xl text-foreground">
-                Phone Broken? Get It Fixed Same Day
-              </TextReveal>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Cracked screen, weak battery, dead charging port or software trouble? Our technicians handle all
-                major brands with quality spares — and most repairs are done the same day.
-              </p>
-              <div className="pt-2 flex flex-wrap gap-2 text-xs text-foreground/80">
-                <span className="bg-secondary px-3 py-1">⚡ 45-Min Screen Swap</span>
-                <span className="bg-secondary px-3 py-1">🔋 Genuine Batteries</span>
-                <span className="bg-secondary px-3 py-1">💧 Water Damage Recovery</span>
+      {/* ─── TWO-COLUMN: SIDEBAR + PRODUCTS ─────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-16">
+        <div className="grid gap-10 lg:grid-cols-12">
+
+          {/* ── Sidebar ── */}
+          <aside className="lg:col-span-4 space-y-5">
+
+            {/* Catalog nav */}
+            <div className="card-premium p-5">
+              <div className="flex items-center justify-between border-b pb-3 mb-1"
+                   style={{ borderColor: "var(--border)" }}>
+                <span className="eyebrow-label">Store Catalog</span>
+                <span className="badge-primary text-[9px] py-0.5 px-2">Talegaon Stock</span>
               </div>
+              <ul className="mt-2 divide-y text-xs" style={{ borderColor: "var(--border)" }}>
+                {brands.map((brand) => {
+                  const isSelected = selectedBrand === brand;
+                  return (
+                    <li key={brand}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedBrand(brand)}
+                        className={`flex w-full items-center justify-between py-2.5 transition-colors cursor-pointer rounded-md px-1 ${
+                          isSelected ? "font-bold text-primary" : "text-foreground/80 hover:text-foreground font-semibold"
+                        }`}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Smartphone className="size-3.5 opacity-60 text-primary" />
+                          {brand}
+                        </span>
+                        <span className="rounded-full px-2 py-0.5 text-[10px] font-bold"
+                              style={{ backgroundColor: "var(--muted)", color: "var(--foreground)", border: "1px solid var(--border)" }}>
+                          {brandCounts.get(brand)}
+                        </span>
+                      </button>
+                    </li>
+                  );
+                })}
+                {SERVICE_LINKS.map((item) => (
+                  <li key={item.to}>
+                    <Link to={item.to} className="flex items-center justify-between py-2.5 text-foreground/80 hover:text-foreground font-semibold transition-colors px-1 rounded-md">
+                      <span className="flex items-center gap-2">
+                        {item.to === "/repair" && <Wrench className="size-3.5 text-primary" />}
+                        {item.to === "/refurbished" && <RefreshCw className="size-3.5 text-primary" />}
+                        {item.to === "/gift-hampers" && <Gift className="size-3.5 text-primary" />}
+                        {item.label}
+                      </span>
+                      <span className="badge-primary text-[9px] py-0.5">{item.badge}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-              <Button asChild size="lg">
-                <Link to="/repair">Submit Repair Enquiry</Link>
-              </Button>
-              <Button asChild size="lg" variant="outline">
-                <Link to="/gift-hampers">Build Gift Hamper</Link>
-              </Button>
+
+            {/* Promo card */}
+            <div className="relative overflow-hidden rounded-2xl p-6 shadow-md"
+                 style={{ background: "linear-gradient(135deg, #F5A623 0%, #FFB540 100%)", color: "#1B2430" }}>
+              <div className="pointer-events-none absolute -right-8 -bottom-8 size-36 rounded-full bg-white/20 blur-2xl" />
+              <div className="pointer-events-none absolute -top-6 -left-6 size-24 rounded-full bg-white/15 blur-xl" />
+              <div className="badge-dark mb-3 text-[10px]">Current Offers</div>
+              <h3 className="font-serif text-2xl font-black leading-tight text-[#1B2430]">
+                This Week's Deals
+              </h3>
+              <p className="mt-2 text-sm font-semibold text-[#1B2430]/90 leading-relaxed">
+                Exchange bonuses on your old smartphone &amp; zero-down EMI with instant in-store approval.
+              </p>
+              <Link
+                to="/offers"
+                className="btn-dark mt-5 text-white"
+                style={{ color: "white", background: "#1B2430" }}
+              >
+                View All Offers <ArrowRight className="size-3.5" />
+              </Link>
             </div>
-          </div>
-        </Reveal>
-      </section>
 
-      {/* Vijay Sir & Brand Story — centered founder moment */}
-      <section className="border-y border-border py-24">
-        <div className="mx-auto max-w-2xl px-4 text-center">
-          <Reveal>
-            <TextReveal as="h2" className="font-serif text-3xl font-medium sm:text-4xl">
-              21+ Years Guided by <em>Vijay Sir</em>
-            </TextReveal>
-          </Reveal>
-
-          <Reveal delay={80}>
-            <div className="mt-8 inline-flex items-center justify-center rounded-full border border-white p-1 shadow-md">
-              <div className="rounded-full border border-gold p-1.5">
-                <div className="size-24 overflow-hidden rounded-full bg-accent sm:size-28">
-                  <img
-                    src={settings["vijay_sir_photo_url"] || settings["hero_photo_url"] || vijaySirPhoto}
-                    alt={settings["owner_name"] || "Vijay Sir"}
-                    className="size-full object-cover"
-                  />
+            {/* Founder trust card */}
+            <div className="card-premium p-5 space-y-4">
+              <div className="flex items-center gap-3.5">
+                <div className="size-14 overflow-hidden rounded-full border-2 border-primary p-0.5 shadow shrink-0">
+                  <img src={ownerPhoto} alt={ownerName} className="size-full rounded-full object-cover" />
+                </div>
+                <div>
+                  <h4 className="font-serif text-base font-extrabold leading-tight"
+                      style={{ color: "var(--foreground)" }}>{ownerName}</h4>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Founder &amp; Owner</p>
+                  <span className="badge-primary mt-1 text-[9px] py-0.5">
+                    Since {settings["established"] || "2005"} · {settings["years_in_business"] || "21+"} Yrs
+                  </span>
                 </div>
               </div>
-            </div>
-          </Reveal>
 
-          <Reveal delay={140}>
-            <p className="mt-8 font-serif text-xl italic leading-relaxed text-foreground sm:text-2xl">
-              {settings["owner_intro"] ||
-                '"Our commitment is simple: We will never sell you a phone or repair you do not need. Come with questions, leave with confidence."'}
-            </p>
-            <p className="caption-mono mt-4 not-italic">
-              {settings["owner_name"] || "Vijay Sir"} · Founder &amp; Owner
-            </p>
-          </Reveal>
+              <blockquote className="border-l-2 border-primary pl-3 text-xs leading-relaxed italic"
+                          style={{ color: "var(--foreground)", fontFamily: "var(--font-serif)" }}>
+                {settings["owner_intro"] ||
+                  "\"Our commitment is simple: We will never sell you a phone or repair you do not need.\""}
+              </blockquote>
 
-          <Reveal delay={200}>
-            <p className="mt-8 text-sm text-muted-foreground leading-relaxed">
-              Established in {settings["established"] || "2005"}, Sai Communication has grown from a humble counter
-              into one of Pune and Talegaon Dabhade's most recommended electronics retailers. Our focus has never
-              changed: give every customer 100% honest advice, authentic hardware, and after-sale support you can
-              walk in and ask for.
-            </p>
-          </Reveal>
-
-          <Reveal delay={240}>
-            <div className="stat-strip mt-10 sm:grid-cols-3">
-              <div className="stat-strip-item">
-                <p className="stat-num"><CountUp value={settings["established"] || "2005"} /></p>
-                <p className="stat-label">Established</p>
-              </div>
-              <div className="stat-strip-item">
-                <p className="stat-num"><CountUp value={`${rating} / 5`} /></p>
-                <p className="stat-label">Justdial Rating</p>
-              </div>
-              <div className="stat-strip-item">
-                <p className="stat-num"><CountUp value="25k+" /></p>
-                <p className="stat-label">Happy Customers</p>
-              </div>
-            </div>
-          </Reveal>
-
-          <Reveal delay={280}>
-            <div className="mt-10">
-              <Button asChild variant="outline">
-                <Link to="/about">
-                  Read Our Full Story <ArrowRight className="size-4 ml-1" />
+              <div className="flex items-center justify-between pt-1 text-xs border-t"
+                   style={{ borderColor: "var(--border)" }}>
+                <Link to="/about" className="font-bold text-foreground hover:text-primary transition-colors">
+                  Founder Story →
                 </Link>
-              </Button>
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* Why Choose Us — single bordered band, divided by hairlines */}
-      <section className="mx-auto max-w-6xl px-4 py-24">
-        <Reveal>
-          <TextReveal as="h2" className="text-center text-2xl font-medium sm:text-3xl">Why Thousands Trust Us</TextReveal>
-        </Reveal>
-        <Reveal delay={80}>
-          <div className="hairline-band mt-10 sm:grid-cols-2 lg:grid-cols-4">
-            {WHY.map((item) => (
-              <div key={item.title} className="hairline-band-item">
-                <span className="medallion-ring-sm">
-                  <item.icon className="size-4.5" />
-                </span>
-                <h3 className="mt-4 font-semibold">{item.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{item.text}</p>
+                <a href={`tel:${phone}`} className="font-bold text-primary hover:underline flex items-center gap-1">
+                  <Phone className="size-3" /> Call Shop
+                </a>
               </div>
-            ))}
-          </div>
-        </Reveal>
-      </section>
-
-      {/* Brands Strip — plain text, hairline underline, gold on hover */}
-      <section className="border-t border-border py-24">
-        <div className="mx-auto max-w-6xl px-4">
-          <Reveal>
-            <TextReveal as="h2" className="text-center text-2xl font-medium sm:text-3xl">Authorized &amp; Major Brands</TextReveal>
-            <div className="mt-10 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8">
-              {BRANDS.map((brand) => (
-                <span
-                  key={brand}
-                  className="group flex items-center justify-center border-b border-border px-4 py-5 text-center text-xs font-semibold uppercase tracking-wider text-muted-foreground transition-colors hover:text-gold"
-                >
-                  {brand}
-                </span>
-              ))}
             </div>
-          </Reveal>
-        </div>
-      </section>
+          </aside>
 
-      {/* Reviews */}
-      <section className="border-b border-border py-24">
-        <div className="mx-auto max-w-6xl px-4">
-          <Reveal>
-            <TextReveal as="h2" className="text-center text-2xl font-medium sm:text-3xl">Customer Stories</TextReveal>
-          </Reveal>
-          <div className="mt-10 grid gap-5 md:grid-cols-3">
-            {REVIEWS.map((review, i) => (
-              <Reveal key={review.name} delay={i * 100}>
-                <div className="card-surface hover-glow h-full p-6">
-                  <div className="flex gap-1 text-gold">
-                    {Array.from({ length: 5 }).map((_, s) => (
-                      <Star key={s} className="size-4 fill-current" />
-                    ))}
+          {/* ── Featured Products ── */}
+          <main className="lg:col-span-8 space-y-10">
+            <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-5"
+                 style={{ borderColor: "var(--border)" }}>
+              <div>
+                <span className="eyebrow-label mb-2 block">New Arrivals</span>
+                <h2 className="section-title text-2xl sm:text-3xl" style={{ color: "var(--foreground)" }}>
+                  Featured Smartphones
+                </h2>
+                <p className="text-sm mt-1.5" style={{ color: "var(--muted-foreground)" }}>
+                  Showing <strong style={{ color: "var(--foreground)" }}>{selectedBrand}</strong> devices · Official manufacturer warranty.
+                </p>
+              </div>
+              <span className="badge-outline">{filteredProducts.length} items available</span>
+            </div>
+
+            {filteredProducts.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 py-16 text-center">
+                <Smartphone className="size-12 text-muted-foreground/30" />
+                <p className="text-sm text-muted-foreground">No products in stock right now — check back soon.</p>
+              </div>
+            ) : (
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredProducts.map((product) => {
+                  const image = product.images[0];
+                  const inStock = product.stock_status === "in_stock";
+                  const hasDiscount = product.original_price != null && product.original_price > product.price;
+                  const discountPct = hasDiscount
+                    ? Math.round((1 - product.price / (product.original_price as number)) * 100)
+                    : 0;
+
+                  return (
+                    <article key={product.id} className="card-premium p-4 flex flex-col justify-between group">
+                      {/* Image */}
+                      <button
+                        type="button"
+                        onClick={() => setDetailProduct(product)}
+                        className="relative img-cover-frame h-44 w-full mb-4 cursor-pointer"
+                      >
+                        {hasDiscount && (
+                          <span className="absolute left-2.5 top-2.5 z-10 badge-primary text-[9px] py-0.5 px-2">
+                            -{discountPct}%
+                          </span>
+                        )}
+                        <span className="absolute right-2.5 top-2.5 z-10 badge-outline text-[9px] py-0.5">
+                          {product.brand}
+                        </span>
+                        <ProductThumbnail src={image} alt={product.name} />
+                      </button>
+
+                      {/* Text */}
+                      <div className="flex flex-col gap-1.5 flex-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold uppercase tracking-widest"
+                                style={{ color: "var(--muted-foreground)" }}>
+                            {product.brand}
+                          </span>
+                          <span className={inStock ? "badge-success" : "badge-outline text-destructive border-destructive/30"}>
+                            {inStock ? "● In Stock" : "On Order"}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => setDetailProduct(product)}
+                          className="text-left font-serif text-sm font-bold leading-snug hover:text-primary transition-colors cursor-pointer line-clamp-2"
+                          style={{ color: "var(--foreground)", fontFamily: "var(--font-display)" }}
+                        >
+                          {product.name}
+                        </button>
+                      </div>
+
+                      {/* Price + Actions */}
+                      <div className="mt-4 pt-3 border-t" style={{ borderColor: "var(--border)" }}>
+                        <div className="flex items-baseline gap-2 mb-3.5">
+                          <span className="price-tag text-xl">{formatINR(product.price)}</span>
+                          {hasDiscount && (
+                            <span className="text-xs line-through" style={{ color: "var(--muted-foreground)" }}>
+                              {formatINR(product.original_price as number)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleAddToCart(product)}
+                            className="btn-primary text-xs px-0 py-2.5 rounded-xl"
+                            style={{ padding: "10px 0", borderRadius: "10px", fontSize: "12px" }}
+                          >
+                            <ShoppingCart className="size-3.5" />
+                            Add to Cart
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEnquiryProduct(product)}
+                            className="btn-ghost text-xs"
+                            style={{ padding: "10px 0", borderRadius: "10px", fontSize: "12px" }}
+                          >
+                            Enquire
+                          </button>
+                        </div>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* ── Refurbished Showcase ── */}
+            {refurbShowcase.length > 0 && (
+              <div className="card-inset p-6 space-y-5">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <span className="eyebrow-label mb-1.5 block">Pre-Owned</span>
+                    <h3 className="font-serif text-lg font-black" style={{ color: "var(--foreground)" }}>
+                      Certified Refurbished
+                    </h3>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--muted-foreground)" }}>
+                      Inspected, graded & warrantied in-store.
+                    </p>
                   </div>
-                  <p className="mt-4 font-serif text-lg italic leading-relaxed text-foreground/90">"{review.text}"</p>
-                  <div className="mt-5 w-8 border-t border-gold" />
-                  <p className="caption-mono mt-2">{review.name}</p>
+                  <Link to="/refurbished" className="text-xs font-bold text-primary hover:underline">
+                    View All ({refurbs.length}) →
+                  </Link>
                 </div>
-              </Reveal>
+
+                <div className="grid gap-4 sm:grid-cols-3">
+                  {refurbShowcase.map((item) => (
+                    <div key={item.id} className="card-premium p-4 space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-wider"
+                                style={{ color: "var(--muted-foreground)" }}>{item.brand}</span>
+                          <h4 className="font-bold text-xs leading-tight line-clamp-1 mt-0.5"
+                              style={{ color: "var(--foreground)" }}>{item.model}</h4>
+                        </div>
+                        <span className="badge-primary text-[9px] py-0.5">
+                          Grade {item.condition_grade ?? item.condition}
+                        </span>
+                      </div>
+
+                      <div className="text-[10px] space-y-0.5" style={{ color: "var(--muted-foreground)" }}>
+                        {item.storage && <p>Storage: {item.storage}</p>}
+                        {item.battery_health && (
+                          <p className="flex items-center gap-1">
+                            <BatteryMedium className="size-3" /> Battery: {item.battery_health}%
+                          </p>
+                        )}
+                        {item.warranty && (
+                          <p className="flex items-center gap-1">
+                            <CheckCircle className="size-3" /> {item.warranty}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1 border-t"
+                           style={{ borderColor: "var(--border)" }}>
+                        <span className="price-tag text-sm">{formatINR(item.price)}</span>
+                        <Link to="/refurbished" className="btn-dark text-[10px]"
+                              style={{ padding: "6px 12px", borderRadius: "8px", fontSize: "10px" }}>
+                          Details
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </main>
+        </div>
+      </section>
+
+      {/* ─── TRUST ROW ────────────────────────────────────────── */}
+      <section className="border-y" style={{ backgroundColor: "var(--muted)", borderColor: "var(--border)" }}>
+        <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+          <div className="text-center mb-10">
+            <span className="eyebrow-label justify-center">Why Choose Us</span>
+            <h2 className="font-serif text-2xl font-black mt-3" style={{ color: "var(--foreground)" }}>
+              The Sai Communication Promise
+            </h2>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-3">
+            {[
+              {
+                icon: ShieldCheck,
+                title: "100% Genuine Devices",
+                desc: "Original sealed packaging, official brand warranty & GST tax invoice on every purchase.",
+              },
+              {
+                icon: Wrench,
+                title: "Same-Day Repairs",
+                desc: "In-house chip-level lab with skilled technicians and genuine spare parts.",
+              },
+              {
+                icon: Sparkles,
+                title: "Zero-Down EMI Plans",
+                desc: "In-store finance approval — no separate bank branch visit required.",
+              },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="card-premium p-6 flex items-start gap-4">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl text-primary"
+                     style={{ background: "var(--accent)" }}>
+                  <Icon className="size-6" />
+                </div>
+                <div>
+                  <h4 className="font-serif text-sm font-black" style={{ color: "var(--foreground)" }}>{title}</h4>
+                  <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--muted-foreground)" }}>{desc}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Store Location */}
-      <section className="mx-auto max-w-6xl px-4 py-24">
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Reveal>
-            <div className="card-surface hover-glow h-full p-6">
-              <TextReveal as="h2" className="text-2xl font-medium">Visit Our Store Counter</TextReveal>
-              <p className="mt-3 flex gap-2 text-sm text-foreground/85">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-gold" />
-                {settings["address"]}
-              </p>
-              <p className="mt-3 flex gap-2 text-sm text-foreground/85">
-                <Clock className="mt-0.5 size-4 shrink-0 text-gold" />
-                {settings["hours"]}
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button asChild>
-                  <a href={`tel:${settings["phone"]}`}>Call {settings["phone"]}</a>
-                </Button>
-                {settings["phone_alt"] && (
-                  <Button asChild variant="outline">
-                    <a href={`tel:${settings["phone_alt"]}`}>Alt: {settings["phone_alt"]}</a>
-                  </Button>
-                )}
-              </div>
+      {/* ─── SOCIAL / CONTACT CTA ─────────────────────────────── */}
+      <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        <div
+          className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl p-6 sm:p-8"
+          style={{ backgroundColor: "var(--muted)", border: "1px solid var(--border)" }}
+        >
+          <div className="flex items-center gap-4">
+            <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-[#1877F2] text-white shadow">
+              <Facebook className="size-7" />
             </div>
-          </Reveal>
-          <Reveal delay={100}>
-            <div className="h-72 overflow-hidden border border-border lg:h-full">
-              <iframe
-                title="Store location"
-                src={settings["maps_embed"]}
-                loading="lazy"
-                className="size-full"
-                style={{ border: 0 }}
-                referrerPolicy="no-referrer-when-downgrade"
-              />
+            <div>
+              <h3 className="font-serif text-xl font-black" style={{ color: "var(--foreground)" }}>
+                Stay in the Loop
+              </h3>
+              <p className="mt-0.5 text-xs max-w-xl" style={{ color: "var(--muted-foreground)" }}>
+                Price drops, festival codes and repair updates — straight from {ownerName} and the team.
+              </p>
             </div>
-          </Reveal>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 shrink-0">
+            {settings["facebook"] && (
+              <a
+                href={settings["facebook"]}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-dark text-xs"
+                style={{ background: "#1877F2", color: "white", padding: "11px 20px", borderRadius: "10px" }}
+              >
+                <Facebook className="size-4" />
+                Follow on Facebook
+              </a>
+            )}
+            <a
+              href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(
+                "Hello Sai Communication, I would like to enquire about your latest phone deals",
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-dark text-xs"
+              style={{ background: "#25D366", color: "white", padding: "11px 20px", borderRadius: "10px" }}
+            >
+              <MessageCircle className="size-4" />
+              Chat on WhatsApp
+            </a>
+          </div>
         </div>
+        <p className="mt-4 text-center text-xs" style={{ color: "var(--muted-foreground)" }}>
+          Rated {rating} / 5 from {totalRatings}+ customers on Justdial.
+        </p>
       </section>
 
-      <EnquiryDialog
-        product={enquiry}
-        open={enquiry !== null}
-        onOpenChange={(v) => !v && setEnquiry(null)}
-      />
-      <ProductDetailDialog
-        product={detail}
-        open={detail !== null}
-        onOpenChange={(v) => !v && setDetail(null)}
-      />
+      <EnquiryDialog product={enquiryProduct} open={enquiryProduct !== null} onOpenChange={(v) => !v && setEnquiryProduct(null)} />
+      <ProductDetailDialog product={detailProduct} open={detailProduct !== null} onOpenChange={(v) => !v && setDetailProduct(null)} />
     </div>
   );
 }

@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -6,7 +8,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { EnquiryForm } from "@/components/EnquiryDialog";
+import { useCart } from "@/context/CartContext";
 import { formatINR } from "@/lib/format";
 import type { Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
@@ -21,10 +25,18 @@ export function ProductDetailDialog({
   onOpenChange: (v: boolean) => void;
 }) {
   const [active, setActive] = useState(0);
+  const { addProduct } = useCart();
   if (!product) return null;
   const inStock = product.stock_status === "in_stock";
   const images = product.images.length ? product.images : [""];
   const current = images[Math.min(active, images.length - 1)];
+
+  function handleAddToCart() {
+    if (!product) return;
+    addProduct(product, 1);
+    toast.success(`${product.name} added to cart!`);
+    onOpenChange(false);
+  }
 
   return (
     <Dialog
@@ -89,6 +101,13 @@ export function ProductDetailDialog({
             >
               {inStock ? `In Stock ✓ (${product.stock_qty} available)` : "Out of Stock"}
             </span>
+
+            {inStock && (
+              <Button className="mt-4 w-full" size="lg" onClick={handleAddToCart}>
+                <ShoppingCart className="size-4" />
+                Add to Cart
+              </Button>
+            )}
 
             <dl className="mt-5 space-y-2 text-sm">
               {Object.entries(product.specs).map(([key, value]) => (

@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sai Communication — Warm Orange & Blue-Grey Edition | Editorial Mobile Store</title>
+  <meta name="description" content="Editorial, premium mobile showroom for Sai Communication, Talegaon Dabhade Pune. Tab-based brand navigation, sidebar catalog, 30-min express repairs & certified refurbished.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-hero: linear-gradient(135deg, #4A6FA5 0%, #6D94C4 50%, #8FB7DE 100%);
+      --bg-white: #FFFFFF;
+      --bg-footer: #1B2430;
+      --accent-orange: #F5A623;
+      --accent-orange-hover: #E09419;
+      --accent-orange-dark: #C97D0E;
+      --text-dark: #1B2430;
+      --text-muted: #5B6B82;
+      --text-light: #FFFFFF;
+      --bg-light-grey: #F8FAFC;
+      --border-subtle: #E2E8F0;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --transition: all 0.25s ease;
+      --shadow-card: 0 4px 14px rgba(27, 36, 48, 0.05);
+      --shadow-hover: 0 14px 28px rgba(27, 36, 48, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-white);
+      color: var(--text-dark);
+      line-height: 1.6;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    h1, h2, h3, h4, h5, .font-heading {
+      font-family: 'Outfit', sans-serif;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: var(--transition);
+    }
+
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Template Switcher Bar */
+    .demo-bar {
+      background: #111827;
+      color: #9CA3AF;
+      font-size: 12px;
+      padding: 8px 16px;
+      border-bottom: 1px solid #1F2937;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+    .demo-bar-badge {
+      background: var(--accent-orange);
+      color: #1B2430;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-weight: 800;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .demo-bar-links {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .demo-bar-links a {
+      color: #D1D5DB;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .demo-bar-links a:hover,
+    .demo-bar-links a.active {
+      background: rgba(245, 166, 35, 0.2);
+      color: #F5A623;
+      border: 1px solid #F5A623;
+    }
+
+    /* 1. TOP BAR (Minimal, on white background, right-aligned links) */
+    .top-bar-minimal {
+      background: #FFFFFF;
+      padding: 9px 0;
+      border-bottom: 1px solid #F1F5F9;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .top-bar-minimal .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .top-minimal-left {
+      font-weight: 600;
+      color: #64748B;
+    }
+    .top-minimal-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+    .top-minimal-links a {
+      color: #475569;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+    .top-minimal-links a:hover {
+      color: var(--accent-orange-dark);
+    }
+    .top-phone-highlight {
+      color: var(--text-dark) !important;
+      font-weight: 700 !important;
+    }
+
+    /* 2. HEADER (Logo left icon+wordmark, minimal nav right, cart icon) */
+    .header-editorial {
+      background: #FFFFFF;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--border-subtle);
+      position: sticky;
+      top: 35px;
+      z-index: 900;
+    }
+    .header-editorial .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-mark {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--radius-md);
+      background: #1B2430;
+      color: var(--accent-orange);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 900;
+      border: 2px solid var(--accent-orange);
+    }
+    .brand-text h1 {
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text-dark);
+      line-height: 1.1;
+    }
+    .brand-text span {
+      color: var(--accent-orange-dark);
+    }
+    .brand-text p {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .minimal-nav {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+    }
+    .minimal-nav a {
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+      padding: 6px 0;
+    }
+    .minimal-nav a:hover,
+    .minimal-nav a.active {
+      color: var(--accent-orange-dark);
+    }
+
+    .editorial-cart-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 18px;
+      background: #F1F5F9;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-dark);
+    }
+    .editorial-cart-btn:hover {
+      background: var(--accent-orange);
+      color: #1B2430;
+    }
+    .cart-count-dot {
+      background: var(--accent-orange);
+      color: #1B2430;
+      font-size: 11px;
+      font-weight: 800;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* 3. HERO (Blue-Grey Gradient #4A6FA5 → #8FB7DE, Phone pair, Asymmetric) */
+    .hero-editorial {
+      background: var(--bg-hero);
+      color: white;
+      padding: 70px 0 80px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-editorial-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 45px;
+    }
+    .hero-asym-content {
+      padding-left: 10px;
+      position: relative;
+      z-index: 2;
+    }
+    .hero-editorial-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(10px);
+      padding: 6px 16px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+    }
+    .hero-editorial h2 {
+      font-size: 48px;
+      font-weight: 900;
+      line-height: 1.12;
+      letter-spacing: -1.2px;
+      margin-bottom: 18px;
+      color: #FFFFFF;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    }
+    .hero-editorial p {
+      font-size: 17px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.95);
+      max-width: 500px;
+      margin-bottom: 22px;
+    }
+    .hero-price-tag {
+      font-size: 21px;
+      font-weight: 800;
+      color: #FFFFFF;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .hero-price-tag .badge-emi {
+      background: var(--accent-orange);
+      color: #1B2430;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .btn-orange {
+      background: var(--accent-orange);
+      color: #1B2430;
+      font-weight: 800;
+      font-size: 15px;
+      padding: 14px 36px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+    }
+    .btn-orange:hover {
+      background: #FFFFFF;
+      color: var(--accent-orange-dark);
+      transform: translateY(-2px);
+    }
+    .hero-phone-stage {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    .hero-phone-pair {
+      max-height: 440px;
+      filter: drop-shadow(0 25px 35px rgba(27, 36, 48, 0.4));
+      transition: transform 0.4s ease;
+    }
+    .hero-phone-pair:hover {
+      transform: scale(1.04);
+    }
+
+    /* 4. CATEGORY TAB STRIP (Horizontal row of 4 tabs on Orange-Gold background) */
+    .tab-strip-section {
+      background: var(--accent-orange);
+      padding: 0;
+      box-shadow: 0 4px 15px rgba(245, 166, 35, 0.3);
+    }
+    .tab-strip-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .tab-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 24px;
+      color: #1B2430;
+      border-right: 1px solid rgba(27, 36, 48, 0.12);
+      cursor: pointer;
+      transition: var(--transition);
+      background: transparent;
+    }
+    .tab-item:last-child {
+      border-right: none;
+    }
+    .tab-item:hover,
+    .tab-item.active {
+      background: rgba(255, 255, 255, 0.28);
+    }
+    .tab-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .tab-thumb {
+      width: 44px;
+      height: 44px;
+      background: white;
+      border-radius: var(--radius-sm);
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    .tab-thumb img {
+      max-height: 38px;
+      object-fit: contain;
+    }
+    .tab-info h4 {
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .tab-info p {
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(27, 36, 48, 0.85);
+    }
+    .tab-arrow {
+      display: flex;
+      align-items: center;
+      color: #1B2430;
+    }
+
+    /* 5. TWO-COLUMN LAYOUT BELOW TABS (Sidebar Left + Main Grid Right) */
+    .main-catalog-section {
+      padding: 55px 0;
+      background: #FFFFFF;
+    }
+    .editorial-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 36px;
+      align-items: start;
+    }
+
+    /* LEFT SIDEBAR */
+    .sidebar-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .sidebar-box {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      background: #FFFFFF;
+    }
+    .sidebar-header {
+      background: #1B2430;
+      color: white;
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sidebar-header svg {
+      stroke: var(--accent-orange);
+    }
+    .sidebar-nav {
+      list-style: none;
+    }
+    .sidebar-nav li {
+      border-bottom: 1px solid #F1F5F9;
+    }
+    .sidebar-nav li:last-child {
+      border-bottom: none;
+    }
+    .sidebar-nav a {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 13px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #334155;
+    }
+    .sidebar-nav a:hover,
+    .sidebar-nav a.active {
+      background: #F8FAFC;
+      color: var(--accent-orange-dark);
+      padding-left: 22px;
+    }
+    .sidebar-count {
+      background: #F1F5F9;
+      color: #64748B;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    /* SALE PROMO BOX IN SIDEBAR */
+    .sidebar-sale-promo {
+      background: var(--accent-orange);
+      color: #1B2430;
+      border-radius: var(--radius-md);
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 6px 18px rgba(245, 166, 35, 0.25);
+    }
+    .sidebar-sale-tag {
+      display: inline-block;
+      background: #1B2430;
+      color: white;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+    .sidebar-sale-promo h3 {
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.15;
+      margin-bottom: 8px;
+    }
+    .sidebar-sale-promo p {
+      font-size: 13px;
+      color: rgba(27, 36, 48, 0.9);
+      margin-bottom: 18px;
+      line-height: 1.45;
+    }
+    .sidebar-sale-btn {
+      background: #1B2430;
+      color: white;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 9px 18px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .sidebar-sale-btn:hover {
+      background: white;
+      color: #1B2430;
+    }
+
+    /* Founder Vijay Sir trust quote card */
+    .sidebar-founder-card {
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      background: #F8FAFC;
+    }
+
+    /* RIGHT MAIN AREA: "FEATURED PRODUCTS" GRID (2-3 columns, orange price tag) */
+    .main-grid-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 26px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .main-grid-header h2 {
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--text-dark);
+      letter-spacing: -0.5px;
+    }
+    .main-grid-header span {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .editorial-product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .editorial-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+      box-shadow: var(--shadow-card);
+      position: relative;
+    }
+    .editorial-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+      border-color: #CBD5E1;
+    }
+    .editorial-tag-top {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: #F1F5F9;
+      color: #334155;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 3px;
+      text-transform: uppercase;
+    }
+    .editorial-thumb {
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #F8FAFC;
+      border-radius: var(--radius-sm);
+      margin-bottom: 14px;
+      padding: 12px;
+    }
+    .editorial-thumb img {
+      max-height: 150px;
+      object-fit: contain;
+      transition: var(--transition);
+    }
+    .editorial-card:hover .editorial-thumb img {
+      transform: scale(1.06);
+    }
+    .editorial-brand-line {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 4px;
+    }
+    .editorial-card-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+    .editorial-card-meta {
+      font-size: 12px;
+      color: #64748B;
+      margin-bottom: 14px;
+      line-height: 1.45;
+    }
+    .editorial-footer-row {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid #F1F5F9;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .orange-price-tag {
+      background: rgba(245, 166, 35, 0.12);
+      color: var(--accent-orange-dark);
+      font-size: 16px;
+      font-weight: 900;
+      padding: 5px 12px;
+      border-radius: 4px;
+      border: 1px solid rgba(245, 166, 35, 0.35);
+    }
+    .orange-price-tag strike {
+      font-size: 11px;
+      color: #94A3B8;
+      margin-left: 5px;
+      font-weight: 500;
+    }
+    .cart-btn-orange {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      background: #1B2430;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
+    .cart-btn-orange:hover {
+      background: var(--accent-orange);
+      color: #1B2430;
+      transform: scale(1.06);
+    }
+
+    /* 6. TRUST ROW (3 Items with icon + label on light grey background) */
+    .trust-editorial-row {
+      background: var(--bg-light-grey);
+      padding: 35px 0;
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      margin-top: 20px;
+    }
+    .trust-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 30px;
+    }
+    .trust-unit {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .trust-unit-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-sm);
+      background: #FFFFFF;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-orange-dark);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .trust-unit-icon svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--accent-orange-dark);
+    }
+    .trust-unit-text h4 {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-dark);
+    }
+    .trust-unit-text p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* 7. SOCIAL / COMMUNITY ROW ("Follow Us on Facebook" style small panel) */
+    .community-panel-section {
+      padding: 40px 0;
+      background: #FFFFFF;
+    }
+    .community-panel {
+      background: #F8FAFC;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 26px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .community-left {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+    .community-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: var(--radius-sm);
+      background: #1877F2;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .community-copy h4 {
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--text-dark);
+    }
+    .community-copy p {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .community-cta {
+      background: #1B2430;
+      color: white;
+      padding: 11px 24px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .community-cta:hover {
+      background: var(--accent-orange);
+      color: #1B2430;
+    }
+
+    /* 8. FOOTER (Deep navy #1B2430 background, 4 columns, phone and address visible) */
+    .footer-editorial {
+      background: var(--bg-footer);
+      color: #94A3B8;
+      padding: 65px 0 28px;
+      border-top: 3px solid var(--accent-orange);
+    }
+    .footer-editorial-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr 1.3fr;
+      gap: 36px;
+      margin-bottom: 45px;
+    }
+    .footer-editorial h4 {
+      color: #FFFFFF;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .footer-editorial h4::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      background: var(--accent-orange);
+      border-radius: 2px;
+    }
+    .footer-editorial p {
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+    .footer-nav {
+      list-style: none;
+    }
+    .footer-nav li {
+      margin-bottom: 9px;
+    }
+    .footer-nav a {
+      font-size: 13px;
+      color: #94A3B8;
+    }
+    .footer-nav a:hover {
+      color: var(--accent-orange);
+      padding-left: 4px;
+    }
+    .store-info-highlight {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      border-left: 3px solid var(--accent-orange);
+      margin-top: 12px;
+    }
+    .store-info-highlight p {
+      margin: 0;
+      font-size: 13px;
+      color: #CBD5E1;
+    }
+    .store-info-highlight strong {
+      color: white;
+    }
+    .editorial-copyright {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: #64748B;
+    }
+    .editorial-copyright a {
+      color: var(--accent-orange);
+    }
+
+    /* Toast */
+    .editorial-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1B2430;
+      color: white;
+      border: 1px solid var(--accent-orange);
+      padding: 14px 22px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transform: translateY(150%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 9999;
+    }
+    .editorial-toast.show {
+      transform: translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .editorial-layout {
+        grid-template-columns: 1fr;
+      }
+      .tab-strip-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .editorial-product-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .hero-editorial-grid {
+        grid-template-columns: 1fr;
+      }
+      .footer-editorial-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 768px) {
+      .minimal-nav {
+        display: none;
+      }
+      .tab-strip-grid {
+        display: flex;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+      .tab-item {
+        flex: 0 0 auto;
+        min-width: 210px;
+      }
+      .editorial-product-grid {
+        grid-template-columns: 1fr;
+      }
+      .trust-3col {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .community-panel {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+      .community-left {
+        flex-direction: column;
+      }
+      .footer-editorial-grid {
+        grid-template-columns: 1fr;
+      }
+      .editorial-copyright {
+        flex-direction: column;
+        gap: 10px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Demo Switcher Top Bar -->
+  <div class="demo-bar">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <span class="demo-bar-badge">Template 3</span>
+      <strong style="color:white;">Warm Orange & Blue-Grey</strong> (Editorial Tab-Based Layout)
+    </div>
+    <div class="demo-bar-links">
+      <a href="/demo1.html">Demo 1: Purple/Cyan</a>
+      <a href="/demo2.html">Demo 2: Classic Red</a>
+      <a href="/demo3.html" class="active">Demo 3: Editorial Orange</a>
+      <a href="/demo4.html">Demo 4: Spatial Bento</a>
+      <a href="/demos.html" style="background:rgba(255,255,255,0.12); color:#F5A623;">⇄ Showcase Hub</a>
+    </div>
+  </div>
+
+  <!-- 1. TOP BAR (Minimal, on white background, right-aligned links) -->
+  <div class="top-bar-minimal">
+    <div class="container">
+      <div class="top-minimal-left">
+        Serving Talegaon Dabhade & Pune Since 2005 · Authorized Sales & Express Lab
+      </div>
+      <div class="top-minimal-links">
+        <a href="#sitemap">Sitemap</a>
+        <a href="#locator">Store Locator</a>
+        <a href="tel:09845458942" class="top-phone-highlight">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Track Repair: 09845458942
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. HEADER (Logo left, minimal nav right, cart icon) -->
+  <header class="header-editorial">
+    <div class="container">
+      <div class="brand-group">
+        <div class="brand-mark">S</div>
+        <div class="brand-text">
+          <h1>SAI <span>COMMUNICATION</span></h1>
+          <p>Smartphone Showroom · Chip-Level Lab</p>
+        </div>
+      </div>
+
+      <nav class="minimal-nav">
+        <a href="#new-arrivals" class="active">New Arrivals</a>
+        <a href="#refurbished">Refurbished</a>
+        <a href="#repair-lab">Lab Repair</a>
+        <a href="#gift-hampers">Gift Hampers</a>
+        <a href="#vijay-sir">About Vijay Sir</a>
+      </nav>
+
+      <button class="editorial-cart-btn" onclick="toastNotify('Shopping Cart: 2 items ready for store pickup')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span>Cart</span>
+        <span class="cart-count-dot" id="editCartCount">2</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- 3. HERO (Blue-Grey Gradient #4A6FA5 → #8FB7DE, Phone pair, Asymmetrical Layout) -->
+  <section class="hero-editorial">
+    <div class="container">
+      <div class="hero-editorial-grid">
+        <div class="hero-asym-content">
+          <span class="hero-editorial-tag">CURATED PREMIUM SMARTPHONES</span>
+          <h2>Precision Technology.<br>Unmatched Integrity.</h2>
+          <p>
+            Talegaon Dabhade's premier smartphone showroom and certified chip-level repair lab. Experience the latest flagship releases with authentic warranties and tailored accessory kits.
+          </p>
+          <div class="hero-price-tag">
+            Starting at ₹12,999
+            <span class="badge-emi">0% EMI Available</span>
+          </div>
+          <div>
+            <a href="#catalog" class="btn-orange">
+              Shop Now
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-phone-stage">
+          <img src="/assets/hero_phones_transparent.png" alt="Featured Smartphone Pair" class="hero-phone-pair">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. CATEGORY TAB STRIP (Horizontal row of 4 brand tabs, orange-gold background) -->
+  <section class="tab-strip-section">
+    <div class="container" style="padding:0;">
+      <div class="tab-strip-grid">
+        <!-- Tab 1: Samsung -->
+        <div class="tab-item active" onclick="switchBrand('Samsung', this)">
+          <div class="tab-left">
+            <div class="tab-thumb">
+              <img src="/assets/hero_phones_selected.png" alt="Samsung Galaxy">
+            </div>
+            <div class="tab-info">
+              <h4>Samsung Galaxy</h4>
+              <p>S24 Ultra · Fold · A-Series</p>
+            </div>
+          </div>
+          <div class="tab-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <!-- Tab 2: iPhone -->
+        <div class="tab-item" onclick="switchBrand('Apple', this)">
+          <div class="tab-left">
+            <div class="tab-thumb">
+              <img src="/assets/hero_phones_transparent.png" alt="Apple iPhone">
+            </div>
+            <div class="tab-info">
+              <h4>Apple iPhone</h4>
+              <p>16 Pro · 15 · SE Series</p>
+            </div>
+          </div>
+          <div class="tab-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <!-- Tab 3: OnePlus -->
+        <div class="tab-item" onclick="switchBrand('OnePlus', this)">
+          <div class="tab-left">
+            <div class="tab-thumb">
+              <img src="/assets/img1_transparent.png" alt="OnePlus Flagships">
+            </div>
+            <div class="tab-info">
+              <h4>OnePlus Series</h4>
+              <p>OnePlus 12 · 12R · Nord</p>
+            </div>
+          </div>
+          <div class="tab-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+
+        <!-- Tab 4: Vivo & Oppo -->
+        <div class="tab-item" onclick="switchBrand('Vivo', this)">
+          <div class="tab-left">
+            <div class="tab-thumb">
+              <img src="/assets/hero.jpg" alt="Vivo & Oppo">
+            </div>
+            <div class="tab-info">
+              <h4>Vivo & Oppo</h4>
+              <p>V40 Zeiss · Reno 12</p>
+            </div>
+          </div>
+          <div class="tab-arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. TWO-COLUMN LAYOUT BELOW TABS -->
+  <section class="main-catalog-section" id="catalog">
+    <div class="container">
+      <div class="editorial-layout">
+        
+        <!-- LEFT SIDEBAR -->
+        <aside class="sidebar-wrapper">
+          <div class="sidebar-box">
+            <div class="sidebar-header">
+              <span>Categories</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            </div>
+            <ul class="sidebar-nav">
+              <li>
+                <a href="#mobiles" class="active">
+                  <span>Mobile Phones</span>
+                  <span class="sidebar-count">124</span>
+                </a>
+              </li>
+              <li>
+                <a href="#smartphones">
+                  <span>Smartphones (5G)</span>
+                  <span class="sidebar-count">88</span>
+                </a>
+              </li>
+              <li>
+                <a href="#accessories">
+                  <span>Accessories & Audio</span>
+                  <span class="sidebar-count">46</span>
+                </a>
+              </li>
+              <li>
+                <a href="#repairs">
+                  <span>Repairs & Lab Fixes</span>
+                  <span class="sidebar-count">12</span>
+                </a>
+              </li>
+              <li>
+                <a href="#gift-cards">
+                  <span>Gift Cards & Hampers</span>
+                  <span class="sidebar-count">8</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Orange "SALE up to 20% off" Promo Box -->
+          <div class="sidebar-sale-promo">
+            <span class="sidebar-sale-tag">Limited Offer</span>
+            <h3>SALE up to 20% off</h3>
+            <p>Exchange bonus on old smartphones + free tempered glass & fast charger included with every purchase.</p>
+            <button class="sidebar-sale-btn" onclick="toastNotify('Applied 20% off Exchange Voucher!')">
+              Claim Voucher
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </button>
+          </div>
+
+          <!-- Founder Vijay Sir trust quote card -->
+          <div class="sidebar-founder-card">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+              <img src="/assets/vijay-sir.jpg" alt="Vijay Sir" style="width:46px; height:46px; border-radius:50%; object-fit:cover; border:2px solid var(--accent-orange);">
+              <div>
+                <strong style="display:block; font-size:14px; color:var(--text-dark);">Vijay Sir</strong>
+                <span style="font-size:11px; color:#64748B;">Founder Since 2005</span>
+              </div>
+            </div>
+            <p style="font-size:12px; color:#475569; font-style:italic; line-height:1.5;">
+              "We test, verify, and guide you so your hard-earned money gets you the device that best fits your life."
+            </p>
+          </div>
+        </aside>
+
+        <!-- RIGHT MAIN AREA: "Featured Products" Grid (2-3 columns, orange price tag) -->
+        <main class="main-content-area">
+          <div class="main-grid-header">
+            <h2>Featured Products</h2>
+            <span id="activeBrandLabel">Showing Curated Handsets</span>
+          </div>
+
+          <div class="editorial-product-grid" id="productContainer">
+            <!-- Product 1 -->
+            <div class="editorial-card" data-brand="Samsung">
+              <span class="editorial-tag-top">Flagship</span>
+              <div class="editorial-thumb">
+                <img src="/assets/hero_phones_selected.png" alt="Galaxy S24 Ultra">
+              </div>
+              <span class="editorial-brand-line">Samsung</span>
+              <h3 class="editorial-card-title">Galaxy S24 Ultra 5G (Titanium Gray, 256GB)</h3>
+              <p class="editorial-card-meta">200MP Quad Telephoto · Snapdragon 8 Gen 3 · S-Pen</p>
+              <div class="editorial-footer-row">
+                <div class="orange-price-tag">
+                  ₹1,19,999 <strike>₹1,29,999</strike>
+                </div>
+                <button class="cart-btn-orange" title="Add to Cart" onclick="addEditCart('Galaxy S24 Ultra')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="editorial-card" data-brand="Apple">
+              <span class="editorial-tag-top">New</span>
+              <div class="editorial-thumb">
+                <img src="/assets/hero_phones_transparent.png" alt="Apple iPhone 16">
+              </div>
+              <span class="editorial-brand-line">Apple</span>
+              <h3 class="editorial-card-title">iPhone 16 128GB (Teal Edition with Camera Control)</h3>
+              <p class="editorial-card-meta">A18 Bionic Chip · 48MP Fusion · Action Button</p>
+              <div class="editorial-footer-row">
+                <div class="orange-price-tag">
+                  ₹79,900 <strike>₹84,900</strike>
+                </div>
+                <button class="cart-btn-orange" title="Add to Cart" onclick="addEditCart('iPhone 16')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="editorial-card" data-brand="OnePlus">
+              <span class="editorial-tag-top">Speed</span>
+              <div class="editorial-thumb">
+                <img src="/assets/img1_transparent.png" alt="OnePlus 12">
+              </div>
+              <span class="editorial-brand-line">OnePlus</span>
+              <h3 class="editorial-card-title">OnePlus 12 5G (Flowy Emerald, 16GB/512GB)</h3>
+              <p class="editorial-card-meta">Hasselblad 4th Gen · 100W SUPERVOOC Charge</p>
+              <div class="editorial-footer-row">
+                <div class="orange-price-tag">
+                  ₹64,999 <strike>₹69,999</strike>
+                </div>
+                <button class="cart-btn-orange" title="Add to Cart" onclick="addEditCart('OnePlus 12')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="editorial-card" data-brand="Vivo">
+              <span class="editorial-tag-top">Portrait</span>
+              <div class="editorial-thumb">
+                <img src="/assets/hero_phones_transparent.png" alt="Vivo V40 Pro">
+              </div>
+              <span class="editorial-brand-line">Vivo</span>
+              <h3 class="editorial-card-title">Vivo V40 Pro 5G (Zeiss Multifocal Portrait)</h3>
+              <p class="editorial-card-meta">50MP Zeiss OIS · Dimensity 9200+ · 5500mAh</p>
+              <div class="editorial-footer-row">
+                <div class="orange-price-tag">
+                  ₹49,999 <strike>₹54,999</strike>
+                </div>
+                <button class="cart-btn-orange" title="Add to Cart" onclick="addEditCart('Vivo V40 Pro')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Product 5 -->
+            <div class="editorial-card" data-brand="Apple">
+              <span class="editorial-tag-top">Refurbished</span>
+              <div class="editorial-thumb">
+                <img src="/assets/hero_phones_selected.png" alt="Refurbished iPhone 13">
+              </div>
+              <span class="editorial-brand-line">Certified Refurb</span>
+              <h3 class="editorial-card-title">iPhone 13 128GB Midnight (52-Point Checked)</h3>
+              <p class="editorial-card-meta">6-Month Store Warranty · Free Case & Screen Guard</p>
+              <div class="editorial-footer-row">
+                <div class="orange-price-tag">
+                  ₹37,500 <strike>₹52,000</strike>
+                </div>
+                <button class="cart-btn-orange" title="Add to Cart" onclick="addEditCart('Refurbished iPhone 13')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Product 6 -->
+            <div class="editorial-card" data-brand="Repair">
+              <span class="editorial-tag-top">Express Lab</span>
+              <div class="editorial-thumb">
+                <img src="/assets/shop.jpg" alt="Screen Replacement Lab">
+              </div>
+              <span class="editorial-brand-line">Repair Lab</span>
+              <h3 class="editorial-card-title">30-Min In-Store Screen / Battery Replacement</h3>
+              <p class="editorial-card-meta">Genuine parts · 90-day warranty · Done while you wait</p>
+              <div class="editorial-footer-row">
+                <div class="orange-price-tag">
+                  ₹1,499 <strike>₹2,200</strike>
+                </div>
+                <button class="cart-btn-orange" title="Book Slot" onclick="toastNotify('Booked 30-Min Repair Slot at Talegaon Shop')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. TRUST ROW (3 Items with icon + label on light grey background) -->
+  <section class="trust-editorial-row">
+    <div class="container">
+      <div class="trust-3col">
+        <!-- Item 1 -->
+        <div class="trust-unit">
+          <div class="trust-unit-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+          </div>
+          <div class="trust-unit-text">
+            <h4>Free Shipping</h4>
+            <p>Same-day dispatch in Talegaon & Pune</p>
+          </div>
+        </div>
+
+        <!-- Item 2 -->
+        <div class="trust-unit">
+          <div class="trust-unit-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </div>
+          <div class="trust-unit-text">
+            <h4>Call Us Directly</h4>
+            <p>09845458942 / 7507575755</p>
+          </div>
+        </div>
+
+        <!-- Item 3 -->
+        <div class="trust-unit">
+          <div class="trust-unit-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+          </div>
+          <div class="trust-unit-text">
+            <h4>Free Gift Cards & Hampers</h4>
+            <p>Complimentary kit with each new smartphone</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. SOCIAL / COMMUNITY ROW ("Follow Us on Facebook" style small panel) -->
+  <section class="community-panel-section">
+    <div class="container">
+      <div class="community-panel">
+        <div class="community-left">
+          <div class="community-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </div>
+          <div class="community-copy">
+            <h4>Follow Us on Facebook & Social Community</h4>
+            <p>Join 15,000+ happy smartphone owners in Talegaon & Pune for daily discounts and giveaway announcements.</p>
+          </div>
+        </div>
+        <a href="https://facebook.com" target="_blank" class="community-cta">
+          Follow Page
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. FOOTER (Deep navy #1B2430 background, 4 columns, phone and address visible) -->
+  <footer class="footer-editorial">
+    <div class="container">
+      <div class="footer-editorial-grid">
+        <!-- Col 1: Information -->
+        <div class="footer-col">
+          <h4>Information</h4>
+          <p>
+            Sai Communication has been Talegaon Dabhade's trusted mobile destination since 2005. Founded by Vijay Sir on the values of honest advice and genuine products.
+          </p>
+          <ul class="footer-nav">
+            <li><a href="#about">Founder Story: Vijay Sir</a></li>
+            <li><a href="#warranty">Official 1-Year Brand Warranty</a></li>
+            <li><a href="#lab">In-House Micro-Soldering Lab</a></li>
+            <li><a href="#reviews">Verified Customer Testimonials</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 2: My Account -->
+        <div class="footer-col">
+          <h4>My Account</h4>
+          <ul class="footer-nav">
+            <li><a href="#track">Live Phone Repair Tracker</a></li>
+            <li><a href="#orders">Online Order Status</a></li>
+            <li><a href="#emi">0% EMI Loan Calculator</a></li>
+            <li><a href="#tradein">Instant Trade-in Valuation</a></li>
+            <li><a href="#wishlist">Customer Wishlist</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Follow Us -->
+        <div class="footer-col">
+          <h4>Follow Us</h4>
+          <p>Stay connected with Pune's premier mobile tech hub:</p>
+          <ul class="footer-nav">
+            <li><a href="https://facebook.com">Facebook Community</a></li>
+            <li><a href="https://instagram.com">Instagram (@saicommunication)</a></li>
+            <li><a href="https://youtube.com">YouTube Tech Reviews</a></li>
+            <li><a href="https://wa.me/917507575755">WhatsApp Direct Broadcast</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Store Info -->
+        <div class="footer-col">
+          <h4>Store Info</h4>
+          <div class="store-info-highlight">
+            <p><strong>Sai Communication</strong></p>
+            <p style="margin-top:4px;">Shop No. 30, P.L. Khandge Plaza, Near Saraswat Bank, Chakan-Talegaon Road,</p>
+            <p>Talegaon Dabhade, Pune, Maharashtra - 410507</p>
+            <p style="margin-top:8px; color:var(--accent-orange); font-weight:700;">
+              Tel: 09845458942 / 7507575755
+            </p>
+            <p style="font-size:11px; color:#94A3B8;">Working Hours: 10:00 AM - 10:00 PM (Everyday)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Copyright Line at Bottom -->
+      <div class="editorial-copyright">
+        <div>
+          © 2026 <strong>Sai Communication</strong> — Talegaon Dabhade, Pune. All rights reserved.
+        </div>
+        <div>
+          Template 3: Warm Orange & Blue-Grey Editorial Design · Since 2005
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="editorial-toast" id="editorialToast">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+    <span id="editorialToastText">Action completed</span>
+  </div>
+
+  <script>
+    let editCount = 2;
+    function toastNotify(msg) {
+      const toast = document.getElementById('editorialToast');
+      const label = document.getElementById('editorialToastText');
+      label.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3200);
+    }
+
+    function addEditCart(itemName) {
+      editCount++;
+      document.getElementById('editCartCount').textContent = editCount;
+      toastNotify('Added ' + itemName + ' to cart! (Total: ' + editCount + ' items)');
+    }
+
+    function switchBrand(brand, element) {
+      const label = document.getElementById('activeBrandLabel');
+      label.textContent = 'Showing ' + brand + ' Handsets & Curations';
+      
+      document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+      if (element) element.classList.add('active');
+
+      const cards = document.querySelectorAll('.editorial-card');
+      cards.forEach(card => {
+        const cardBrand = card.getAttribute('data-brand');
+        if (brand === 'All' || cardBrand === brand || cardBrand === 'Repair') {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+
+      toastNotify('Filtered by: ' + brand);
+    }
+  </script>
+</body>
+</html>

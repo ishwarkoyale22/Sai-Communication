@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { MapPin, MessageCircle, Phone } from "lucide-react";
+import { Clock, MapPin, MessageCircle, Phone } from "lucide-react";
 import { EnquiryForm } from "@/components/EnquiryDialog";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
@@ -24,17 +24,6 @@ export const Route = createFileRoute("/contact")({
   }),
   component: ContactPage,
 });
-
-const HOURS = [
-  { day: "Monday", time: "10:00 AM - 10:00 PM" },
-  { day: "Tuesday", time: "10:00 AM - 10:00 PM" },
-  { day: "Wednesday", time: "10:00 AM - 10:00 PM" },
-  { day: "Thursday", time: "10:00 AM - 10:00 PM" },
-  { day: "Friday", time: "10:00 AM - 10:00 PM" },
-  { day: "Saturday", time: "10:00 AM - 10:00 PM" },
-  { day: "Sunday", time: "10:00 AM - 10:00 PM" },
-];
-
 
 function ContactPage() {
   const settings = useSettings();
@@ -120,16 +109,10 @@ function ContactPage() {
             <div className="card-surface p-6">
 
               <h2 className="text-lg font-medium font-serif">Business Hours</h2>
-              <table className="mt-4 w-full text-sm">
-                <tbody>
-                  {HOURS.map((row) => (
-                    <tr key={row.day} className="border-b border-border last:border-0">
-                      <td className="py-2 text-muted-foreground">{row.day}</td>
-                      <td className="py-2 text-right font-medium">{row.time}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <p className="mt-4 flex items-center gap-2 text-sm text-foreground/85">
+                <Clock className="size-4 shrink-0 text-gold" />
+                {settings["hours"]}
+              </p>
             </div>
           </Reveal>
 

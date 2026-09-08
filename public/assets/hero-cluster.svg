@@ -1,0 +1,115 @@
+<svg width="1000" height="760" viewBox="0 0 1000 760" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="silverGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#E2E5E9"/>
+      <stop offset="100%" stop-color="#A9AEB6"/>
+    </linearGradient>
+    <linearGradient id="blackGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2C2C2F"/>
+      <stop offset="100%" stop-color="#0A0A0B"/>
+    </linearGradient>
+    <linearGradient id="navyGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#33417A"/>
+      <stop offset="100%" stop-color="#101526"/>
+    </linearGradient>
+    <linearGradient id="blueGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4256A0"/>
+      <stop offset="100%" stop-color="#131A33"/>
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#D9B57C"/>
+      <stop offset="100%" stop-color="#8B6F3E"/>
+    </linearGradient>
+    <linearGradient id="screenGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0A0E1A"/>
+      <stop offset="55%" stop-color="#161D33"/>
+      <stop offset="100%" stop-color="#0A0E1A"/>
+    </linearGradient>
+    <linearGradient id="watchScreenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#141A2E"/>
+      <stop offset="100%" stop-color="#0A0E1A"/>
+    </linearGradient>
+    <linearGradient id="sheenGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.32"/>
+      <stop offset="55%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="lensGrad" x1="0.3" y1="0.25" x2="1" y2="1">
+      <stop offset="0%" stop-color="#8C97B8"/>
+      <stop offset="45%" stop-color="#161822"/>
+      <stop offset="100%" stop-color="#050506"/>
+    </linearGradient>
+    <radialGradient id="flashGrad" cx="0.35" cy="0.3" r="0.8">
+      <stop offset="0%" stop-color="#FFEECD"/>
+      <stop offset="100%" stop-color="#C8A86C" stop-opacity="0.7"/>
+    </radialGradient>
+    <linearGradient id="sweepGrad" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0.16"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="softShadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="18" stdDeviation="20" flood-color="#141422" flood-opacity="0.32"/>
+    </filter>
+  </defs>
+
+  <!-- Silver phone — back, far left -->
+  <g transform="rotate(-20 145 395)" filter="url(#softShadow)">
+    <rect x="60" y="230" width="170" height="330" rx="34" fill="url(#silverGrad)"/>
+    <rect x="60" y="230" width="170" height="330" rx="34" fill="none" stroke="#FFFFFF" stroke-opacity="0.25" stroke-width="1.5"/>
+    <rect x="60" y="230" width="170" height="330" rx="34" fill="url(#sheenGrad)"/>
+    <rect x="90" y="258" width="82" height="82" rx="22" fill="#00000033"/>
+    <circle cx="118" cy="286" r="17" fill="url(#lensGrad)"/>
+    <circle cx="146" cy="314" r="17" fill="url(#lensGrad)"/>
+    <circle cx="122" cy="318" r="7" fill="url(#flashGrad)"/>
+    <rect x="228" y="330" width="4" height="40" rx="2" fill="#00000055"/>
+  </g>
+
+  <!-- Black phone — back -->
+  <g transform="rotate(-10 280 340)" filter="url(#softShadow)">
+    <rect x="190" y="160" width="180" height="360" rx="36" fill="url(#blackGrad)"/>
+    <rect x="190" y="160" width="180" height="360" rx="36" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1.5"/>
+    <rect x="190" y="160" width="180" height="360" rx="36" fill="url(#sheenGrad)"/>
+    <rect x="222" y="190" width="88" height="88" rx="24" fill="#00000040"/>
+    <circle cx="252" cy="220" r="18" fill="url(#lensGrad)"/>
+    <circle cx="282" cy="250" r="18" fill="url(#lensGrad)"/>
+    <circle cx="256" cy="254" r="7.5" fill="url(#flashGrad)"/>
+    <rect x="368" y="260" width="4" height="42" rx="2" fill="#00000055"/>
+  </g>
+
+  <!-- Navy phone — front, centre, largest -->
+  <g transform="rotate(-2 460 275)" filter="url(#softShadow)">
+    <rect x="360" y="60" width="200" height="430" rx="40" fill="url(#navyGrad)"/>
+    <rect x="360" y="60" width="200" height="430" rx="40" fill="none" stroke="#FFFFFF" stroke-opacity="0.16" stroke-width="1.5"/>
+    <rect x="382" y="82" width="156" height="386" rx="28" fill="url(#screenGrad)"/>
+    <rect x="382" y="82" width="156" height="386" rx="28" fill="url(#sweepGrad)" transform="rotate(-16 460 275)"/>
+    <rect x="428" y="94" width="44" height="6" rx="3" fill="#00000070"/>
+    <rect x="558" y="190" width="4" height="46" rx="2" fill="#00000055"/>
+  </g>
+
+  <!-- Blue phone — back -->
+  <g transform="rotate(9 645 340)" filter="url(#softShadow)">
+    <rect x="560" y="140" width="180" height="370" rx="36" fill="url(#blueGrad)"/>
+    <rect x="560" y="140" width="180" height="370" rx="36" fill="none" stroke="#FFFFFF" stroke-opacity="0.18" stroke-width="1.5"/>
+    <rect x="560" y="140" width="180" height="370" rx="36" fill="url(#sheenGrad)"/>
+    <rect x="592" y="170" width="86" height="86" rx="23" fill="#00000038"/>
+    <circle cx="620" cy="199" r="17.5" fill="url(#lensGrad)"/>
+    <circle cx="650" cy="228" r="17.5" fill="url(#lensGrad)"/>
+    <circle cx="624" cy="232" r="7" fill="url(#flashGrad)"/>
+  </g>
+
+  <!-- Smartwatch — far right -->
+  <g transform="rotate(18 845 400)" filter="url(#softShadow)">
+    <!-- Straps -->
+    <rect x="808" y="255" width="74" height="105" rx="24" fill="url(#goldGrad)"/>
+    <rect x="808" y="440" width="74" height="105" rx="24" fill="url(#goldGrad)"/>
+    <!-- Case -->
+    <rect x="792" y="330" width="106" height="140" rx="30" fill="url(#goldGrad)"/>
+    <rect x="792" y="330" width="106" height="140" rx="30" fill="none" stroke="#FFFFFF" stroke-opacity="0.3" stroke-width="1.5"/>
+    <!-- Crown -->
+    <rect x="895" y="388" width="14" height="22" rx="5" fill="#8B6F3E"/>
+    <!-- Face -->
+    <rect x="806" y="344" width="78" height="112" rx="20" fill="url(#watchScreenGrad)"/>
+    <rect x="806" y="344" width="78" height="112" rx="20" fill="url(#sweepGrad)" transform="rotate(-16 845 400)"/>
+    <circle cx="845" cy="400" r="20" fill="none" stroke="#B8894B" stroke-width="2" stroke-opacity="0.7"/>
+  </g>
+</svg>

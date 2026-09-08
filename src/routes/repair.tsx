@@ -64,6 +64,9 @@ function RepairPage() {
               <MessageCircle className="size-4 mr-2" /> WhatsApp
             </a>
           </Button>
+          <Button asChild size="lg" variant="ghost">
+            <Link to="/repair-track" search={{ phone: "" }}>Track Existing Repair</Link>
+          </Button>
         </div>
       </header>
 

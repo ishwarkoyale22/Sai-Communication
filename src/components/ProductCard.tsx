@@ -1,10 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { formatINR } from "@/lib/format";
 import type { Product } from "@/lib/types";
-import { cn } from "@/lib/utils";
-import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
+import { ShoppingCart, Smartphone } from "lucide-react";
 
 export function ProductCard({
   product,
@@ -16,19 +14,34 @@ export function ProductCard({
   onOpen: (p: Product) => void;
 }) {
   const { addProduct } = useCart();
+
   function handleAddToCart() {
     addProduct(product, 1);
     toast.success(`${product.name} added to cart!`);
   }
+
   const inStock = product.stock_status === "in_stock";
   const image = product.images[0];
+  const hasDiscount =
+    product.original_price != null && product.original_price > product.price;
+  const discountPct = hasDiscount
+    ? Math.round((1 - product.price / (product.original_price as number)) * 100)
+    : 0;
 
   return (
-    <article className="card-surface hover-glow group flex flex-col overflow-hidden p-2">
+    <article className="card-premium flex flex-col justify-between relative overflow-hidden p-4">
+      {/* Discount badge */}
+      {hasDiscount && (
+        <span className="absolute left-3 top-3 z-10 badge-primary text-[9px] py-0.5">
+          -{discountPct}%
+        </span>
+      )}
+
+      {/* Image container */}
       <button
         type="button"
         onClick={() => onOpen(product)}
-        className="relative aspect-4/3 w-full overflow-hidden border border-border bg-muted"
+        className="img-cover-frame mb-3 h-36 w-full cursor-pointer"
         aria-label={`View ${product.brand} ${product.name}`}
       >
         {image ? (
@@ -36,70 +49,87 @@ export function ProductCard({
             src={image}
             alt={`${product.brand} ${product.name}`}
             loading="lazy"
-            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-contain"
           />
         ) : (
-          <div className="flex size-full items-center justify-center text-sm text-muted-foreground">
-            No image
+          <div className="flex flex-col items-center gap-1.5 py-4">
+            <div className="flex size-11 items-center justify-center rounded-xl bg-[#F5A623]/15 text-[#F5A623]">
+              <Smartphone className="size-6" />
+            </div>
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-300">
+              In-Store Stock
+            </span>
           </div>
         )}
-        <span
-          className={cn(
-            "absolute left-3 top-3 border px-3 py-[3px] text-[9px] font-medium uppercase tracking-[0.5px]",
-            inStock
-              ? "border-success/30 bg-success text-success-foreground"
-              : "border-destructive/30 bg-destructive/10 text-destructive",
-          )}
-        >
-          {inStock ? "In Stock" : "Out of Stock"}
-        </span>
       </button>
 
-      <div className="flex flex-1 flex-col gap-3 p-4">
-        <div>
-          <p className="caption-mono">{product.brand}</p>
-          <h3 className="mt-1 line-clamp-1 font-serif text-[17px] font-medium text-card-foreground">
-            {product.name}
-          </h3>
+      {/* Info */}
+      <div className="flex min-w-0 flex-col gap-1.5">
+        <div className="flex items-center justify-between">
+          <span className="text-[10.5px] font-extrabold uppercase tracking-widest text-[#F5A623]">
+            {product.brand}
+          </span>
+          <span className={inStock ? "badge-success" : "badge-outline text-[10px]"}>
+            {inStock ? "● In Stock" : "On Order"}
+          </span>
         </div>
-        <hr className="border-border" />
-        <div className="flex items-baseline gap-2">
-          <span className="caption-mono text-[9px]">Price</span>
-          <span className="text-lg font-medium text-primary">{formatINR(product.price)}</span>
-          {product.original_price != null && product.original_price > product.price && (
-            <span className="text-xs font-light text-muted-foreground/70 line-through">
-              {formatINR(product.original_price)}
+
+        <button
+          type="button"
+          onClick={() => onOpen(product)}
+          className="text-left text-sm font-bold leading-snug hover:text-primary transition-colors cursor-pointer line-clamp-2"
+          style={{
+            fontFamily: "var(--font-display)",
+            color: "var(--foreground)",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {product.name}
+        </button>
+
+        {/* Price */}
+        <div className="flex items-baseline gap-2 mt-1">
+          <span className="price-tag text-lg">{formatINR(product.price)}</span>
+          {hasDiscount && (
+            <span className="text-xs line-through text-slate-400 dark:text-slate-400 font-medium">
+              {formatINR(product.original_price as number)}
             </span>
           )}
         </div>
-        <div className="mt-auto flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            className="flex-1 text-xs font-medium tracking-[0.3px]"
-            onClick={() => onOpen(product)}
+      </div>
+
+      {/* CTA buttons */}
+      <div className="grid grid-cols-2 gap-2 mt-4">
+        {inStock ? (
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            className="btn-primary col-span-2"
+            style={{ padding: "10px 0", borderRadius: "10px", fontSize: "12.5px", gap: "6px" }}
           >
-            Details
-          </Button>
-          {product.stock_status === "in_stock" ? (
-            <Button
-              size="sm"
-              className="flex-1 text-xs font-semibold tracking-[0.3px]"
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="size-3.5 mr-1" /> Add to Cart
-            </Button>
-          ) : (
-            <Button
-              size="sm"
-              variant="secondary"
-              className="flex-1 text-xs font-semibold tracking-[0.3px]"
+            <ShoppingCart className="size-3.5" />
+            Add to Cart
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
               onClick={() => onEnquire(product)}
+              className="btn-ghost col-span-2"
+              style={{ padding: "10px 0", borderRadius: "10px", fontSize: "12.5px" }}
             >
-              Enquire
-            </Button>
-          )}
-        </div>
+              Enquire About This Phone
+            </button>
+          </>
+        )}
+        <button
+          type="button"
+          onClick={() => onOpen(product)}
+          className="btn-ghost col-span-2"
+          style={{ padding: "9px 0", borderRadius: "10px", fontSize: "11.5px" }}
+        >
+          View Details →
+        </button>
       </div>
     </article>
   );

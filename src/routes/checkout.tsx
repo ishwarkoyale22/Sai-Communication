@@ -1,5 +1,5 @@
 ﻿import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronRight, User, Truck, CreditCard, ShieldCheck, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,12 +7,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { formatINR } from "@/lib/format";
 import { financePartnersQuery } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import type { CheckoutFormData } from "@/lib/types";
+import type { CheckoutFormData, Offer } from "@/lib/types";
+import { Tag, X as XIcon } from "lucide-react";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -36,29 +38,96 @@ const EMPTY_FORM: CheckoutFormData = {
   customer_phone: "",
   customer_email: "",
   customer_address: "",
+  customer_birthday: "",
   delivery_type: "collection",
   payment_type: "full",
   finance_partner_id: "",
   finance_tenure: 12,
   finance_down_payment: 0,
-  payment_method: "",
+  // Every new sale starts on Cash — the most common in-store payment method.
+  payment_method: "cash",
 };
 
 function CheckoutPage() {
   const { items, total, clearCart } = useCart();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
-  const [form, setForm] = useState<CheckoutFormData>(EMPTY_FORM);
+  const [form, setForm] = useState<CheckoutFormData>(() =>
+    profile ? { ...EMPTY_FORM, customer_name: profile.full_name, customer_phone: profile.phone, customer_email: profile.email ?? "" } : EMPTY_FORM
+  );
   const [loading, setLoading] = useState(false);
   const { data: financePartners = [] } = useQuery(financePartnersQuery);
+
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<Offer | null>(null);
+  const [couponError, setCouponError] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
 
   function setF<K extends keyof CheckoutFormData>(k: K, v: CheckoutFormData[K]) {
     setForm((f) => ({ ...f, [k]: v }));
   }
 
+  // The profile loads asynchronously after the auth session resolves, so
+  // it's usually not there yet on first render — fill in name/phone/email
+  // once it arrives, but only into fields the shopper hasn't already typed
+  // into (so this never clobbers manual edits, e.g. a different delivery
+  // contact than the account holder).
+  useEffect(() => {
+    if (!profile) return;
+    setForm((f) => ({
+      ...f,
+      customer_name: f.customer_name || profile.full_name,
+      customer_phone: f.customer_phone || profile.phone,
+      customer_email: f.customer_email || (profile.email ?? ""),
+    }));
+  }, [profile]);
+
   const selectedPartner = financePartners.find((p) => p.id === form.finance_partner_id);
 
-  const loanAmount = total - (form.finance_down_payment ?? 0);
+  const discountAmount = appliedCoupon?.discount_value
+    ? Math.min(Number(appliedCoupon.discount_value), total)
+    : 0;
+  const payableTotal = total - discountAmount;
+
+  async function handleApplyCoupon() {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponError("");
+    setCouponLoading(true);
+    try {
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from("offers")
+        .select("*")
+        .eq("is_active", true)
+        .eq("offer_type", "coupon")
+        .ilike("coupon_code", code)
+        .or(`starts_at.is.null,starts_at.lte.${now}`)
+        .or(`ends_at.is.null,ends_at.gte.${now}`)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      if (!data) {
+        setCouponError("Invalid or expired coupon code.");
+        setAppliedCoupon(null);
+        return;
+      }
+      setAppliedCoupon(data as Offer);
+      toast.success(`Coupon "${code.toUpperCase()}" applied!`);
+    } catch {
+      setCouponError("Could not validate coupon. Please try again.");
+    } finally {
+      setCouponLoading(false);
+    }
+  }
+
+  function removeCoupon() {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    setCouponError("");
+  }
+
+  const loanAmount = payableTotal - (form.finance_down_payment ?? 0);
   const monthlyEMI = selectedPartner && form.finance_tenure > 0 && loanAmount > 0
     ? Math.ceil(loanAmount / form.finance_tenure)
     : 0;
@@ -101,13 +170,48 @@ function CheckoutPage() {
         customer_phone: form.customer_phone,
         customer_email: form.customer_email || null,
         order_type,
-        total_amount: total,
+        total_amount: payableTotal,
         payment_method: form.payment_method || null,
         payment_status: "pending",
         order_status: "pending",
         notes: noteParts.join(" | "),
+        coupon_code: appliedCoupon?.coupon_code ?? null,
+        discount_amount: discountAmount || null,
+        customer_id: user?.id ?? null,
       });
       if (orderError) throw new Error(orderError.message);
+
+      // Upsert the customer's birthday, keyed by phone number — update the
+      // existing record if one matches, otherwise create it. Optional field,
+      // so a blank value is simply skipped rather than clearing anything.
+      // Best-effort: the order is already placed, so a failure here must
+      // not block checkout completion.
+      if (form.customer_birthday) {
+        try {
+          const { data: existingCustomer } = await supabase
+            .from("customers")
+            .select("id")
+            .eq("phone", form.customer_phone)
+            .maybeSingle();
+
+          if (existingCustomer) {
+            await supabase
+              .from("customers")
+              .update({ birthday: form.customer_birthday })
+              .eq("id", existingCustomer.id);
+          } else {
+            await supabase.from("customers").insert({
+              name: form.customer_name,
+              phone: form.customer_phone,
+              email: form.customer_email || null,
+              address: form.customer_address || null,
+              birthday: form.customer_birthday,
+            });
+          }
+        } catch (err) {
+          console.error("Failed to save customer birthday:", err);
+        }
+      }
 
       const { error: itemsError } = await supabase.from("website_order_items").insert(
         items.map((item) => ({
@@ -125,7 +229,15 @@ function CheckoutPage() {
       if (itemsError) throw new Error(itemsError.message);
 
       clearCart();
-      navigate({ to: "/order-success", search: { order_number, phone: form.customer_phone } });
+      const phone = form.customer_phone;
+      // Reset the form (payment method back to Cash) so a fresh checkout —
+      // should the router ever keep this component mounted — never starts
+      // from the previous customer's details or payment method.
+      setForm(EMPTY_FORM);
+      setStep(1);
+      setAppliedCoupon(null);
+      setCouponInput("");
+      navigate({ to: "/order-success", search: { order_number, phone } });
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Failed to place order. Please try again.");
     } finally {
@@ -185,6 +297,10 @@ function CheckoutPage() {
                   <Label htmlFor="co-email">Email (optional)</Label>
                   <Input id="co-email" type="email" value={form.customer_email} onChange={(e) => setF("customer_email", e.target.value)} placeholder="your@email.com" />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="co-dob">Date of Birth (optional)</Label>
+                  <Input id="co-dob" type="date" value={form.customer_birthday} onChange={(e) => setF("customer_birthday", e.target.value)} />
+                </div>
                 <div className="sm:col-span-2 space-y-2">
                   <Label htmlFor="co-addr">Delivery Address (optional)</Label>
                   <Input id="co-addr" value={form.customer_address} onChange={(e) => setF("customer_address", e.target.value)} placeholder="Your address (if delivery required)" />
@@ -223,7 +339,12 @@ function CheckoutPage() {
               <h2 className="text-xl font-bold flex items-center gap-2"><ShieldCheck className="size-5 text-primary" /> Payment Type</h2>
               <div className="grid gap-3 sm:grid-cols-2">
                 {([["full", "💰", "Pay Full Amount", "One-time payment. No EMI."], ["emi", "📆", "Finance / EMI", "Split into monthly instalments."]] as const).map(([val, icon, title, desc]) => (
-                  <button key={val} onClick={() => setF("payment_type", val)}
+                  <button key={val} onClick={() => {
+                    // Keep payment_method in sync with the type so Step 4 never
+                    // shows "Place Order" enabled against a method that isn't
+                    // one of the currently visible options.
+                    setForm((f) => ({ ...f, payment_type: val, payment_method: val === "emi" ? "emi" : "cash" }));
+                  }}
                     className={cn("rounded-xl border-2 p-4 text-left transition-colors", form.payment_type === val ? "border-primary bg-accent" : "border-border hover:border-border/80")}>
                     <span className="text-2xl">{icon}</span>
                     <p className="mt-2 font-semibold">{title}</p>
@@ -263,7 +384,7 @@ function CheckoutPage() {
                           </div>
                           <div className="space-y-2">
                             <Label htmlFor="down-payment">Down Payment (₹)</Label>
-                            <Input id="down-payment" type="number" min={0} max={total} value={form.finance_down_payment} onChange={(e) => setF("finance_down_payment", Number(e.target.value))} />
+                            <Input id="down-payment" type="number" min={0} max={payableTotal} value={form.finance_down_payment} onChange={(e) => setF("finance_down_payment", Number(e.target.value))} />
                           </div>
                           {monthlyEMI > 0 && (
                             <div className="rounded-xl bg-accent border border-primary/20 p-4 text-center">
@@ -330,9 +451,48 @@ function CheckoutPage() {
                 </li>
               ))}
             </ul>
-            <div className="mt-4 border-t border-border pt-3 flex justify-between font-bold">
-              <span>Total</span>
-              <span className="text-primary">{formatINR(total)}</span>
+            <div className="mt-4 border-t border-border pt-3 space-y-2">
+              <Label htmlFor="coupon-code" className="text-xs text-muted-foreground">Have a coupon code?</Label>
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-gold bg-gold/10 px-3 py-2 text-sm">
+                  <span className="flex items-center gap-1.5 font-medium text-gold">
+                    <Tag className="size-3.5" /> {appliedCoupon.coupon_code}
+                  </span>
+                  <button type="button" onClick={removeCoupon} className="text-muted-foreground hover:text-foreground">
+                    <XIcon className="size-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    id="coupon-code"
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value)}
+                    placeholder="Enter coupon code"
+                    className="text-sm"
+                  />
+                  <Button type="button" variant="secondary" size="sm" onClick={handleApplyCoupon} disabled={couponLoading || !couponInput.trim()}>
+                    {couponLoading ? "..." : "Apply"}
+                  </Button>
+                </div>
+              )}
+              {couponError && <p className="text-xs text-destructive-foreground">{couponError}</p>}
+            </div>
+            <div className="mt-3 border-t border-border pt-3 space-y-1.5">
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>Subtotal</span>
+                <span>{formatINR(total)}</span>
+              </div>
+              {discountAmount > 0 && (
+                <div className="flex justify-between text-sm text-gold font-medium">
+                  <span>Coupon Discount</span>
+                  <span>-{formatINR(discountAmount)}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold pt-1">
+                <span>Total</span>
+                <span className="text-primary">{formatINR(payableTotal)}</span>
+              </div>
             </div>
             {form.payment_type === "emi" && monthlyEMI > 0 && (
               <div className="mt-2 text-xs text-muted-foreground">

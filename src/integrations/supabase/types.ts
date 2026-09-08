@@ -125,6 +125,7 @@ export type Database = {
       customers: {
         Row: {
           address: string | null
+          birthday: string | null
           created_at: string | null
           email: string | null
           id: string
@@ -135,6 +136,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          birthday?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
@@ -145,6 +147,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          birthday?: string | null
           created_at?: string | null
           email?: string | null
           id?: string
@@ -393,37 +396,49 @@ export type Database = {
       }
       offers: {
         Row: {
+          coupon_code: string | null
           created_at: string | null
           description: string | null
-          discount_percent: number | null
+          discount_value: number | null
+          display_mode: string
+          ends_at: string | null
           id: string
-          image: string | null
+          image_url: string | null
           is_active: boolean | null
+          offer_type: string
+          starts_at: string | null
           title: string
-          valid_from: string | null
-          valid_until: string | null
+          updated_at: string | null
         }
         Insert: {
+          coupon_code?: string | null
           created_at?: string | null
           description?: string | null
-          discount_percent?: number | null
+          discount_value?: number | null
+          display_mode?: string
+          ends_at?: string | null
           id?: string
-          image?: string | null
+          image_url?: string | null
           is_active?: boolean | null
+          offer_type: string
+          starts_at?: string | null
           title: string
-          valid_from?: string | null
-          valid_until?: string | null
+          updated_at?: string | null
         }
         Update: {
+          coupon_code?: string | null
           created_at?: string | null
           description?: string | null
-          discount_percent?: number | null
+          discount_value?: number | null
+          display_mode?: string
+          ends_at?: string | null
           id?: string
-          image?: string | null
+          image_url?: string | null
           is_active?: boolean | null
+          offer_type?: string
+          starts_at?: string | null
           title?: string
-          valid_from?: string | null
-          valid_until?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -867,10 +882,13 @@ export type Database = {
       }
       website_orders: {
         Row: {
+          coupon_code: string | null
           created_at: string | null
           customer_email: string | null
+          customer_id: string | null
           customer_name: string
           customer_phone: string
+          discount_amount: number | null
           id: string
           notes: string | null
           order_number: string
@@ -882,10 +900,13 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          coupon_code?: string | null
           created_at?: string | null
           customer_email?: string | null
+          customer_id?: string | null
           customer_name: string
           customer_phone: string
+          discount_amount?: number | null
           id?: string
           notes?: string | null
           order_number: string
@@ -897,10 +918,13 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          coupon_code?: string | null
           created_at?: string | null
           customer_email?: string | null
+          customer_id?: string | null
           customer_name?: string
           customer_phone?: string
+          discount_amount?: number | null
           id?: string
           notes?: string | null
           order_number?: string
@@ -912,6 +936,186 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      customer_profiles: {
+        Row: {
+          id: string
+          full_name: string
+          phone: string
+          email: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id: string
+          full_name: string
+          phone: string
+          email?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          full_name?: string
+          phone?: string
+          email?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      customer_addresses: {
+        Row: {
+          id: string
+          customer_id: string
+          label: string
+          full_name: string
+          phone: string
+          address_line: string
+          city: string | null
+          state: string | null
+          pincode: string | null
+          is_default: boolean
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          customer_id: string
+          label?: string
+          full_name: string
+          phone: string
+          address_line: string
+          city?: string | null
+          state?: string | null
+          pincode?: string | null
+          is_default?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          customer_id?: string
+          label?: string
+          full_name?: string
+          phone?: string
+          address_line?: string
+          city?: string | null
+          state?: string | null
+          pincode?: string | null
+          is_default?: boolean
+          created_at?: string
+        }
+        Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          id: string
+          customer_id: string
+          inventory_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          customer_id: string
+          inventory_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          customer_id?: string
+          inventory_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wishlist_items_inventory_id_fkey"
+            columns: ["inventory_id"]
+            isOneToOne: false
+            referencedRelation: "inventory"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      return_requests: {
+        Row: {
+          id: string
+          customer_id: string
+          order_id: string
+          reason: string
+          status: string
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          customer_id: string
+          order_id: string
+          reason: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          customer_id?: string
+          order_id?: string
+          reason?: string
+          status?: string
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "return_requests_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "website_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_feedback: {
+        Row: {
+          comment: string | null
+          created_at: string | null
+          id: string
+          rating: number | null
+          repair_id: string | null
+          requested_date: string | null
+          submitted_at: string | null
+          token: string
+          wants_reschedule: boolean | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          repair_id?: string | null
+          requested_date?: string | null
+          submitted_at?: string | null
+          token?: string
+          wants_reschedule?: boolean | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string | null
+          id?: string
+          rating?: number | null
+          repair_id?: string | null
+          requested_date?: string | null
+          submitted_at?: string | null
+          token?: string
+          wants_reschedule?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_feedback_repair_id_fkey"
+            columns: ["repair_id"]
+            isOneToOne: false
+            referencedRelation: "repairs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       wholesaler_invoices: {
         Row: {
@@ -966,6 +1170,32 @@ export type Database = {
       current_staff_id: { Args: never; Returns: string }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
+      get_email_by_phone: { Args: { p_phone: string }; Returns: string | null }
+      get_service_feedback_by_token: {
+        Args: { p_token: string }
+        Returns: {
+          repair_id: string
+          device_brand: string
+          device_model: string
+          customer_name: string
+          status: string
+          rating: number | null
+          comment: string | null
+          wants_reschedule: boolean | null
+          requested_date: string | null
+          submitted_at: string | null
+        }[]
+      }
+      submit_service_feedback: {
+        Args: {
+          p_token: string
+          p_rating: number
+          p_comment: string | null
+          p_wants_reschedule: boolean
+          p_requested_date: string | null
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
