@@ -13,13 +13,13 @@ export function useTheme() {
   const [theme, setTheme] = useState<Theme>("light");
 
   useEffect(() => {
+    // First-ever visit (nothing in storage yet) always starts light,
+    // regardless of the OS/browser's prefers-color-scheme — dark mode is
+    // opt-in via the toggle, not something sprung on a first-time visitor.
+    // Once they've picked a theme (light or dark), that choice is what
+    // gets restored on every later visit.
     const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
-    const initial =
-      stored === "dark" || stored === "light"
-        ? stored
-        : window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light";
+    const initial = stored === "dark" || stored === "light" ? stored : "light";
     setTheme(initial);
   }, []);
 

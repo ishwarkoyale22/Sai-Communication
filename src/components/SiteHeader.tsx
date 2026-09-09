@@ -204,12 +204,12 @@ export function SiteHeader() {
       )}
 
       {/* ── 2. Main Brand & Search Row ── */}
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-2 sm:gap-4 px-3 sm:px-6">
         {/* Mobile menu button */}
         <button
           type="button"
           onClick={() => setIsMobileMenuOpen(true)}
-          className="flex lg:hidden size-10 items-center justify-center rounded-lg border transition-colors cursor-pointer"
+          className="flex lg:hidden size-9 sm:size-10 shrink-0 items-center justify-center rounded-lg border transition-colors cursor-pointer"
           style={{
             borderColor: "var(--border)",
             backgroundColor: "var(--muted)",
@@ -221,9 +221,9 @@ export function SiteHeader() {
         </button>
 
         {/* Brand Logo — Unique Charismatic Typography & Loving Brand Name */}
-        <Link to="/" className="flex shrink-0 items-center gap-3 group select-none py-1">
+        <Link to="/" className="flex min-w-0 shrink items-center gap-2 sm:gap-3 group select-none py-1">
           {/* Bespoke Emblem Badge */}
-          <div className="relative flex size-11 items-center justify-center rounded-2xl bg-gradient-to-br from-[#F5A623] via-[#FF9820] to-[#E55A1B] shadow-[0_4px_18px_rgba(245,166,35,0.38)] ring-2 ring-[#F5A623]/35 ring-offset-2 ring-offset-background group-hover:scale-105 group-hover:shadow-[0_6px_24px_rgba(245,166,35,0.55)] transition-all duration-300">
+          <div className="relative flex size-9 sm:size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#F5A623] via-[#FF9820] to-[#E55A1B] shadow-[0_4px_18px_rgba(245,166,35,0.38)] ring-2 ring-[#F5A623]/35 ring-offset-2 ring-offset-background group-hover:scale-105 group-hover:shadow-[0_6px_24px_rgba(245,166,35,0.55)] transition-all duration-300">
             {/* Soft inner glass reflection */}
             <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-white/35 via-transparent to-black/15" />
 
@@ -234,34 +234,29 @@ export function SiteHeader() {
             >
               S
             </span>
-
-            {/* Micro signal sparkle dot */}
-            <span className="absolute -top-1 -right-1 flex size-3">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F5A623] opacity-75" />
-              <span className="relative inline-flex rounded-full size-3 bg-gradient-to-r from-amber-300 to-[#F5A623] border border-white/80 shadow-sm" />
-            </span>
           </div>
 
           {/* Typography Lockup — Loving, Unique & Warm */}
-          <div className="flex flex-col leading-none">
+          <div className="flex min-w-0 flex-col leading-none">
             <div
-              className="flex items-baseline gap-1.5"
+              className="flex min-w-0 items-baseline gap-1 sm:gap-1.5"
               style={{ fontFamily: "'Philosopher', 'Marcellus', serif" }}
             >
-              <span className="text-[23px] sm:text-[26px] font-bold text-foreground transition-colors group-hover:text-primary tracking-[-0.01em]">
+              <span className="text-[18px] sm:text-[23px] md:text-[26px] font-bold text-foreground transition-colors group-hover:text-primary tracking-[-0.01em]">
                 Sai
               </span>
               <span
-                className="text-[23px] sm:text-[26px] font-bold tracking-[-0.01em] logo-text-gradient drop-shadow-[0_2px_12px_rgba(245,166,35,0.22)]"
+                className="truncate text-[18px] sm:text-[23px] md:text-[26px] font-bold tracking-[-0.01em] logo-text-gradient drop-shadow-[0_2px_12px_rgba(245,166,35,0.22)]"
               >
                 Communication
               </span>
             </div>
 
-            {/* Refined Subtitle with loving touch */}
-            <div className="flex items-center gap-1.5 mt-1">
+            {/* Refined Subtitle with loving touch — hidden below sm; no room
+                to show it without forcing the header into horizontal scroll */}
+            <div className="hidden items-center gap-1.5 mt-1 sm:flex">
               <span className="inline-block size-1.5 rounded-full bg-[#F5A623]" />
-              <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.14em] uppercase text-slate-500 dark:text-slate-400 font-sans">
+              <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.14em] uppercase text-slate-500 dark:text-slate-400 font-sans whitespace-nowrap">
                 Smartphone Showroom <span className="text-[#F5A623] mx-0.5">✦</span> Chip-Level Lab
               </span>
             </div>
@@ -329,7 +324,7 @@ export function SiteHeader() {
         </form>
 
         {/* Right Actions: Dark Mode, Cart, Store Button */}
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
           {/* Dark / Light Theme Toggle */}
           <button
             type="button"

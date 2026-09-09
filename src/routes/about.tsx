@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Award, ShieldCheck, Star, Clock, MapPin, Sparkles, Video } from "lucide-react";
-import vijaySirPhoto from "@/assets/vijay-sir.jpg";
+import vijaySirPhoto from "@/assets/vijay-sir.webp";
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
@@ -114,6 +114,8 @@ function AboutPage() {
                 <img
                   src={settings["vijay_sir_photo_url"] || settings["hero_photo_url"] || vijaySirPhoto}
                   alt={settings["owner_name"] || "Vijay Sir"}
+                  loading="lazy"
+                  decoding="async"
                   className="size-full object-cover"
                 />
               </div>

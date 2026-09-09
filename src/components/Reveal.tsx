@@ -1,13 +1,15 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 export function Reveal({
   children,
   className,
+  style,
   delay = 0,
 }: {
   children: ReactNode;
   className?: string;
+  style?: CSSProperties;
   delay?: number;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -36,7 +38,7 @@ export function Reveal({
   }, [delay]);
 
   return (
-    <div ref={ref} className={cn("reveal", shown && "reveal-in", className)}>
+    <div ref={ref} className={cn("reveal", shown && "reveal-in", className)} style={style}>
       {children}
     </div>
   );

@@ -37,6 +37,31 @@ async function fetchProfile(userId: string): Promise<CustomerProfile | null> {
   return data as CustomerProfile;
 }
 
+/**
+ * Creates the customer_profiles row for an authenticated user who doesn't
+ * have one yet. This is the self-heal path for accounts whose signup
+ * happened while email confirmation was pending (no session yet at
+ * signUp() time, so the profile insert back then was unauthenticated and
+ * rejected by RLS — see signUp() below) — full_name/phone survive that gap
+ * in the auth user's own user_metadata (set via signUp's `options.data`),
+ * so they're recovered from there once the user actually has a session.
+ */
+async function ensureProfile(user: User): Promise<CustomerProfile | null> {
+  const fullName = (user.user_metadata?.full_name as string | undefined) ?? "";
+  const phone = (user.user_metadata?.phone as string | undefined) ?? "";
+  if (!fullName || !phone) return null;
+  const { error } = await supabase.from("customer_profiles").insert({
+    id: user.id,
+    full_name: fullName,
+    phone,
+    email: user.email ?? null,
+  });
+  // Ignore a unique-constraint hit (23505) — another tab/request already
+  // created it between our fetch and this insert; just re-fetch below.
+  if (error && error.code !== "23505") return null;
+  return fetchProfile(user.id);
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   // Starts neutral on both server and first client render (same reasoning
   // as CartProvider) — Supabase's own client resolves the persisted
@@ -46,9 +71,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const loadProfile = useCallback(async (userId: string | undefined) => {
-    if (!userId) { setProfile(null); return; }
-    setProfile(await fetchProfile(userId));
+  const loadProfile = useCallback(async (user: User | undefined) => {
+    if (!user) { setProfile(null); return; }
+    const found = await fetchProfile(user.id);
+    setProfile(found ?? (await ensureProfile(user)));
   }, []);
 
   useEffect(() => {
@@ -58,12 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (cancelled) return;
       setSession(data.session);
       setIsLoading(false);
-      void loadProfile(data.session?.user.id);
+      void loadProfile(data.session?.user);
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
-      void loadProfile(newSession?.user.id);
+      void loadProfile(newSession?.user);
     });
 
     return () => {
@@ -95,11 +121,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) return { error: error.message, needsEmailConfirmation: false };
     if (!data.user) return { error: "Could not create account. Please try again.", needsEmailConfirmation: false };
 
-    // Create the profile row now — works whether or not email confirmation
-    // is required, since the signUp call above already returns a session
-    // (when auto-confirm is on) or at least a user id (when it isn't) and
-    // RLS only requires auth.uid() = id, which the signUp response's JWT
-    // satisfies either way.
+    // Only insert the profile row now if we actually got a session back
+    // (auto-confirm on, or confirmation not required for this project).
+    // When email confirmation is pending, signUp() returns a user but NO
+    // session — there's no JWT yet, so an insert here is sent unauthenticated
+    // and RLS (auth.uid() = id) rejects it with 401, leaving a real auth
+    // user with no profile row ("Account created, but we couldn't save your
+    // profile"). full_name/phone are already safe in the auth user's own
+    // user_metadata (set via `options.data` above), so in that case we skip
+    // the insert entirely and let ensureProfile() (AuthContext's loadProfile)
+    // create the row the moment this user actually gets a session — right
+    // after they confirm their email and log in.
+    if (!data.session) {
+      return { error: null, needsEmailConfirmation: true };
+    }
+
     const { error: profileError } = await supabase.from("customer_profiles").insert({
       id: data.user.id,
       full_name: fullName,
@@ -107,19 +143,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email,
     });
     if (profileError) {
-      // Most likely: phone already registered (unique constraint) or the
-      // session isn't authenticated yet because confirmation is required
-      // — either way, surface something actionable instead of silently
-      // leaving an auth user with no profile.
+      // Most likely: phone already registered (unique constraint).
       return {
         error: profileError.code === "23505"
           ? "This mobile number is already registered."
           : "Account created, but we couldn't save your profile. Please contact support.",
-        needsEmailConfirmation: !data.session,
+        needsEmailConfirmation: false,
       };
     }
 
-    return { error: null, needsEmailConfirmation: !data.session };
+    return { error: null, needsEmailConfirmation: false };
   }, []);
 
   const signInWithGoogle = useCallback(async () => {
@@ -144,7 +177,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const refreshProfile = useCallback(async () => {
-    await loadProfile(session?.user.id);
+    await loadProfile(session?.user);
   }, [loadProfile, session]);
 
   return (

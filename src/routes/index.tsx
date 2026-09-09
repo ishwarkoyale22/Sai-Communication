@@ -20,8 +20,8 @@ import {
   Flame,
   CreditCard,
 } from "lucide-react";
-import vijaySirPhoto from "@/assets/vijay-sir.jpg";
-import heroPhonesImg from "@/assets/hero_phones_transparent.png";
+import vijaySirPhoto from "@/assets/vijay-sir.webp";
+import heroPhonesImg from "@/assets/hero_phones_transparent.webp";
 import { useSettings } from "@/hooks/useSettings";
 import { useCart } from "@/context/CartContext";
 import { toast } from "sonner";
@@ -31,6 +31,8 @@ import { offerDiscountText, type Offer, type Product } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { EnquiryDialog } from "@/components/EnquiryDialog";
 import { ProductDetailDialog } from "@/components/ProductDetailDialog";
+import { ReviewsSection } from "@/components/ReviewsSection";
+import { Reveal } from "@/components/Reveal";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -251,6 +253,10 @@ function HomePage() {
                 <img
                   src={heroPhonesImg}
                   alt="Smartphones available at Sai Communication, Talegaon Dabhade"
+                  width={1024}
+                  height={790}
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-full h-auto object-contain drop-shadow-[0_24px_48px_rgba(0,0,0,0.4)] hover:scale-[1.03] transition-transform duration-700"
                 />
 
@@ -375,7 +381,7 @@ function HomePage() {
           <aside className="lg:col-span-4 space-y-5">
 
             {/* Catalog nav */}
-            <div className="card-premium p-5">
+            <Reveal className="card-premium p-5">
               <div className="flex items-center justify-between border-b pb-3 mb-1"
                    style={{ borderColor: "var(--border)" }}>
                 <span className="eyebrow-label">Store Catalog</span>
@@ -419,11 +425,14 @@ function HomePage() {
                   </li>
                 ))}
               </ul>
-            </div>
+            </Reveal>
 
             {/* Promo card */}
-            <div className="relative overflow-hidden rounded-2xl p-6 shadow-md"
-                 style={{ background: "linear-gradient(135deg, #F5A623 0%, #FFB540 100%)", color: "#1B2430" }}>
+            <Reveal
+              delay={80}
+              className="relative overflow-hidden rounded-2xl p-6 shadow-md"
+              style={{ background: "linear-gradient(135deg, #F5A623 0%, #FFB540 100%)", color: "#1B2430" }}
+            >
               <div className="pointer-events-none absolute -right-8 -bottom-8 size-36 rounded-full bg-white/20 blur-2xl" />
               <div className="pointer-events-none absolute -top-6 -left-6 size-24 rounded-full bg-white/15 blur-xl" />
               <div className="badge-dark mb-3 text-[10px]">Current Offers</div>
@@ -440,13 +449,19 @@ function HomePage() {
               >
                 View All Offers <ArrowRight className="size-3.5" />
               </Link>
-            </div>
+            </Reveal>
 
             {/* Founder trust card */}
-            <div className="card-premium p-5 space-y-4">
+            <Reveal delay={160} className="card-premium p-5 space-y-4">
               <div className="flex items-center gap-3.5">
                 <div className="size-14 overflow-hidden rounded-full border-2 border-primary p-0.5 shadow shrink-0">
-                  <img src={ownerPhoto} alt={ownerName} className="size-full rounded-full object-cover" />
+                  <img
+                    src={ownerPhoto}
+                    alt={ownerName}
+                    loading="lazy"
+                    decoding="async"
+                    className="size-full rounded-full object-cover"
+                  />
                 </div>
                 <div>
                   <h4 className="font-serif text-base font-extrabold leading-tight"
@@ -473,13 +488,15 @@ function HomePage() {
                   <Phone className="size-3" /> Call Shop
                 </a>
               </div>
-            </div>
+            </Reveal>
           </aside>
 
           {/* ── Featured Products ── */}
           <main className="lg:col-span-8 space-y-10">
-            <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-5"
-                 style={{ borderColor: "var(--border)" }}>
+            <Reveal
+              className="flex flex-wrap items-end justify-between gap-3 border-b pb-5"
+              style={{ borderColor: "var(--border)" }}
+            >
               <div>
                 <span className="eyebrow-label mb-2 block">New Arrivals</span>
                 <h2 className="section-title text-2xl sm:text-3xl" style={{ color: "var(--foreground)" }}>
@@ -490,7 +507,7 @@ function HomePage() {
                 </p>
               </div>
               <span className="badge-outline">{filteredProducts.length} items available</span>
-            </div>
+            </Reveal>
 
             {filteredProducts.length === 0 ? (
               <div className="flex flex-col items-center gap-3 py-16 text-center">
@@ -499,7 +516,7 @@ function HomePage() {
               </div>
             ) : (
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                {filteredProducts.map((product) => {
+                {filteredProducts.map((product, index) => {
                   const image = product.images[0];
                   const inStock = product.stock_status === "in_stock";
                   const hasDiscount = product.original_price != null && product.original_price > product.price;
@@ -508,7 +525,11 @@ function HomePage() {
                     : 0;
 
                   return (
-                    <article key={product.id} className="card-premium p-4 flex flex-col justify-between group">
+                    <Reveal
+                      key={product.id}
+                      delay={(index % 3) * 90}
+                      className="card-premium p-4 flex flex-col justify-between group"
+                    >
                       {/* Image */}
                       <button
                         type="button"
@@ -578,7 +599,7 @@ function HomePage() {
                           </button>
                         </div>
                       </div>
-                    </article>
+                    </Reveal>
                   );
                 })}
               </div>
@@ -586,7 +607,7 @@ function HomePage() {
 
             {/* ── Refurbished Showcase ── */}
             {refurbShowcase.length > 0 && (
-              <div className="card-inset p-6 space-y-5">
+              <Reveal className="card-inset p-6 space-y-5">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div>
                     <span className="eyebrow-label mb-1.5 block">Pre-Owned</span>
@@ -642,7 +663,7 @@ function HomePage() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </Reveal>
             )}
           </main>
         </div>
@@ -651,12 +672,12 @@ function HomePage() {
       {/* ─── TRUST ROW ────────────────────────────────────────── */}
       <section className="border-y" style={{ backgroundColor: "var(--muted)", borderColor: "var(--border)" }}>
         <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-          <div className="text-center mb-10">
+          <Reveal className="text-center mb-10">
             <span className="eyebrow-label justify-center">Why Choose Us</span>
             <h2 className="font-serif text-2xl font-black mt-3" style={{ color: "var(--foreground)" }}>
               The Sai Communication Promise
             </h2>
-          </div>
+          </Reveal>
           <div className="grid gap-5 sm:grid-cols-3">
             {[
               {
@@ -674,8 +695,8 @@ function HomePage() {
                 title: "Zero-Down EMI Plans",
                 desc: "In-store finance approval — no separate bank branch visit required.",
               },
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="card-premium p-6 flex items-start gap-4">
+            ].map(({ icon: Icon, title, desc }, i) => (
+              <Reveal key={title} delay={i * 100} className="card-premium p-6 flex items-start gap-4">
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-xl text-primary"
                      style={{ background: "var(--accent)" }}>
                   <Icon className="size-6" />
@@ -684,15 +705,18 @@ function HomePage() {
                   <h4 className="font-serif text-sm font-black" style={{ color: "var(--foreground)" }}>{title}</h4>
                   <p className="mt-1 text-xs leading-relaxed" style={{ color: "var(--muted-foreground)" }}>{desc}</p>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
+      {/* ─── CUSTOMER REVIEWS & TESTIMONIALS ──────────────────── */}
+      <ReviewsSection />
+
       {/* ─── SOCIAL / CONTACT CTA ─────────────────────────────── */}
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-        <div
+        <Reveal
           className="flex flex-col md:flex-row items-center justify-between gap-6 rounded-2xl p-6 sm:p-8"
           style={{ backgroundColor: "var(--muted)", border: "1px solid var(--border)" }}
         >
@@ -736,7 +760,7 @@ function HomePage() {
               Chat on WhatsApp
             </a>
           </div>
-        </div>
+        </Reveal>
         <p className="mt-4 text-center text-xs" style={{ color: "var(--muted-foreground)" }}>
           Rated {rating} / 5 from {totalRatings}+ customers on Justdial.
         </p>

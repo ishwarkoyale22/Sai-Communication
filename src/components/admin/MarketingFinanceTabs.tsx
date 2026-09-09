@@ -21,13 +21,40 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AdminTable, SectionHeader, FieldInput } from "./AdminShared";
 import { GenericCrudTab, type FieldConfig } from "./GenericCrudTab";
 
+// Field keys/types must match the real `offers` table columns
+// (offer_type, discount_value, coupon_code, starts_at, ends_at, display_mode)
+// — the storefront (hero banner, /offers page, popup, checkout coupon box)
+// reads exactly these columns, so anything else silently fails to save
+// (unknown column) or never gets picked up on the site.
 const OFFER_FIELDS: FieldConfig[] = [
   { key: "title", label: "Title" },
   { key: "description", label: "Description", type: "textarea" },
-  { key: "discount_percent", label: "Discount %", type: "number" },
-  { key: "image", label: "Image URL" },
-  { key: "valid_from", label: "Valid From", type: "date" },
-  { key: "valid_until", label: "Valid Until", type: "date" },
+  {
+    key: "offer_type",
+    label: "Offer Type",
+    type: "select",
+    options: [
+      { value: "percentage", label: "Percentage Off" },
+      { value: "rupee_off", label: "Rupee Amount Off" },
+      { value: "bogo", label: "Buy 1 Get 1" },
+      { value: "coupon", label: "Coupon Code (checkout)" },
+    ],
+  },
+  { key: "discount_value", label: "Discount Value (% or ₹, per Offer Type)", type: "number" },
+  { key: "coupon_code", label: "Coupon Code (required if Offer Type = Coupon)" },
+  {
+    key: "display_mode",
+    label: "Where It Shows",
+    type: "select",
+    options: [
+      { value: "image", label: "Offers Page" },
+      { value: "hero_banner", label: "Homepage Hero Banner" },
+      { value: "popup", label: "Site-wide Popup" },
+    ],
+  },
+  { key: "image_url", label: "Image URL", listColumn: false },
+  { key: "starts_at", label: "Starts At", type: "date" },
+  { key: "ends_at", label: "Ends At", type: "date" },
   { key: "is_active", label: "Active", type: "boolean" },
 ];
 export function OffersTab({ token }: { token: string }) {

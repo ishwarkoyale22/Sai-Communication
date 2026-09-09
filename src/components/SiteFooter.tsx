@@ -28,6 +28,7 @@ export function SiteFooter() {
     { to: "/gift-hampers", label: "Custom Festive Gift Hampers" },
     { to: "/contact", label: "0% Down Payment EMI Schemes" },
     { to: "/products", search: { q: "", category: "Accessories" }, label: "Mobile Accessories & Earbuds" },
+    { to: "/#reviews-section", label: "Customer Reviews & Stories (4.8 ★)" },
     { to: "/order-track", label: "Track Live Repair / Order Status" },
   ];
 

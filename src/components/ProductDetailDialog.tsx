@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ShoppingCart } from "lucide-react";
+import { ShoppingCart, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -64,7 +64,16 @@ export function ProductDetailDialog({
                   loading="lazy"
                   className="size-full object-cover"
                 />
-              ) : null}
+              ) : (
+                <div className="flex size-full flex-col items-center justify-center gap-2">
+                  <div className="flex size-14 items-center justify-center rounded-xl bg-[#F5A623]/15 text-[#F5A623]">
+                    <Smartphone className="size-7" />
+                  </div>
+                  <span className="text-xs font-extrabold uppercase tracking-widest text-slate-500 dark:text-slate-300">
+                    In-Store Stock
+                  </span>
+                </div>
+              )}
             </div>
             {images.length > 1 && (
               <div className="mt-3 flex gap-2">

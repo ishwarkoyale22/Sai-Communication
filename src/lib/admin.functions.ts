@@ -474,7 +474,7 @@ export const adminGetDashboardStats = createServerFn({ method: "POST" })
 
 // ─── Generic CRUD (minimal admin screens) ──────────────────────
 export const adminGenericList = createServerFn({ method: "POST" })
-  .validator((d: { token: string; table: string; orderBy?: string; ascending?: boolean; filter?: { column: string; value: string } }) => d)
+  .validator((d: { token: string; table: string; orderBy?: string | undefined; ascending?: boolean | undefined; filter?: { column: string; value: string } | undefined }) => d)
   .handler(async ({ data }) => {
     await assertAdminSession(data.token);
     return genericList(data.table, data.orderBy, data.ascending, data.filter);

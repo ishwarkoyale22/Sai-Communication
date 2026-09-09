@@ -8,17 +8,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AdminTable, SectionHeader } from "./AdminShared";
 import { adminGenericList, adminGenericSave, adminGenericDelete } from "@/lib/admin.functions";
 import { formatDate } from "@/lib/format";
 import type { GenericCrudTable } from "@/lib/admin.server";
 
-export type FieldType = "text" | "number" | "boolean" | "date" | "textarea" | "json";
+export type FieldType = "text" | "number" | "boolean" | "date" | "textarea" | "json" | "select";
 
 export type FieldConfig = {
   key: string;
   label: string;
   type?: FieldType;
+  /** Options for type "select" — the value written to the column must match
+   * exactly what the storefront queries/switches on (e.g. offer_type). */
+  options?: { value: string; label: string }[];
   /** Show this field as a column in the list table (defaults to true for the first 5 fields). */
   listColumn?: boolean;
 };
@@ -191,6 +195,18 @@ export function GenericCrudTab({
                       />
                       <span className="text-sm text-muted-foreground">{editing[f.key] === "true" ? "Yes" : "No"}</span>
                     </div>
+                  ) : f.type === "select" ? (
+                    <Select
+                      {...(editing[f.key] ? { value: editing[f.key] } : {})}
+                      onValueChange={(v) => setEditing({ ...editing, [f.key]: v })}
+                    >
+                      <SelectTrigger><SelectValue placeholder="Select..." /></SelectTrigger>
+                      <SelectContent>
+                        {(f.options ?? []).map((o) => (
+                          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   ) : f.type === "textarea" || f.type === "json" ? (
                     <Textarea
                       rows={f.type === "json" ? 5 : 3}

@@ -28,18 +28,32 @@ type RepairRow = {
   created_at: string | null;
 };
 
-// Admin-side status values, mapped to the customer-facing wording from the
-// service workflow (Called Up → Pending → Submitted Product → In Process →
-// Repaired/Completed). Unknown values fall back to a title-cased raw status.
+// repair_enquiries.status has a DB check constraint (added directly on the
+// live database, not present in any tracked migration) that only allows
+// "pending" | "contacted" | "completed" | "cancelled" — confirmed
+// empirically, every other value (including this column's own declared
+// default "new", and the admin Repairs kanban's received/in_progress/
+// waiting_parts/ready vocabulary) is rejected. apps/admin keeps this
+// column's value in step with the linked repair job's real progress
+// (RepairEnquiries.createRepair() and Repairs.setStatus(), via
+// repairEnquiryStatusFor()) collapsing every in-progress kanban stage down
+// to "contacted", since the enquiry vocabulary has no finer stages — so
+// this page can show real movement instead of staying frozen at "Pending"
+// forever once an enquiry is converted into a tracked repair. The legacy
+// entries below (new/device_received/diagnosis/in_progress/waiting_parts/
+// ready/delivered) are kept only in case any pre-existing row still holds
+// one of them from before the constraint was added; nothing writes them now.
 const STATUS_LABELS: Record<string, string> = {
   new: "Called Up",
-  contacted: "Called Up",
   pending: "Pending",
+  contacted: "In Process",
   device_received: "Submitted Product",
   diagnosis: "In Process",
   in_progress: "In Process",
+  waiting_parts: "Waiting for Parts",
   ready: "Repaired / Ready for Collection",
   delivered: "Repaired / Completed",
+  completed: "Repaired / Completed",
   cancelled: "Cancelled",
 };
 
@@ -49,7 +63,7 @@ function statusLabel(status: string | null) {
 }
 
 function statusClasses(status: string | null) {
-  if (status === "delivered") return "border-green-400/40 text-green-400 bg-green-400/10";
+  if (status === "delivered" || status === "completed") return "border-green-400/40 text-green-400 bg-green-400/10";
   if (status === "cancelled") return "border-red-400/40 text-red-400 bg-red-400/10";
   return "border-primary/40 text-primary bg-primary/10";
 }
