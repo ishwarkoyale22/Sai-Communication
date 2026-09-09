@@ -177,6 +177,7 @@ export function SiteHeader() {
     { label: "Gift Hampers", to: "/gift-hampers" as const, badge: "New", badgeColor: "bg-purple-600 text-white" },
     { label: "Zero-Down EMI", to: "/contact" as const },
     { label: "About Vijay Sir", to: "/about" as const },
+    { label: "Gallery", to: "/gallery" as const },
     { label: "Today's Offers", to: "/offers" as const, badge: "🔥 Deals", badgeColor: "bg-[#F5A623] text-[#1B2430] font-black" },
   ];
 
