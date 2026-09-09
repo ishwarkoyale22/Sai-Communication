@@ -1,5 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useState, useRef, useEffect, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { useSettings } from "@/hooks/useSettings";
 import { useCart } from "@/context/CartContext";
@@ -55,6 +56,12 @@ export function SiteHeader() {
   const [searchCategory, setSearchCategory] = useState("All");
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // The mobile drawer below is portaled to document.body (see its comment).
+  // `document` doesn't exist during SSR, so the portal target is only ever
+  // resolved after mount — this flag gates that render to the client.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -813,8 +820,15 @@ export function SiteHeader() {
 
       {/* ═══════════════════════════════════════════════════════════════
           4. MOBILE NAVIGATION DRAWER (Slide-out menu)
+          Portaled to <body> — this header animates its hide-on-scroll via
+          `transform`, which creates a new containing block for any
+          `position: fixed` descendant (per the CSS spec). Left in place,
+          this drawer's "fixed inset-0" would size/position itself against
+          the header's own box instead of the viewport, collapsing it into
+          a small box pinned to the top instead of a full-screen overlay.
+          Portaling it out of the header sidesteps that entirely.
           ═══════════════════════════════════════════════════════════════ */}
-      {isMobileMenuOpen && (
+      {isMobileMenuOpen && mounted && createPortal(
         <div className="fixed inset-0 z-50 flex lg:hidden">
           {/* Backdrop */}
           <div
@@ -961,7 +975,8 @@ export function SiteHeader() {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );
