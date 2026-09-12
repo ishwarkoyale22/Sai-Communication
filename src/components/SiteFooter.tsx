@@ -8,6 +8,7 @@ import {
   Linkedin,
   Instagram,
   MessageCircle,
+  Sparkles,
 } from "lucide-react";
 import { useSettings } from "@/hooks/useSettings";
 
@@ -229,6 +230,21 @@ export function SiteFooter() {
           </span>{" "}
           | Founder: <span className="text-slate-300 font-medium">Vijay Sir</span>
         </p>
+
+        {/* Design credit pill */}
+        <div className="mt-4 flex justify-center">
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[11px] font-semibold tracking-wide"
+            style={{
+              backgroundColor: "#19212A",
+              borderColor: "rgba(255, 255, 255, 0.12)",
+              color: "#F5A623",
+            }}
+          >
+            <Sparkles className="size-3.5" />
+            Designed by <span className="font-bold">RELENTIX</span>
+          </span>
+        </div>
 
         {/* Circular Social Media Icon Buttons */}
         <div className="mt-5 flex items-center justify-center gap-3">
