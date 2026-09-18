@@ -235,7 +235,7 @@ function HomePage() {
                   { icon: Clock, label: "Same-day Repairs", sub: "Screen & battery" },
                   { icon: ShieldCheck, label: "Zero-Down EMI", sub: "In-store approval" },
                   { icon: CheckCircle, label: "Genuine Devices", sub: "Official warranty" },
-                  { icon: Award, label: settings["years_in_business"] || "21+" + " Yrs", sub: "Community trust" },
+                  { icon: Award, label: `${settings["years_in_business"] || "21+"} Yrs`, sub: "Community trust" },
                 ].map(({ icon: Icon, label, sub }) => (
                   <div key={label} className="card-glass flex items-center gap-2.5 p-2.5">
                     <Icon className="size-4 text-primary shrink-0" />
@@ -249,7 +249,7 @@ function HomePage() {
             </div>
 
             {/* ── Right phone image ── */}
-            <div className="relative lg:col-span-5 flex justify-center items-center">
+            <div className="relative lg:col-span-5 flex justify-center items-center mt-12 lg:mt-0">
               <div className="relative w-full max-w-lg">
                 <img
                   src={heroPhonesImg}

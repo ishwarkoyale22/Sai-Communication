@@ -63,7 +63,7 @@ export function SiteFooter() {
 
   return (
     <footer
-      className="w-full text-slate-300"
+      className="w-full text-slate-300 pb-16 sm:pb-0"
       style={{
         backgroundColor: "#1F2732",
       }}

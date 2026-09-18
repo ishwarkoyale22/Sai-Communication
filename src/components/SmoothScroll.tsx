@@ -33,6 +33,11 @@ export function SmoothScroll() {
       smoothWheel: true,
       syncTouch: false,
       autoRaf: true,
+      // Lets Lenis yield to nested scrollable regions (e.g. the product
+      // detail dialog's own internal overflow-y-auto) instead of hijacking
+      // every wheel gesture for the page scroll — without this, scrolling
+      // inside such a dialog with a desktop mouse wheel doesn't work.
+      allowNestedScroll: true,
     });
 
     function onClick(e: MouseEvent) {
