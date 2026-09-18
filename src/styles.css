@@ -1225,6 +1225,34 @@
   }
 }
 
+/* Product card thumbnails spin right-to-left on hover/tap instead of the
+   plain scale-up, giving a quick "turn the phone to look at it" feel. */
+@utility product-spin-frame {
+  perspective: 1000px;
+
+  & img {
+    transition: transform 650ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+  }
+
+  &:hover img,
+  &:active img {
+    transform: rotateY(360deg);
+  }
+}
+
+/* Scrollable but no visible scrollbar track (mouse wheel / touch / drag
+   still work — this only hides the OS scrollbar chrome). */
+@utility scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 /* ════════ SECTION SPACING ════════ */
 @utility section-py {
   padding-top: clamp(48px, 6vw, 96px);

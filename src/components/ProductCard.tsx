@@ -41,7 +41,7 @@ export function ProductCard({
       <button
         type="button"
         onClick={() => onOpen(product)}
-        className="img-cover-frame mb-3 h-36 w-full cursor-pointer"
+        className="img-cover-frame product-spin-frame mb-3 h-36 w-full cursor-pointer"
         aria-label={`View ${product.brand} ${product.name}`}
       >
         {image ? (
@@ -69,8 +69,14 @@ export function ProductCard({
           <span className="text-[10.5px] font-extrabold uppercase tracking-widest text-[#F5A623]">
             {product.brand}
           </span>
-          <span className={inStock ? "badge-success" : "badge-outline text-[10px]"}>
-            {inStock ? "● In Stock" : "On Order"}
+          <span
+            className={
+              inStock
+                ? "badge-success"
+                : "rounded-full bg-destructive px-2.5 py-0.5 text-[10px] font-semibold text-destructive-foreground"
+            }
+          >
+            {inStock ? "● In Stock" : "Out of Stock"}
           </span>
         </div>
 

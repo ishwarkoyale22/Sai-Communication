@@ -128,10 +128,11 @@ function HomePage() {
     return m;
   }, [products]);
 
-  const cheapestPrice = useMemo(
-    () => (products.length ? Math.min(...products.map((p) => p.price)) : null),
-    [products],
-  );
+  const cheapestPrice = useMemo(() => {
+    // Ignore ₹0 / unset prices so "Starting from" never advertises a broken price.
+    const priced = products.map((p) => p.price).filter((price) => price > 0);
+    return priced.length ? Math.min(...priced) : null;
+  }, [products]);
 
   const filteredProducts = useMemo(() => {
     if (selectedBrand === "All") return products.slice(0, 9);
@@ -534,7 +535,7 @@ function HomePage() {
                       <button
                         type="button"
                         onClick={() => setDetailProduct(product)}
-                        className="relative img-cover-frame h-44 w-full mb-4 cursor-pointer"
+                        className="relative img-cover-frame product-spin-frame h-44 w-full mb-4 cursor-pointer"
                       >
                         {hasDiscount && (
                           <span className="absolute left-2.5 top-2.5 z-10 badge-primary text-[9px] py-0.5 px-2">
@@ -554,8 +555,14 @@ function HomePage() {
                                 style={{ color: "var(--muted-foreground)" }}>
                             {product.brand}
                           </span>
-                          <span className={inStock ? "badge-success" : "badge-outline text-destructive border-destructive/30"}>
-                            {inStock ? "● In Stock" : "On Order"}
+                          <span
+                            className={
+                              inStock
+                                ? "badge-success"
+                                : "rounded-full bg-destructive px-2.5 py-0.5 text-[10px] font-semibold text-destructive-foreground"
+                            }
+                          >
+                            {inStock ? "● In Stock" : "Out of Stock"}
                           </span>
                         </div>
 
@@ -579,25 +586,41 @@ function HomePage() {
                             </span>
                           )}
                         </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleAddToCart(product)}
-                            className="btn-primary text-xs px-0 py-2.5 rounded-xl"
-                            style={{ padding: "10px 0", borderRadius: "10px", fontSize: "12px" }}
-                          >
-                            <ShoppingCart className="size-3.5" />
-                            Add to Cart
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setEnquiryProduct(product)}
-                            className="btn-ghost text-xs"
-                            style={{ padding: "10px 0", borderRadius: "10px", fontSize: "12px" }}
-                          >
-                            Enquire
-                          </button>
-                        </div>
+                        {inStock ? (
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleAddToCart(product)}
+                              className="btn-primary text-xs px-0 py-2.5 rounded-xl"
+                              style={{ padding: "10px 0", borderRadius: "10px", fontSize: "12px" }}
+                            >
+                              <ShoppingCart className="size-3.5" />
+                              Add to Cart
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEnquiryProduct(product)}
+                              className="btn-ghost text-xs"
+                              style={{ padding: "10px 0", borderRadius: "10px", fontSize: "12px" }}
+                            >
+                              Enquire
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            <p className="text-xs text-destructive text-center">
+                              Currently out of stock — on order
+                            </p>
+                            <button
+                              type="button"
+                              onClick={() => setEnquiryProduct(product)}
+                              className="btn-ghost text-xs w-full"
+                              style={{ padding: "10px 0", borderRadius: "10px", fontSize: "12px" }}
+                            >
+                              Enquire About This Item
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </Reveal>
                   );
