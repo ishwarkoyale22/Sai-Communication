@@ -55,6 +55,8 @@ function ProductsPage() {
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [enquiry, setEnquiry] = useState<Product | null>(null);
   const [detail, setDetail] = useState<Product | null>(null);
+  const PAGE_SIZE = 24;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   useEffect(() => {
     setCategory(initialCategory || "All");
@@ -104,6 +106,16 @@ function ProductsPage() {
     if (q && !`${p.brand} ${p.name} ${p.category}`.toLowerCase().includes(q)) return false;
     return true;
   });
+
+  // Rendering all 400+ catalogue rows at once is what makes this page feel
+  // slow/janky on phones — cap the DOM to a page at a time and let people
+  // ask for more, instead of paying for every product's image/card upfront.
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [category, brand, search, currentMax]);
+
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -177,16 +189,32 @@ function ProductsPage() {
           No products match your filters.
         </p>
       ) : (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((product) => (
-            <ProductCard
-              key={product.id}
-              product={product}
-              onEnquire={setEnquiry}
-              onOpen={setDetail}
-            />
-          ))}
-        </div>
+        <>
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {visible.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onEnquire={setEnquiry}
+                onOpen={setDetail}
+              />
+            ))}
+          </div>
+          {hasMore && (
+            <div className="mt-8 flex flex-col items-center gap-2">
+              <p className="text-xs text-muted-foreground">
+                Showing {visible.length} of {filtered.length}
+              </p>
+              <button
+                type="button"
+                onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+                className="border border-primary px-6 py-2.5 text-sm font-medium text-primary transition-colors hover:bg-primary hover:text-primary-foreground cursor-pointer"
+              >
+                Load More
+              </button>
+            </div>
+          )}
+        </>
       )}
 
       <EnquiryDialog
