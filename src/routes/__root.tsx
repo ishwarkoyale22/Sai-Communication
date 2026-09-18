@@ -161,7 +161,7 @@ function RootComponent() {
           {!isAdmin && <SmoothScroll />}
           {!isAdmin && <ScrollProgress />}
           {!isAdmin && <SiteHeader />}
-          <main className={cn("flex-1", !isAdmin && "pb-16 sm:pb-0")}>
+          <main className={cn("flex-1", !isAdmin && "pb-16 lg:pb-0")}>
             {!isAdmin && <BackButton />}
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
