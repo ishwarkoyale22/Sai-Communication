@@ -167,7 +167,7 @@ function CheckoutPage() {
         id: order_id,
         order_number,
         customer_name: form.customer_name,
-        customer_phone: form.customer_phone,
+        customer_phone: form.customer_phone.replace(/[\s-]/g, ""),
         customer_email: form.customer_email || null,
         order_type,
         total_amount: payableTotal,
@@ -193,7 +193,7 @@ function CheckoutPage() {
           // existing one (it never overwrites another person's record).
           const { error: bdayError } = await supabase.rpc("web_save_customer_birthday", {
             p_name: form.customer_name,
-            p_phone: form.customer_phone,
+            p_phone: form.customer_phone.replace(/[\s-]/g, ""),
             p_email: form.customer_email || null,
             p_address: form.customer_address || null,
             p_birthday: form.customer_birthday,
@@ -220,7 +220,7 @@ function CheckoutPage() {
       if (itemsError) throw new Error(itemsError.message);
 
       clearCart();
-      const phone = form.customer_phone;
+      const phone = form.customer_phone.replace(/[\s-]/g, "");
       // Reset the form (payment method back to Cash) so a fresh checkout —
       // should the router ever keep this component mounted — never starts
       // from the previous customer's details or payment method.
@@ -297,7 +297,7 @@ function CheckoutPage() {
                   <Input id="co-addr" value={form.customer_address} onChange={(e) => setF("customer_address", e.target.value)} placeholder="Your address (if delivery required)" />
                 </div>
               </div>
-              <Button className="w-full" onClick={() => { if (!form.customer_name || !form.customer_phone) { toast.error("Name and phone required."); return; } setStep(2); }}>
+              <Button className="w-full" onClick={() => { if (!form.customer_name || !form.customer_phone) { toast.error("Name and phone required."); return; } if (!/^\d{10}$/.test(form.customer_phone.replace(/[\s-]/g, ""))) { toast.error("Please enter a valid 10-digit mobile number."); return; } setStep(2); }}>
                 Continue <ChevronRight className="size-4 ml-1" />
               </Button>
             </div>
@@ -394,7 +394,7 @@ function CheckoutPage() {
 
               <div className="flex gap-2">
                 <Button variant="secondary" onClick={() => setStep(2)}><ArrowLeft className="size-4 mr-1" /> Back</Button>
-                <Button className="flex-1" onClick={() => setStep(4)}>Continue <ChevronRight className="size-4 ml-1" /></Button>
+                <Button className="flex-1" onClick={() => { if (form.payment_type === "emi" && financePartners.length > 0 && !form.finance_partner_id) { toast.error("Please choose a finance partner for EMI."); return; } setStep(4); }}>Continue <ChevronRight className="size-4 ml-1" /></Button>
               </div>
             </div>
           )}
