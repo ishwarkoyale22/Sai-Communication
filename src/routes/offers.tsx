@@ -1,6 +1,6 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { offersQuery } from "@/lib/queries";
+import { offersQuery, offerProductsQuery } from "@/lib/queries";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,7 @@ export const Route = createFileRoute("/offers")({
 
 function OffersPage() {
   const { data: offers = [], isLoading } = useQuery(offersQuery);
+  const { data: offerProducts = {} } = useQuery(offerProductsQuery);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
@@ -48,7 +49,7 @@ function OffersPage() {
         <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {offers.map((offer, i) => (
             <Reveal key={offer.id} delay={i * 70}>
-              <OfferCard offer={offer} />
+              <OfferCard offer={offer} products={offerProducts[offer.id] ?? []} />
             </Reveal>
           ))}
         </div>
@@ -57,7 +58,7 @@ function OffersPage() {
   );
 }
 
-function OfferCard({ offer }: { offer: Offer }) {
+function OfferCard({ offer, products }: { offer: Offer; products: string[] }) {
   const discountText = offerDiscountText(offer);
   const isCoupon = offer.offer_type === "coupon" && offer.coupon_code;
 
@@ -85,13 +86,24 @@ function OfferCard({ offer }: { offer: Offer }) {
         {offer.description && (
           <p className="mt-2 text-sm text-muted-foreground line-clamp-3">{offer.description}</p>
         )}
+        {products.length > 0 && (
+          <p className="mt-2 text-xs text-muted-foreground">
+            <span className="font-medium text-foreground">{products.length === 1 ? "Applies to: " : "Applies to these products: "}</span>
+            {products.slice(0, 3).join(", ")}
+            {products.length > 3 ? ` +${products.length - 3} more` : ""}
+          </p>
+        )}
         {offer.ends_at && (
           <p className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
             <Clock className="size-3" /> Valid until {new Date(offer.ends_at).toLocaleDateString("en-IN")}
           </p>
         )}
         <Button asChild className="mt-4 w-full" size="sm">
-          <Link to={DEFAULT_CTA_LINK}>{DEFAULT_CTA_LABEL}</Link>
+          {products.length === 1 ? (
+            <Link to="/products" search={{ q: products[0], category: "All" }}>{DEFAULT_CTA_LABEL}</Link>
+          ) : (
+            <Link to={DEFAULT_CTA_LINK}>{DEFAULT_CTA_LABEL}</Link>
+          )}
         </Button>
       </div>
     </div>

@@ -143,6 +143,24 @@ export const offersQuery = queryOptions({
   },
 });
 
+/** Products each offer applies to (offer id -> product names). Offers with no rows are store-wide. */
+export const offerProductsQuery = queryOptions({
+  queryKey: ["offer-products"],
+  retry: false,
+  queryFn: async (): Promise<Record<string, string[]>> => {
+    const { data, error } = await supabase
+      .from("offer_products")
+      .select("offer_id, inventory:inventory_id(name, is_active)");
+    if (error) return {}; // the offer cards still work without the product list
+    const map: Record<string, string[]> = {};
+    for (const row of (data ?? []) as unknown as { offer_id: string; inventory: { name: string; is_active: boolean } | null }[]) {
+      if (!row.inventory?.is_active) continue;
+      (map[row.offer_id] ??= []).push(row.inventory.name);
+    }
+    return map;
+  },
+});
+
 export const activePopupQuery = queryOptions({
   queryKey: ["active-popup"],
   retry: false,
