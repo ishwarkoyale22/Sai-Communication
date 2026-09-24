@@ -60,11 +60,7 @@ function OrderTrackPage() {
     setError("");
     setResults(null);
     try {
-      const { data, error: qError } = await supabase
-        .from("website_orders")
-        .select("id, order_number, customer_name, total_amount, payment_status, order_status, created_at")
-        .eq("customer_phone", phone)
-        .order("created_at", { ascending: false });
+      const { data, error: qError } = await supabase.rpc("web_track_orders", { p_phone: phone });
       if (qError) throw new Error(qError.message);
       if (!data || data.length === 0) {
         setError("No orders found for this mobile number.");

@@ -1168,6 +1168,33 @@ export type Database = {
     }
     Functions: {
       current_staff_id: { Args: never; Returns: string }
+      web_save_customer_birthday: {
+        Args: { p_name: string; p_phone: string; p_email: string | null; p_address: string | null; p_birthday: string }
+        Returns: undefined
+      }
+      web_track_orders: {
+        Args: { p_phone: string }
+        Returns: {
+          id: string
+          order_number: string
+          customer_name: string
+          total_amount: number
+          payment_status: string
+          order_status: string
+          created_at: string
+        }[]
+      }
+      web_track_repair_enquiries: {
+        Args: { p_phone: string }
+        Returns: {
+          id: string
+          phone_brand: string | null
+          phone_model: string | null
+          problem_type: string | null
+          status: string
+          created_at: string
+        }[]
+      }
       is_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       get_email_by_phone: { Args: { p_phone: string }; Returns: string | null }

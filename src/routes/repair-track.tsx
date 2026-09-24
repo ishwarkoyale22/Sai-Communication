@@ -82,11 +82,7 @@ function RepairTrackPage() {
     setError("");
     setResults(null);
     try {
-      const { data, error: qError } = await supabase
-        .from("repair_enquiries")
-        .select("id, phone_brand, phone_model, problem_type, status, created_at")
-        .eq("phone", phone)
-        .order("created_at", { ascending: false });
+      const { data, error: qError } = await supabase.rpc("web_track_repair_enquiries", { p_phone: phone });
       if (qError) throw new Error(qError.message);
       if (!data || data.length === 0) {
         setError("No repair enquiries found for this mobile number.");

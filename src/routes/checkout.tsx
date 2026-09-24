@@ -188,26 +188,17 @@ function CheckoutPage() {
       // not block checkout completion.
       if (form.customer_birthday) {
         try {
-          const { data: existingCustomer } = await supabase
-            .from("customers")
-            .select("id")
-            .eq("phone", form.customer_phone)
-            .maybeSingle();
-
-          if (existingCustomer) {
-            await supabase
-              .from("customers")
-              .update({ birthday: form.customer_birthday })
-              .eq("id", existingCustomer.id);
-          } else {
-            await supabase.from("customers").insert({
-              name: form.customer_name,
-              phone: form.customer_phone,
-              email: form.customer_email || null,
-              address: form.customer_address || null,
-              birthday: form.customer_birthday,
-            });
-          }
+          // The customers table is no longer open to the public; this function
+          // creates the customer when new and only FILLS a missing birthday for an
+          // existing one (it never overwrites another person's record).
+          const { error: bdayError } = await supabase.rpc("web_save_customer_birthday", {
+            p_name: form.customer_name,
+            p_phone: form.customer_phone,
+            p_email: form.customer_email || null,
+            p_address: form.customer_address || null,
+            p_birthday: form.customer_birthday,
+          });
+          if (bdayError) throw bdayError;
         } catch (err) {
           console.error("Failed to save customer birthday:", err);
         }

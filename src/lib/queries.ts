@@ -24,13 +24,22 @@ async function brandNameMap(): Promise<Record<string, string>> {
   return map;
 }
 
+// Columns the public storefront may read. Cost columns (cost_price, packaging_cost,
+// contact_notes) are hidden from the anonymous role at the database level, so a
+// `select("*")` would now fail — always list columns explicitly.
+const INVENTORY_PUBLIC_COLUMNS =
+  "id, name, brand_id, model, category, product_type, price, original_price, stock, images, specs, condition, grade, battery_health, warranty_months, is_featured, is_active, created_at, updated_at";
+const FINANCE_PARTNER_PUBLIC_COLUMNS =
+  "id, name, description, logo_url, min_amount, max_amount, available_tenures, processing_fee_pct, is_active, created_at, short_code, integration_type, updated_at";
+const HAMPER_PUBLIC_COLUMNS = "id, name, category, price, image, stock, is_active, created_at, offer_id";
+
 export const productsQuery = queryOptions({
   queryKey: ["products"],
   queryFn: async (): Promise<Product[]> => {
     const [{ data, error }, brandNames] = await Promise.all([
       supabase
         .from("inventory")
-        .select("*")
+        .select(INVENTORY_PUBLIC_COLUMNS)
         .eq("product_type", "new")
         .eq("is_active", true)
         .order("created_at", { ascending: true }),
@@ -208,7 +217,7 @@ export const refurbishedQuery = queryOptions({
     const [{ data, error }, brandNames] = await Promise.all([
       supabase
         .from("inventory")
-        .select("*")
+        .select(INVENTORY_PUBLIC_COLUMNS)
         .eq("product_type", "refurbished")
         .eq("is_active", true)
         .order("created_at", { ascending: false }),
@@ -225,7 +234,7 @@ export const financePartnersQuery = queryOptions({
   queryFn: async (): Promise<FinancePartner[]> => {
     const { data, error } = await supabase
       .from("finance_partners")
-      .select("*")
+      .select(FINANCE_PARTNER_PUBLIC_COLUMNS)
       .eq("is_active", true)
       .order("name");
     if (error) throw new Error(error.message);
@@ -238,7 +247,7 @@ export const hamperProductsQuery = queryOptions({
   queryFn: async (): Promise<GiftHamperProduct[]> => {
     const { data, error } = await supabase
       .from("hamper_items")
-      .select("*")
+      .select(HAMPER_PUBLIC_COLUMNS)
       .eq("is_active", true)
       .order("name");
     if (error) throw new Error(error.message);
