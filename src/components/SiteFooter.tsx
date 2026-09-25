@@ -20,7 +20,7 @@ export function SiteFooter() {
   const address =
     settings["address"] ||
     "Shop No. 30, P.L. Khandge Plaza, Opp. Talegaon Railway Station, Talegaon Dabhade, Pune 410507";
-  const email = settings["email"] || "saicommunication.talegaon@gmail.com";
+  const email = settings["email"] || "contact@saicommunication.com";
 
   const QUICK_LINKS = [
     { to: "/products", search: { q: "", category: "Smartphones" }, label: "Smartphones (All Brands)" },

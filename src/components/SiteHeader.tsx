@@ -167,7 +167,9 @@ export function SiteHeader() {
   }
 
   const phone = settings["phone"] || "09845458942";
-  const whatsapp = settings["whatsapp"] || phone.replace(/\D/g, "");
+  // Normalise to country-code form (91XXXXXXXXXX) whether the setting holds 10 digits, 0-prefixed or already 91-prefixed.
+  const whatsappDigits = (settings["whatsapp"] || phone).replace(/\D/g, "").replace(/^0+/, "");
+  const whatsapp = whatsappDigits.length === 10 ? `91${whatsappDigits}` : whatsappDigits;
 
   const NAV_ITEMS = [
     { label: "Home", to: "/" as const, isHome: true },
@@ -744,7 +746,7 @@ export function SiteHeader() {
               <span className="hidden h-4 w-px bg-[#241505]/25 xl:block" />
 
               <a
-                href={`https://wa.me/91${whatsapp}?text=Hello%20Vijay%20Sir%2C%20I%20want%20to%20enquire%20about%20a%20phone%20repair`}
+                href={`https://wa.me/${whatsapp}?text=Hello%20Vijay%20Sir%2C%20I%20want%20to%20enquire%20about%20a%20phone%20repair`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-1.5 hover:underline"
@@ -902,7 +904,7 @@ export function SiteHeader() {
                 Call Store
               </a>
               <a
-                href={`https://wa.me/91${whatsapp}`}
+                href={`https://wa.me/${whatsapp}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-bold text-white bg-emerald-600"
