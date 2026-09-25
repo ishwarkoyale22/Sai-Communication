@@ -29,7 +29,7 @@ import { Route as RepairTrackRouteImport } from './routes/repair-track'
 import { Route as ServicesRouteImport } from './routes/services'
 import { Route as TermsAndConditionsRouteImport } from './routes/terms-and-conditions'
 import { Route as FeedbackTokenRouteImport } from './routes/feedback.$token'
-import { Route as AccountOrdersOrderIdRouteImport } from './routes/account.orders.$orderId'
+import { Route as AccountOrdersOrderIdRouteImport } from './routes/account_.orders.$orderId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -132,15 +132,15 @@ const FeedbackTokenRoute = FeedbackTokenRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountOrdersOrderIdRoute = AccountOrdersOrderIdRouteImport.update({
-  id: '/orders/$orderId',
-  path: '/orders/$orderId',
-  getParentRoute: () => AccountRoute,
+  id: '/account_/orders/$orderId',
+  path: '/account/orders/$orderId',
+  getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/account': typeof AccountRouteWithChildren
+  '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
@@ -163,7 +163,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/account': typeof AccountRouteWithChildren
+  '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
@@ -187,7 +187,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
-  '/account': typeof AccountRouteWithChildren
+  '/account': typeof AccountRoute
   '/admin': typeof AdminRoute
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
@@ -205,7 +205,7 @@ export interface FileRoutesById {
   '/services': typeof ServicesRoute
   '/terms-and-conditions': typeof TermsAndConditionsRoute
   '/feedback/$token': typeof FeedbackTokenRoute
-  '/account/orders/$orderId': typeof AccountOrdersOrderIdRoute
+  '/account_/orders/$orderId': typeof AccountOrdersOrderIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -276,13 +276,13 @@ export interface FileRouteTypes {
     | '/services'
     | '/terms-and-conditions'
     | '/feedback/$token'
-    | '/account/orders/$orderId'
+    | '/account_/orders/$orderId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
-  AccountRoute: typeof AccountRouteWithChildren
+  AccountRoute: typeof AccountRoute
   AdminRoute: typeof AdminRoute
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
@@ -300,6 +300,7 @@ export interface RootRouteChildren {
   ServicesRoute: typeof ServicesRoute
   TermsAndConditionsRoute: typeof TermsAndConditionsRoute
   FeedbackTokenRoute: typeof FeedbackTokenRoute
+  AccountOrdersOrderIdRoute: typeof AccountOrdersOrderIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -444,31 +445,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FeedbackTokenRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/account/orders/$orderId': {
-      id: '/account/orders/$orderId'
-      path: '/orders/$orderId'
+    '/account_/orders/$orderId': {
+      id: '/account_/orders/$orderId'
+      path: '/account/orders/$orderId'
       fullPath: '/account/orders/$orderId'
       preLoaderRoute: typeof AccountOrdersOrderIdRouteImport
-      parentRoute: typeof AccountRoute
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AccountRouteChildren {
-  AccountOrdersOrderIdRoute: typeof AccountOrdersOrderIdRoute
-}
-
-const AccountRouteChildren: AccountRouteChildren = {
-  AccountOrdersOrderIdRoute: AccountOrdersOrderIdRoute,
-}
-
-const AccountRouteWithChildren =
-  AccountRoute._addFileChildren(AccountRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
-  AccountRoute: AccountRouteWithChildren,
+  AccountRoute: AccountRoute,
   AdminRoute: AdminRoute,
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
@@ -486,6 +476,7 @@ const rootRouteChildren: RootRouteChildren = {
   ServicesRoute: ServicesRoute,
   TermsAndConditionsRoute: TermsAndConditionsRoute,
   FeedbackTokenRoute: FeedbackTokenRoute,
+  AccountOrdersOrderIdRoute: AccountOrdersOrderIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

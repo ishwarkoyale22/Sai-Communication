@@ -7,7 +7,7 @@ import { useAuth } from "@/context/AuthContext";
 import { OrderTimeline } from "@/components/account/OrderTimeline";
 import type { AccountOrder, AccountOrderItem } from "@/lib/types";
 
-export const Route = createFileRoute("/account/orders/$orderId")({
+export const Route = createFileRoute("/account_/orders/$orderId")({
   head: () => ({
     meta: [{ title: "Order Details | Sai Communication" }, { name: "robots", content: "noindex" }],
   }),

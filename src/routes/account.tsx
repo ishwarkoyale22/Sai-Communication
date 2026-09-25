@@ -1,4 +1,4 @@
-import { createFileRoute, Link, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -32,15 +32,8 @@ export const Route = createFileRoute("/account")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: AccountRoot,
+  component: AccountPage,
 });
-
-// /account/orders/:id is a child route. Without an <Outlet/> here, "View Details" just re-showed the
-// account page and the order details never appeared.
-function AccountRoot() {
-  const childMatches = useChildMatches();
-  return childMatches.length > 0 ? <Outlet /> : <AccountPage />;
-}
 
 type Section = "profile" | "orders" | "addresses" | "wishlist" | "payments" | "returns";
 
