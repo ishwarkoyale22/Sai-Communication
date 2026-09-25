@@ -772,7 +772,7 @@ function HomePage() {
               </a>
             )}
             <a
-              href={settings["instagram"] || "https://www.instagram.com/saicommunication_2266/"}
+              href={"https://www.instagram.com/saicommunication_2266/"}
               target="_blank"
               rel="noopener noreferrer"
               className="btn-dark text-xs"
