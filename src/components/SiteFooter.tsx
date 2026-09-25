@@ -74,12 +74,7 @@ export function SiteFooter() {
           {/* Column 1: Brand & Find us (4 cols) */}
           <div className="lg:col-span-4 space-y-4">
             <Link to="/" className="inline-flex items-center gap-2.5 group select-none">
-              <div
-                className="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5A623] via-[#FF9820] to-[#E55A1B] text-white font-bold text-lg shadow-md ring-1 ring-white/20"
-                style={{ fontFamily: "'Philosopher', 'Playfair Display', serif" }}
-              >
-                S
-              </div>
+              <img src="/logo.png" alt="Sai Communication logo" className="size-10 rounded-full object-cover" />
               <div
                 className="font-bold text-lg tracking-tight leading-none"
                 style={{ fontFamily: "'Philosopher', 'Marcellus', serif" }}

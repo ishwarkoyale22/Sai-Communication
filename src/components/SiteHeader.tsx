@@ -231,18 +231,11 @@ export function SiteHeader() {
         {/* Brand Logo — Unique Charismatic Typography & Loving Brand Name */}
         <Link to="/" className="flex min-w-0 shrink items-center gap-2 sm:gap-3 group select-none py-1">
           {/* Bespoke Emblem Badge */}
-          <div className="relative flex size-9 sm:size-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#F5A623] via-[#FF9820] to-[#E55A1B] shadow-[0_4px_18px_rgba(245,166,35,0.38)] ring-2 ring-[#F5A623]/35 ring-offset-2 ring-offset-background group-hover:scale-105 group-hover:shadow-[0_6px_24px_rgba(245,166,35,0.55)] transition-all duration-300">
-            {/* Soft inner glass reflection */}
-            <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-b from-white/35 via-transparent to-black/15" />
-
-            {/* Stylized 'S' with loving, artistic curves */}
-            <span
-              className="text-2xl font-bold text-white tracking-tight transform group-hover:scale-110 transition-transform duration-300 drop-shadow-[0_2px_4px_rgba(0,0,0,0.25)]"
-              style={{ fontFamily: "'Philosopher', 'Playfair Display', serif" }}
-            >
-              S
-            </span>
-          </div>
+          <img
+            src="/logo.png"
+            alt="Sai Communication logo"
+            className="size-10 sm:size-12 shrink-0 rounded-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
 
           {/* Typography Lockup — Loving, Unique & Warm */}
           <div className="flex min-w-0 flex-col leading-none">
@@ -848,12 +841,7 @@ export function SiteHeader() {
             {/* Header with Close */}
             <div className="flex items-center justify-between border-b pb-4" style={{ borderColor: "var(--border)" }}>
               <div className="flex items-center gap-2.5">
-                <div
-                  className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-br from-[#F5A623] via-[#FF9820] to-[#E55A1B] text-white font-bold text-xl shadow-md"
-                  style={{ fontFamily: "'Philosopher', 'Playfair Display', serif" }}
-                >
-                  S
-                </div>
+                <img src="/logo.png" alt="Sai Communication logo" className="size-10 rounded-full object-cover" />
                 <div>
                   <div
                     className="font-bold text-lg tracking-tight leading-none"

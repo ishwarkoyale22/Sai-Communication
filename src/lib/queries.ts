@@ -305,7 +305,7 @@ export const DEFAULT_SETTINGS: SettingsMap = {
   youtube_url: "",
   twitter: "",
   twitter_url: "",
-  logo_url: "/logo.jpg",
+  logo_url: "/logo.png",
   hero_photo_url: "",
   vijay_sir_photo_url: "",
   owner_name: "Vijay Sir",
