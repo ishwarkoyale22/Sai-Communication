@@ -40,7 +40,7 @@ function OrderDetailPage() {
     return <div className="mx-auto max-w-3xl px-4 py-24 text-center text-muted-foreground">Loading order...</div>;
   }
 
-  if (!order || (order.customer_id && order.customer_id !== user?.id)) {
+  if (!order || order.customer_id !== user?.id) {
     return (
       <div className="mx-auto max-w-lg px-4 py-24 text-center">
         <Package className="mx-auto size-12 text-muted-foreground" />

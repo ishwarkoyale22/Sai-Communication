@@ -156,10 +156,14 @@ function ProfileSection() {
     if (!fullName.trim()) { toast.error("Full name is required."); return; }
     if (!/^[6-9]\d{9}$/.test(phone.trim())) { toast.error("Enter a valid 10-digit mobile number."); return; }
     setSaving(true);
+    // upsert (not update): some accounts have no customer_profiles row yet, and an update would silently
+    // change nothing while still reporting success.
     const { error } = await supabase
       .from("customer_profiles")
-      .update({ full_name: fullName.trim(), phone: phone.trim(), updated_at: new Date().toISOString() })
-      .eq("id", user.id);
+      .upsert(
+        { id: user.id, full_name: fullName.trim(), phone: phone.trim(), email: user.email ?? null, updated_at: new Date().toISOString() },
+        { onConflict: "id" },
+      );
     setSaving(false);
     if (error) {
       toast.error(error.code === "23505" ? "This mobile number is already in use." : "Could not update profile.");

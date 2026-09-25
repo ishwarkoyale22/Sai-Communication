@@ -23,6 +23,10 @@ interface AuthContextType {
   sendPasswordReset: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  /** True after the user opens a password-reset email link — they must now choose a new password. */
+  recoveryMode: boolean;
+  /** Sets a new password for the signed-in user (also used to finish a password reset). */
+  updatePassword: (newPassword: string) => Promise<{ error: string | null }>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -70,11 +74,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<CustomerProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [recoveryMode, setRecoveryMode] = useState(false);
 
   const loadProfile = useCallback(async (user: User | undefined) => {
     if (!user) { setProfile(null); return; }
     const found = await fetchProfile(user.id);
-    setProfile(found ?? (await ensureProfile(user)));
+    const resolved = found ?? (await ensureProfile(user));
+    // If the customer_profiles row is missing and can't be created (e.g. RLS or a duplicate phone),
+    // still show the signed-in user's details from their auth account instead of an empty profile.
+    setProfile(
+      resolved ?? {
+        id: user.id,
+        full_name: (user.user_metadata?.full_name as string | undefined) || user.email?.split("@")[0] || "",
+        phone: (user.user_metadata?.phone as string | undefined) || "",
+        email: user.email ?? null,
+      },
+    );
   }, []);
 
   useEffect(() => {
@@ -87,7 +102,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       void loadProfile(data.session?.user);
     });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
+      if (event === "PASSWORD_RECOVERY") setRecoveryMode(true);
       setSession(newSession);
       void loadProfile(newSession?.user);
     });
@@ -166,7 +182,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const sendPasswordReset = useCallback(async (email: string) => {
     const { error } = await supabase.auth.resetPasswordForEmail(
       email,
-      typeof window !== "undefined" ? { redirectTo: window.location.origin } : undefined
+      // Land on /account so the "choose a new password" card is right there when the reset link is opened.
+      typeof window !== "undefined" ? { redirectTo: `${window.location.origin}/account` } : undefined
     );
     return { error: error?.message ?? null };
   }, []);
@@ -174,6 +191,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signOut = useCallback(async () => {
     await supabase.auth.signOut();
     setProfile(null);
+    setRecoveryMode(false);
+  }, []);
+
+  const updatePassword = useCallback(async (newPassword: string) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (!error) setRecoveryMode(false);
+    return { error: error?.message ?? null };
   }, []);
 
   const refreshProfile = useCallback(async () => {
@@ -194,6 +218,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         sendPasswordReset,
         signOut,
         refreshProfile,
+        recoveryMode,
+        updatePassword,
       }}
     >
       {children}

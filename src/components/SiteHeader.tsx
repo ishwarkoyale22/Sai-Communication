@@ -403,7 +403,7 @@ export function SiteHeader() {
                 <DropdownMenuItem asChild><Link to="/account">❤️ Wishlist</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link to="/account">💳 Payment Methods</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link to="/account">🔄 Returns / Refunds</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link to="/order-track" search={{ phone: profile?.phone ?? "" }}>🚚 Track Order</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link to="/order-track" search={{ phone: profile?.phone ?? "", order: "" }}>🚚 Track Order</Link></DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={async () => { await signOut(); toast.success("You've been logged out."); navigate({ to: "/" }); }}
@@ -672,7 +672,7 @@ export function SiteHeader() {
               <span className="mx-1.5 hidden h-4 w-px shrink-0 xl:block" style={{ backgroundColor: "var(--border)" }} />
               <Link
                 to="/order-track"
-                search={{ phone: profile?.phone ?? "" }}
+                search={{ phone: profile?.phone ?? "", order: "" }}
                 className="hidden shrink-0 whitespace-nowrap rounded-md px-2 py-1.5 text-[11px] font-semibold transition-colors hover:text-primary xl:block"
                 style={{ color: "var(--muted-foreground)" }}
               >

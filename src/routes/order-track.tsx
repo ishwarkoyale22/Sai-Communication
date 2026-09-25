@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Search, Package } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +12,7 @@ import { formatINR } from "@/lib/format";
 export const Route = createFileRoute("/order-track")({
   validateSearch: (search: Record<string, unknown>) => ({
     phone: String(search["phone"] ?? ""),
+    order: String(search["order"] ?? ""),
   }),
   head: () => ({
     meta: [
@@ -47,26 +50,33 @@ function statusClasses(status: string) {
 }
 
 function OrderTrackPage() {
-  const { phone: initPhone } = Route.useSearch();
+  const { phone: initPhone, order: initOrder } = Route.useSearch();
+  const { user, isLoading: authLoading } = useAuth();
   const [phone, setPhone] = useState(initPhone);
+  const [orderNumber, setOrderNumber] = useState(initOrder);
   const [results, setResults] = useState<WebsiteOrder[] | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Two ways in, like Amazon/Flipkart: signed-in customers see only their own orders (matched on their
+  // account, never on a typed phone number); guests must give the order number AND the phone it was
+  // placed with, so a phone number alone can't be used to browse someone else's orders.
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault();
-    if (!phone) { setError("Please enter your mobile number."); return; }
+    const num = orderNumber.trim().toUpperCase();
+    if (!num || !phone.trim()) { setError("Enter both your order number and the mobile number used for the order."); return; }
     setLoading(true);
     setError("");
     setResults(null);
     try {
-      const { data, error: qError } = await supabase.rpc("web_track_orders", { p_phone: phone });
+      const { data, error: qError } = await supabase.rpc("web_track_orders", { p_phone: phone.trim() });
       if (qError) throw new Error(qError.message);
-      if (!data || data.length === 0) {
-        setError("No orders found for this mobile number.");
+      const match = ((data ?? []) as WebsiteOrder[]).filter((o) => o.order_number.toUpperCase() === num);
+      if (match.length === 0) {
+        setError("We couldn't find an order matching that order number and mobile number. Please check both and try again.");
         setResults([]);
       } else {
-        setResults(data as WebsiteOrder[]);
+        setResults(match);
       }
     } catch {
       setError("Something went wrong. Please try again.");
@@ -80,17 +90,26 @@ function OrderTrackPage() {
       <div className="text-center">
         <Package className="mx-auto size-12 text-primary" />
         <h1 className="mt-4 text-2xl font-bold">Track Your Orders</h1>
-        <p className="mt-2 text-sm text-muted-foreground">Enter your mobile number to see all your orders.</p>
+        <p className="mt-2 text-sm text-muted-foreground">Enter your order number and the mobile number you ordered with.</p>
+        {!authLoading && user && (
+          <p className="mt-3 text-sm">
+            Signed in? <Link to="/account" className="font-semibold text-primary underline">See all your orders in My Account</Link>
+          </p>
+        )}
       </div>
 
       <form onSubmit={handleSearch} className="mt-8 card-surface rounded-2xl p-6 space-y-4">
+        <div className="space-y-2">
+          <Label htmlFor="track-order">Order Number</Label>
+          <Input id="track-order" value={orderNumber} onChange={(e) => setOrderNumber(e.target.value)} placeholder="e.g. the number on your order confirmation" />
+        </div>
         <div className="space-y-2">
           <Label htmlFor="track-phone">Mobile Number</Label>
           <Input id="track-phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Your 10-digit mobile number" />
         </div>
         {error && <p className="text-sm text-destructive-foreground">{error}</p>}
         <Button type="submit" className="w-full" disabled={loading}>
-          <Search className="size-4 mr-2" /> {loading ? "Searching..." : "Track Orders"}
+          <Search className="size-4 mr-2" /> {loading ? "Searching..." : "Track Order"}
         </Button>
       </form>
 

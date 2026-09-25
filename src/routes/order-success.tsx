@@ -49,7 +49,7 @@ function OrderSuccessPage() {
           </a>
         </Button>
         <Button asChild variant="secondary" className="w-full">
-          <Link to="/order-track" search={{ order_number, phone }}>
+          <Link to="/order-track" search={{ order: order_number, phone }}>
             <Search className="size-4 mr-2" /> Track Order Status
           </Link>
         </Button>
