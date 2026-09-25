@@ -20,7 +20,7 @@ export function ProductCard({
     toast.success(`${product.name} added to cart!`);
   }
 
-  const inStock = product.stock_status === "in_stock";
+  const inStock = product.stock_status !== "out_of_stock"; // low_stock (1-4 left) is still buyable
   const image = product.images[0];
   const hasDiscount =
     product.original_price != null && product.original_price > product.price;

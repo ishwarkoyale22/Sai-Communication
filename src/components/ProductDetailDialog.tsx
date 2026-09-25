@@ -147,7 +147,7 @@ export function ProductDetailDialog({
   const [selected, setSelected] = useState<Record<string, string>>({});
   const { addProduct } = useCart();
   if (!product) return null;
-  const inStock = product.stock_status === "in_stock";
+  const inStock = product.stock_status !== "out_of_stock"; // low_stock (1-4 left) is still buyable
   const images = product.images.length ? product.images : [""];
   const current = images[Math.min(active, images.length - 1)];
   const variants = parseVariantOptions(product.specs);

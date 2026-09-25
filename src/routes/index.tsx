@@ -520,7 +520,7 @@ function HomePage() {
               <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredProducts.map((product, index) => {
                   const image = product.images[0];
-                  const inStock = product.stock_status === "in_stock";
+                  const inStock = product.stock_status !== "out_of_stock"; // low_stock (1-4 left) is still buyable
                   const hasDiscount = product.original_price != null && product.original_price > product.price;
                   const discountPct = hasDiscount
                     ? Math.round((1 - product.price / (product.original_price as number)) * 100)
