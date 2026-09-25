@@ -290,7 +290,7 @@ export function SiteFooter() {
 
           {/* Instagram */}
           <a
-            href={settings["instagram"] || "https://instagram.com"}
+            href={settings["instagram"] || "https://www.instagram.com/saicommunication_2266/"}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Instagram"

@@ -13,6 +13,7 @@ import {
   Award,
   Sparkles,
   Facebook,
+  Instagram,
   ShoppingCart,
   Smartphone,
   Gift,
@@ -770,6 +771,16 @@ function HomePage() {
                 Follow on Facebook
               </a>
             )}
+            <a
+              href={settings["instagram"] || "https://www.instagram.com/saicommunication_2266/"}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-dark text-xs"
+              style={{ background: "linear-gradient(45deg,#F58529,#DD2A7B,#8134AF)", color: "white", padding: "11px 20px", borderRadius: "10px" }}
+            >
+              <Instagram className="size-4" />
+              Follow on Instagram
+            </a>
             <a
               href={`https://wa.me/${whatsapp}?text=${encodeURIComponent(
                 "Hello Sai Communication, I would like to enquire about your latest phone deals",
