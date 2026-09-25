@@ -510,6 +510,37 @@ function ReturnsSection() {
     },
   });
 
+  // Updates from the shop about the customer's own return requests (approved / not approved).
+  // Row-level security only ever returns this customer's rows.
+  type ReturnUpdate = { id: string; type: string; title: string; body: string | null; is_read: boolean; created_at: string };
+  const { data: updates } = useQuery({
+    queryKey: ["my-return-updates", user?.id],
+    enabled: !!user,
+    refetchInterval: 60000,
+    queryFn: async () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data, error } = await (supabase as any)
+        .from("customer_notifications")
+        .select("id, type, title, body, is_read, created_at")
+        .eq("customer_id", user!.id)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      if (error) throw new Error(error.message);
+      return (data ?? []) as ReturnUpdate[];
+    },
+  });
+  const unreadIds = (updates ?? []).filter((u) => !u.is_read).map((u) => u.id);
+  useEffect(() => {
+    if (unreadIds.length === 0 || !user) return;
+    // Show a toast for each new update, then mark them read so they aren't announced again.
+    (updates ?? []).filter((u) => !u.is_read).forEach((u) => (u.type === "return_approved" ? toast.success(u.title) : toast.message(u.title)));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    void (supabase as any).from("customer_notifications").update({ is_read: true }).in("id", unreadIds).then(() => {
+      // Keep the "New" tags visible for this visit; they clear on the next load.
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unreadIds.join(",")]);
+
   const eligibleOrders = (orders ?? []).filter((o) => o.order_status === "delivered" || o.order_status === "collected");
 
   async function handleSubmit() {
@@ -553,6 +584,24 @@ function ReturnsSection() {
           </div>
         )}
       </div>
+
+      {(updates ?? []).length > 0 && (
+        <div className="card-surface rounded-2xl p-6">
+          <h2 className="text-lg font-bold">Updates from the shop</h2>
+          <div className="mt-3 space-y-2">
+            {(updates ?? []).map((u) => (
+              <div key={u.id} className="rounded-xl border border-border p-3 text-sm">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-semibold">{u.title}</p>
+                  {unreadIds.includes(u.id) && <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">New</span>}
+                </div>
+                {u.body && <p className="mt-0.5 text-xs text-muted-foreground">{u.body}</p>}
+                <p className="mt-1 text-[11px] text-muted-foreground">{new Date(u.created_at).toLocaleString("en-IN")}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="card-surface rounded-2xl p-6">
         <h2 className="text-lg font-bold">Your Requests</h2>
