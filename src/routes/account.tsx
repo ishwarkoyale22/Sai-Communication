@@ -541,7 +541,11 @@ function ReturnsSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [unreadIds.join(",")]);
 
-  const eligibleOrders = (orders ?? []).filter((o) => o.order_status === "delivered" || o.order_status === "collected");
+  // Orders that already have an open (requested / approved) return can't be filed again.
+  const openReturnOrderIds = new Set((requests ?? []).filter((r) => r.status === "requested" || r.status === "approved").map((r) => r.order_id));
+  const eligibleOrders = (orders ?? []).filter(
+    (o) => (o.order_status === "delivered" || o.order_status === "collected") && !openReturnOrderIds.has(o.id)
+  );
 
   async function handleSubmit() {
     if (!user) return;
@@ -549,7 +553,7 @@ function ReturnsSection() {
     setSubmitting(true);
     const { error } = await supabase.from("return_requests").insert({ customer_id: user.id, order_id: orderId, reason: reason.trim() });
     setSubmitting(false);
-    if (error) { toast.error("Could not submit request."); return; }
+    if (error) { toast.error("Could not submit request. If you already have an open request for this order, please wait for the shop to respond."); return; }
     toast.success("Return request submitted.");
     setOrderId(""); setReason("");
     void qc.invalidateQueries({ queryKey: ["my-returns", user.id] });
