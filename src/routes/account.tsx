@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Outlet, useChildMatches, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -32,8 +32,15 @@ export const Route = createFileRoute("/account")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: AccountPage,
+  component: AccountRoot,
 });
+
+// /account/orders/:id is a child route. Without an <Outlet/> here, "View Details" just re-showed the
+// account page and the order details never appeared.
+function AccountRoot() {
+  const childMatches = useChildMatches();
+  return childMatches.length > 0 ? <Outlet /> : <AccountPage />;
+}
 
 type Section = "profile" | "orders" | "addresses" | "wishlist" | "payments" | "returns";
 
@@ -104,7 +111,7 @@ function AccountPage() {
             ))}
             <Link
               to="/order-track"
-              search={{ phone: profile?.phone ?? "" }}
+              search={{ phone: profile?.phone ?? "", order: "" }}
               className="flex shrink-0 items-center gap-2.5 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-semibold text-foreground hover:bg-muted"
             >
               <span>🚚</span> Track Order
@@ -134,7 +141,7 @@ function AccountPage() {
 
 // ── Profile ──
 function ProfileSection() {
-  const { user, profile, refreshProfile } = useAuth();
+  const { user, profile, refreshProfile, recoveryMode } = useAuth();
   const [fullName, setFullName] = useState(profile?.full_name ?? "");
   const [phone, setPhone] = useState(profile?.phone ?? "");
   const [saving, setSaving] = useState(false);
@@ -163,6 +170,12 @@ function ProfileSection() {
   }
 
   return (
+    <div className="space-y-6">
+    {recoveryMode && (
+      <div className="rounded-2xl border border-primary/40 bg-primary/10 p-4 text-sm font-semibold">
+        You opened a password-reset link — please choose a new password below.
+      </div>
+    )}
     <div className="card-surface rounded-2xl p-6">
       <h2 className="text-lg font-bold">My Profile</h2>
       <div className="mt-5 grid gap-4 sm:max-w-md">
@@ -181,6 +194,59 @@ function ProfileSection() {
         </div>
         <Button onClick={handleSave} disabled={saving} className="w-fit">
           {saving ? "Saving..." : "Save Changes"}
+        </Button>
+      </div>
+    </div>
+    <ChangePasswordCard />
+    </div>
+  );
+}
+
+function ChangePasswordCard() {
+  const { user, updatePassword, recoveryMode } = useAuth();
+  const [current, setCurrent] = useState("");
+  const [next, setNext] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  async function handleChange() {
+    if (!user?.email) return;
+    if (next.length < 6) { toast.error("New password must be at least 6 characters."); return; }
+    if (next !== confirm) { toast.error("New password and confirmation don't match."); return; }
+    setSaving(true);
+    // Outside a reset-link session, prove the current password first.
+    if (!recoveryMode) {
+      if (!current) { setSaving(false); toast.error("Enter your current password."); return; }
+      const { error: verifyError } = await supabase.auth.signInWithPassword({ email: user.email, password: current });
+      if (verifyError) { setSaving(false); toast.error("Current password is incorrect."); return; }
+    }
+    const { error } = await updatePassword(next);
+    setSaving(false);
+    if (error) { toast.error(error); return; }
+    toast.success("Password updated.");
+    setCurrent(""); setNext(""); setConfirm("");
+  }
+
+  return (
+    <div className="card-surface rounded-2xl p-6">
+      <h2 className="text-lg font-bold">Change Password</h2>
+      <div className="mt-5 grid gap-4 sm:max-w-md">
+        {!recoveryMode && (
+          <div className="space-y-2">
+            <Label htmlFor="acct-cur-pw">Current Password</Label>
+            <Input id="acct-cur-pw" type="password" autoComplete="current-password" value={current} onChange={(e) => setCurrent(e.target.value)} />
+          </div>
+        )}
+        <div className="space-y-2">
+          <Label htmlFor="acct-new-pw">New Password</Label>
+          <Input id="acct-new-pw" type="password" autoComplete="new-password" value={next} onChange={(e) => setNext(e.target.value)} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="acct-confirm-pw">Confirm New Password</Label>
+          <Input id="acct-confirm-pw" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+        </div>
+        <Button onClick={handleChange} disabled={saving} className="w-fit">
+          {saving ? "Updating..." : "Update Password"}
         </Button>
       </div>
     </div>
@@ -204,13 +270,13 @@ function useMyOrders() {
     queryKey: ["my-orders", user?.id, profile?.phone],
     enabled: !!user,
     queryFn: async (): Promise<AccountOrder[]> => {
-      let q = supabase.from("website_orders").select("*").order("created_at", { ascending: false });
-      // Orders placed while logged in are tagged with customer_id; older
-      // guest orders placed with the same phone number (e.g. before this
-      // account existed) are picked up by phone as a fallback.
-      q = profile?.phone
-        ? q.or(`customer_id.eq.${user!.id},customer_phone.eq.${profile.phone}`)
-        : q.eq("customer_id", user!.id);
+      // Only orders that belong to THIS account. Phone numbers aren't verified at signup, so matching
+      // on customer_phone would let someone register with another person's number and read their orders.
+      const q = supabase
+        .from("website_orders")
+        .select("*")
+        .eq("customer_id", user!.id)
+        .order("created_at", { ascending: false });
       const { data, error } = await q;
       if (error) throw new Error(error.message);
       return (data ?? []) as AccountOrder[];
@@ -285,10 +351,16 @@ function OrderCard({ order }: { order: AccountOrder }) {
           <span className="text-muted-foreground">Total: </span>
           <span className="font-bold text-primary">{formatINR(order.total_amount)}</span>
           <span className="ml-2 text-xs text-muted-foreground capitalize">Payment: {order.payment_status}</span>
+          {(() => {
+            const o = order as unknown as { refund_status?: string; refund_amount?: number | null };
+            if (o.refund_status === "refunded") return <span className="ml-2 text-xs font-semibold text-emerald-600">Refunded {formatINR(Number(o.refund_amount ?? 0))}</span>;
+            if (o.refund_status === "pending") return <span className="ml-2 text-xs font-semibold text-amber-600">Refund pending</span>;
+            return null;
+          })()}
         </div>
         <div className="flex gap-2">
           <Button asChild variant="secondary" size="sm">
-            <Link to="/order-track" search={{ phone: order.customer_phone }}>
+            <Link to="/order-track" search={{ phone: order.customer_phone, order: order.order_number }}>
               <Truck className="size-3.5 mr-1.5" /> Track Order
             </Link>
           </Button>

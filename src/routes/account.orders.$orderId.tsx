@@ -112,6 +112,15 @@ function OrderDetailPage() {
           <h2 className="flex items-center gap-2 font-bold"><CreditCard className="size-4 text-primary" /> Payment</h2>
           <p className="mt-2 text-sm capitalize">{order.payment_method?.replace(/_/g, " ") || "—"}</p>
           <p className="text-sm text-muted-foreground capitalize">Status: {order.payment_status}</p>
+          {(() => {
+            // refund fields are added by the shop's refund tracking; older typings don't know them
+            const o = order as unknown as { refund_status?: string; refund_amount?: number | null; refund_method?: string | null };
+            if (o.refund_status === "refunded")
+              return <p className="text-sm font-semibold text-emerald-600">Refunded: {formatINR(Number(o.refund_amount ?? 0))}{o.refund_method ? ` (${o.refund_method.replace("_", " ")})` : ""}</p>;
+            if (o.refund_status === "pending")
+              return <p className="text-sm font-semibold text-amber-600">Refund pending - the shop will process it.</p>;
+            return null;
+          })()}
           {emiNote && <p className="mt-1 text-xs text-muted-foreground">{emiNote}</p>}
         </div>
       </div>
