@@ -1,25 +1,34 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Download, X } from "lucide-react";
 import { useInstallAction } from "@/hooks/useInstallAction";
 import { AddToHomeScreenDialog } from "@/components/AddToHomeScreenDialog";
 
-const DISMISS_KEY = "sai-comm-app-banner-dismissed";
+export const DISMISS_KEY = "sai-comm-app-banner-dismissed";
+
+function readDismissed(): boolean {
+  // Read synchronously during the very first render (not in a useEffect after mount) so the
+  // banner never flashes hidden-then-shown on load — it's either there from the first paint
+  // or, if the visitor dismissed it before, correctly absent from the first paint too.
+  // TanStack Start renders this on the server first, where localStorage/window don't exist —
+  // false there matches the client's own first paint before hydration reads the real value,
+  // so there's nothing to mismatch.
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(DISMISS_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
 
 // The homepage's main app-install pitch — a full-width strip in the same amber brand
 // gradient as the hero, so it reads as part of the site rather than a generic browser
 // nag. Sits above the hero (the very first thing on the page) so it's seen before
 // anything else, and hides itself once installed or once the visitor dismisses it.
+// Dismissing it here doesn't remove the app entirely — SiteHeader keeps a small,
+// permanent "Download App" icon so installing is always still one tap away.
 export function DownloadAppBanner() {
   const { installed, showIOSHelp, setShowIOSHelp, handleClick } = useInstallAction();
-  const [dismissed, setDismissed] = useState(true); // start hidden; only show after we know localStorage
-
-  useEffect(() => {
-    try {
-      setDismissed(localStorage.getItem(DISMISS_KEY) === "1");
-    } catch {
-      setDismissed(false);
-    }
-  }, []);
+  const [dismissed, setDismissed] = useState(readDismissed);
 
   if (installed || dismissed) return null;
 
