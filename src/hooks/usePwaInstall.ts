@@ -44,9 +44,19 @@ export function usePwaInstall(): PwaInstallState {
   useEffect(() => {
     setInstalled(isStandalone());
 
+    // The event can fire before this component ever mounts (a script in <head> — see
+    // __root.tsx — catches it the instant it happens and stashes it on window). Pick that
+    // up immediately so an early-arriving prompt isn't missed.
+    const stashed = (window as Window & { __pwaDeferredPrompt?: BeforeInstallPromptEvent | null }).__pwaDeferredPrompt;
+    if (stashed) setDeferredPrompt(stashed);
+
     function onBeforeInstallPrompt(e: Event) {
       e.preventDefault(); // stop Chrome's own mini-infobar; we show our own button instead
       setDeferredPrompt(e as BeforeInstallPromptEvent);
+    }
+    function onEarlyPromptReady() {
+      const p = (window as Window & { __pwaDeferredPrompt?: BeforeInstallPromptEvent | null }).__pwaDeferredPrompt;
+      if (p) setDeferredPrompt(p);
     }
     function onInstalled() {
       setInstalled(true);
@@ -58,10 +68,12 @@ export function usePwaInstall(): PwaInstallState {
     const onDisplayModeChange = () => setInstalled(isStandalone());
 
     window.addEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+    window.addEventListener("pwa-install-ready", onEarlyPromptReady);
     window.addEventListener("appinstalled", onInstalled);
     mql.addEventListener?.("change", onDisplayModeChange);
     return () => {
       window.removeEventListener("beforeinstallprompt", onBeforeInstallPrompt);
+      window.removeEventListener("pwa-install-ready", onEarlyPromptReady);
       window.removeEventListener("appinstalled", onInstalled);
       mql.removeEventListener?.("change", onDisplayModeChange);
     };

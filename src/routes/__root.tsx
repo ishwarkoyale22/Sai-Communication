@@ -146,6 +146,16 @@ function RootShell({ children }: { children: ReactNode }) {
             __html: `(function(){try{var t=localStorage.getItem('sai-comm-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);if(t==='dark'){document.documentElement.classList.add('dark');}}else if(window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('dark');}}catch(e){}})();`,
           }}
         />
+        {/* Capture the browser's real install offer the instant it fires — this can happen
+            before React finishes loading, and a beforeinstallprompt event fired before any
+            listener exists is gone for good. Stashing it here means the Download App button
+            can still use the real native prompt even if it fires during that early window,
+            instead of silently falling back to the generic "open your browser menu" message. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){window.__pwaDeferredPrompt=null;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__pwaDeferredPrompt=e;window.dispatchEvent(new CustomEvent('pwa-install-ready'));});})();`,
+          }}
+        />
       </head>
       <body>
         {children}
