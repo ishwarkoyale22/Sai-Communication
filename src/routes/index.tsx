@@ -34,6 +34,7 @@ import { EnquiryDialog } from "@/components/EnquiryDialog";
 import { ProductDetailDialog } from "@/components/ProductDetailDialog";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { Reveal } from "@/components/Reveal";
+import { InstallAppButton } from "@/components/InstallAppButton";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -228,6 +229,7 @@ function HomePage() {
                   <Wrench className="size-4 text-primary" />
                   Book a Repair
                 </Link>
+                <InstallAppButton className="btn-outline" />
               </div>
 
               {/* Trust micro-badges */}
