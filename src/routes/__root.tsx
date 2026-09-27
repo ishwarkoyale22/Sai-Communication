@@ -105,6 +105,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      // PWA: installability + iOS/Android install-banner metadata
+      { name: "theme-color", content: "#1B4D8A" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "Sai Communication" },
     ],
     links: [
       {
@@ -119,6 +125,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", href: "/favicon.png?v=3", type: "image/png" },
       { rel: "shortcut icon", href: "/favicon.ico?v=3", type: "image/x-icon" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
     ],
   }),
   shellComponent: RootShell,
@@ -153,6 +161,14 @@ function RootComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdmin = pathname.startsWith("/admin");
   useSpotlight();
+
+  // Register the PWA service worker once, client-side only. Skipped in dev so a stale
+  // cached bundle never masks live-reloaded changes while working on the site.
+  useEffect(() => {
+    if (import.meta.env.DEV) return;
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
