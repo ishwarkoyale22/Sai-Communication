@@ -1,7 +1,7 @@
 {
-  "name": "Sai Communication — Mobile Store, Repair & EMI",
-  "short_name": "Sai Communication",
-  "description": "Premium mobile phone store: latest smartphones, tablets, accessories, chip-level repair and EMI. Browse online, buy in store.",
+  "name": "Sai Communication",
+  "short_name": "Sai Comm",
+  "description": "Sai Communication",
   "start_url": "/?source=pwa",
   "id": "/",
   "scope": "/",
