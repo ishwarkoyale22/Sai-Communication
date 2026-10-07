@@ -38,7 +38,10 @@ import {
   Search,
   ArrowRight,
   UserCircle2,
+  Download,
 } from "lucide-react";
+import { useInstallAction } from "@/hooks/useInstallAction";
+import { AddToHomeScreenDialog } from "@/components/AddToHomeScreenDialog";
 
 const PRODUCT_CATEGORY_CHIPS = CATEGORIES.filter((c) => c !== "All");
 
@@ -51,6 +54,7 @@ export function SiteHeader() {
   const navigate = useNavigate();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { toggleTheme, isDark } = useTheme();
+  const { installed: appInstalled, showIOSHelp: showAppIOSHelp, setShowIOSHelp: setShowAppIOSHelp, handleClick: handleAppInstallClick } = useInstallAction();
 
   const [query, setQuery] = useState("");
   const [searchCategory, setSearchCategory] = useState("All");
@@ -328,6 +332,23 @@ export function SiteHeader() {
 
         {/* Right Actions: Dark Mode, Cart, Store Button */}
         <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
+          {/* Install App — always available here even after the homepage banner is dismissed */}
+          {!appInstalled && (
+            <>
+              <button
+                type="button"
+                onClick={handleAppInstallClick}
+                title="Download App"
+                aria-label="Download App"
+                className="flex size-9 sm:size-10 items-center justify-center rounded-xl border transition-all hover:scale-105 hover:border-primary active:scale-95 cursor-pointer shadow-sm"
+                style={{ backgroundColor: "var(--muted)", borderColor: "var(--border)", color: "var(--primary)" }}
+              >
+                <Download className="size-4" strokeWidth={2.5} />
+              </button>
+              <AddToHomeScreenDialog open={showAppIOSHelp} onOpenChange={setShowAppIOSHelp} />
+            </>
+          )}
+
           {/* Dark / Light Theme Toggle */}
           <button
             type="button"
@@ -913,6 +934,18 @@ export function SiteHeader() {
                 WhatsApp
               </a>
             </div>
+
+            {!appInstalled && (
+              <button
+                type="button"
+                onClick={() => { setIsMobileMenuOpen(false); handleAppInstallClick(); }}
+                className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg py-2.5 text-xs font-bold"
+                style={{ backgroundColor: "var(--primary)", color: "var(--primary-foreground)" }}
+              >
+                <Download className="size-3.5" />
+                Download App
+              </button>
+            )}
 
             {/* Navigation Links */}
             <div className="space-y-1">

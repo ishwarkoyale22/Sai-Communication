@@ -34,6 +34,7 @@ import { EnquiryDialog } from "@/components/EnquiryDialog";
 import { ProductDetailDialog } from "@/components/ProductDetailDialog";
 import { ReviewsSection } from "@/components/ReviewsSection";
 import { Reveal } from "@/components/Reveal";
+import { DownloadAppBanner } from "@/components/DownloadAppBanner";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -152,6 +153,9 @@ function HomePage() {
 
   return (
     <div style={{ backgroundColor: "var(--background)", color: "var(--foreground)" }}>
+
+      {/* ─── APP INSTALL BANNER — first thing on the page ────── */}
+      <DownloadAppBanner />
 
       {/* ─── HERO ─────────────────────────────────────────────── */}
       <section

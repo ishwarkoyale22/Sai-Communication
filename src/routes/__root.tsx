@@ -105,6 +105,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      // PWA: installability + iOS/Android install-banner metadata
+      { name: "theme-color", content: "#1B4D8A" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "Sai Communication" },
     ],
     links: [
       {
@@ -119,6 +125,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", href: "/favicon.png?v=3", type: "image/png" },
       { rel: "shortcut icon", href: "/favicon.ico?v=3", type: "image/x-icon" },
+      { rel: "apple-touch-icon", href: "/icons/apple-touch-icon.png" },
+      { rel: "manifest", href: "/manifest.webmanifest" },
     ],
   }),
   shellComponent: RootShell,
@@ -138,6 +146,16 @@ function RootShell({ children }: { children: ReactNode }) {
             __html: `(function(){try{var t=localStorage.getItem('sai-comm-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);if(t==='dark'){document.documentElement.classList.add('dark');}}else if(window.matchMedia('(prefers-color-scheme: dark)').matches){document.documentElement.setAttribute('data-theme','dark');document.documentElement.classList.add('dark');}}catch(e){}})();`,
           }}
         />
+        {/* Capture the browser's real install offer the instant it fires — this can happen
+            before React finishes loading, and a beforeinstallprompt event fired before any
+            listener exists is gone for good. Stashing it here means the Download App button
+            can still use the real native prompt even if it fires during that early window,
+            instead of silently falling back to the generic "open your browser menu" message. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){window.__pwaDeferredPrompt=null;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.__pwaDeferredPrompt=e;window.dispatchEvent(new CustomEvent('pwa-install-ready'));});})();`,
+          }}
+        />
       </head>
       <body>
         {children}
@@ -153,6 +171,14 @@ function RootComponent() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdmin = pathname.startsWith("/admin");
   useSpotlight();
+
+  // Register the PWA service worker once, client-side only. Skipped in dev so a stale
+  // cached bundle never masks live-reloaded changes while working on the site.
+  useEffect(() => {
+    if (import.meta.env.DEV) return;
+    if (typeof window === "undefined" || !("serviceWorker" in navigator)) return;
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
