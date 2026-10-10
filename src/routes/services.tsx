@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
+import { useQuery } from "@tanstack/react-query";
+import { servicesQuery } from "@/lib/queries";
 
 export const Route = createFileRoute("/services")({
   head: () => ({
@@ -90,6 +92,7 @@ const SERVICES = [
 ];
 
 function ServicesPage() {
+  const { data: extraServices = [] } = useQuery(servicesQuery);
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
       <header className="max-w-3xl">
@@ -124,6 +127,20 @@ function ServicesPage() {
           </Reveal>
         ))}
       </div>
+
+      {extraServices.length > 0 && (
+        <section className="mt-12">
+          <h2 className="font-serif text-2xl font-medium">More Services</h2>
+          <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {extraServices.map((s) => (
+              <div key={s.id} className="card-surface p-6">
+                <h3 className="text-lg font-semibold">{s.name}</h3>
+                {s.description && <p className="mt-2 text-xs text-muted-foreground leading-relaxed">{s.description}</p>}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
 
       <div className="card-surface mt-16 flex flex-wrap items-center justify-between gap-6 p-8 sm:p-10">
         <div className="max-w-xl">

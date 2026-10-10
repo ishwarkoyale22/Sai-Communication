@@ -95,7 +95,7 @@ export function TextReveal({
 
 function flattenToWords(children: ReactNode): {
   words: { text: string; em: boolean }[];
-  emClassName?: string;
+  emClassName?: string | undefined;
 } {
   const words: { text: string; em: boolean }[] = [];
   let emClassName: string | undefined;

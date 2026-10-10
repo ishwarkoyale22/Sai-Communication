@@ -1,4 +1,4 @@
-﻿import { useState, useRef } from "react";
+import { useState, useRef } from "react";
 import { toast } from "sonner";
 import { CheckCircle, Upload, X, FileImage, Video, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -129,8 +129,7 @@ export function RepairEnquiryForm() {
     const uploadedImages: string[] = [];
     const uploadedVideos: string[] = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const item = files[i];
+    for (const [i, item] of files.entries()) {
       setUploadProgress(`Uploading attachment ${i + 1} of ${files.length}...`);
 
       const ext = item.file.name.split(".").pop() || (item.type === "video" ? "mp4" : "jpg");

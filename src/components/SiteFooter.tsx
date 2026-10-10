@@ -129,7 +129,7 @@ export function SiteFooter() {
                 <li key={idx}>
                   <Link
                     to={item.to}
-                    search={"search" in item ? item.search : undefined}
+                    search={"search" in item ? item.search : (undefined as any)}
                     className="hover:text-[#F5A623] hover:translate-x-1 inline-block transition-all"
                   >
                     {item.label}
@@ -149,7 +149,7 @@ export function SiteFooter() {
                 <li key={idx}>
                   <Link
                     to={item.to}
-                    search={"search" in item ? item.search : undefined}
+                    search={"search" in item ? item.search : (undefined as any)}
                     className="hover:text-[#F5A623] hover:translate-x-1 inline-block transition-all"
                   >
                     {item.label}

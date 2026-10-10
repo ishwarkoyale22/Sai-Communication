@@ -51,8 +51,8 @@ async function fetchProfile(userId: string): Promise<CustomerProfile | null> {
  * so they're recovered from there once the user actually has a session.
  */
 async function ensureProfile(user: User): Promise<CustomerProfile | null> {
-  const fullName = (user.user_metadata?.full_name as string | undefined) ?? "";
-  const phone = (user.user_metadata?.phone as string | undefined) ?? "";
+  const fullName = (user.user_metadata?.["full_name"] as string | undefined) ?? "";
+  const phone = (user.user_metadata?.["phone"] as string | undefined) ?? "";
   if (!fullName || !phone) return null;
   const { error } = await supabase.from("customer_profiles").insert({
     id: user.id,
@@ -85,8 +85,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setProfile(
       resolved ?? {
         id: user.id,
-        full_name: (user.user_metadata?.full_name as string | undefined) || user.email?.split("@")[0] || "",
-        phone: (user.user_metadata?.phone as string | undefined) || "",
+        full_name: (user.user_metadata?.["full_name"] as string | undefined) || user.email?.split("@")[0] || "",
+        phone: (user.user_metadata?.["phone"] as string | undefined) || "",
         email: user.email ?? null,
       },
     );
@@ -120,11 +120,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signInWithPhone = useCallback(async (phone: string, password: string) => {
-    const { data: email, error: rpcError } = await supabase.rpc("get_email_by_phone", { p_phone: phone });
-    if (rpcError || !email) {
-      return { error: "No account found for this mobile number." };
+    // The phone -> email lookup and the password check both happen in the phone-login
+    // edge function, so the browser never learns the account's email.
+    const { data, error: fnError } = await supabase.functions.invoke("phone-login", { body: { phone, password } });
+    if (fnError || !data?.access_token || !data?.refresh_token) {
+      return { error: "Invalid mobile number or password." };
     }
-    const { error } = await supabase.auth.signInWithPassword({ email: email as string, password });
+    const { error } = await supabase.auth.setSession({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+    });
     return { error: error?.message ?? null };
   }, []);
 

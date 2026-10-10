@@ -44,18 +44,55 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+// Supabase project URL (data/API + realtime websocket) this app actually talks to.
+const SUPABASE_URL = "https://egzcesgamwghmddxnent.supabase.co";
+
+// Report-Only for now: logs violations to the browser console without blocking anything,
+// so we can confirm the policy against real traffic before switching to an enforcing header.
+// script-src/style-src need 'unsafe-inline' because the app has two static inline <script>
+// tags (theme-flash + PWA-install-prompt capture in __root.tsx) and widespread React
+// style={{...}} usage — tightening those to nonces/hashes is a follow-up, not required for
+// Report-Only to be useful (it still restricts which external origins can load/connect/frame).
+const CSP_DIRECTIVES = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' https://fonts.gstatic.com",
+  "img-src 'self' data: https:",
+  `connect-src 'self' ${SUPABASE_URL} wss://egzcesgamwghmddxnent.supabase.co https://api.razorpay.com https://api.cashfree.com https://sandbox.cashfree.com`,
+  "frame-src https://www.google.com https://www.youtube.com https://www.youtube-nocookie.com",
+  "worker-src 'self'",
+  "manifest-src 'self'",
+  "object-src 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'none'",
+].join("; ");
+
+function withSecurityHeaders(response: Response): Response {
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
+  // Report-Only: observe real violations before this becomes an enforcing Content-Security-Policy.
+  response.headers.set("Content-Security-Policy-Report-Only", CSP_DIRECTIVES);
+  return response;
+}
+
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
-      return await normalizeCatastrophicSsrResponse(response);
+      return withSecurityHeaders(await normalizeCatastrophicSsrResponse(response));
     } catch (error) {
       console.error(error);
-      return new Response(renderErrorPage(), {
-        status: 500,
-        headers: { "content-type": "text/html; charset=utf-8" },
-      });
+      return withSecurityHeaders(
+        new Response(renderErrorPage(), {
+          status: 500,
+          headers: { "content-type": "text/html; charset=utf-8" },
+        }),
+      );
     }
   },
 };

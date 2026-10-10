@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Download, X } from "lucide-react";
 import { useInstallAction } from "@/hooks/useInstallAction";
 import { AddToHomeScreenDialog } from "@/components/AddToHomeScreenDialog";
@@ -28,7 +28,11 @@ function readDismissed(): boolean {
 // permanent "Download App" icon so installing is always still one tap away.
 export function DownloadAppBanner() {
   const { installed, showIOSHelp, setShowIOSHelp, handleClick } = useInstallAction();
-  const [dismissed, setDismissed] = useState(readDismissed);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    setDismissed(readDismissed());
+  }, []);
 
   if (installed || dismissed) return null;
 

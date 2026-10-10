@@ -58,12 +58,12 @@ export const settingsQuery = queryOptions({
     // replaced by inventory/hamper_items/website_orders/etc.). Fall back to
     // defaults rather than failing the whole page — nothing else in the
     // storefront depends on live settings existing.
-    const { data, error } = await supabase.from("settings").select("key,value");
+    const { data, error } = await (supabase.from as any)("settings").select("key,value");
     if (error) return { ...DEFAULT_SETTINGS };
     const map: SettingsMap = { ...DEFAULT_SETTINGS };
-    for (const row of data ?? []) {
+    for (const row of (data ?? []) as { key?: string; value?: string }[]) {
       if (row.key) {
-        map[row.key as string] = (row.value as string) ?? "";
+        map[row.key] = row.value ?? "";
       }
     }
 
@@ -148,8 +148,7 @@ export const offerProductsQuery = queryOptions({
   queryKey: ["offer-products"],
   retry: false,
   queryFn: async (): Promise<Record<string, string[]>> => {
-    const { data, error } = await supabase
-      .from("offer_products")
+    const { data, error } = await (supabase.from as any)("offer_products")
       .select("offer_id, inventory:inventory_id(name, is_active)");
     if (error) return {}; // the offer cards still work without the product list
     const map: Record<string, string[]> = {};
@@ -214,6 +213,25 @@ export const reviewsQuery = queryOptions({
   },
 });
 
+export interface AdminService {
+  id: string;
+  name: string;
+  description: string | null;
+}
+
+export const servicesQuery = queryOptions({
+  queryKey: ["admin-services"],
+  retry: false,
+  queryFn: async (): Promise<AdminService[]> => {
+    const { data, error } = await (supabase.from as any)("services")
+      .select("id, name, description")
+      .eq("is_active", true)
+      .order("name");
+    if (error) throw new Error(error.message);
+    return (data ?? []) as AdminService[];
+  },
+});
+
 export const galleryQuery = (category?: string) =>
   queryOptions({
     // `category` is no longer a column on the new `gallery` table — kept in
@@ -250,8 +268,7 @@ export const financePartnersQuery = queryOptions({
   queryKey: ["finance-partners"],
   retry: false,
   queryFn: async (): Promise<FinancePartner[]> => {
-    const { data, error } = await supabase
-      .from("finance_partners")
+    const { data, error } = await (supabase.from as any)("finance_partners")
       .select(FINANCE_PARTNER_PUBLIC_COLUMNS)
       .eq("is_active", true)
       .order("name");
@@ -263,13 +280,12 @@ export const financePartnersQuery = queryOptions({
 export const hamperProductsQuery = queryOptions({
   queryKey: ["hamper-products"],
   queryFn: async (): Promise<GiftHamperProduct[]> => {
-    const { data, error } = await supabase
-      .from("hamper_items")
+    const { data, error } = await (supabase.from as any)("hamper_items")
       .select(HAMPER_PUBLIC_COLUMNS)
       .eq("is_active", true)
       .order("name");
     if (error) throw new Error(error.message);
-    return (data ?? []).map((row) => normalizeHamperItem(row as Record<string, unknown>));
+    return (data ?? []).map((row: unknown) => normalizeHamperItem(row as Record<string, unknown>));
   },
 });
 

@@ -87,7 +87,7 @@ function HeroBannerOfferStrip({ offer }: { offer: Offer }) {
   );
 }
 
-function ProductThumbnail({ src, alt }: { src?: string; alt: string }) {
+function ProductThumbnail({ src, alt }: { src?: string | undefined; alt: string }) {
   if (!src)
     return (
       <div className="flex flex-col items-center gap-1.5">

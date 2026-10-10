@@ -16,13 +16,15 @@ export function CountUp({ value, duration = 1400 }: { value: string; duration?: 
 
   useEffect(() => {
     const match = value.match(/^(\d+(?:\.\d+)?)/);
-    if (!match) {
+    const numStr = match?.[1];
+    if (!numStr) {
       setDisplay(value);
       return;
     }
-    const target = parseFloat(match[1]);
-    const decimals = match[1].includes(".") ? match[1].split(".")[1].length : 0;
-    const suffix = value.slice(match[1].length);
+    const target = parseFloat(numStr);
+    const parts = numStr.split(".");
+    const decimals = parts[1]?.length ?? 0;
+    const suffix = value.slice(numStr.length);
 
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       setDisplay(value);
@@ -68,7 +70,9 @@ export function CountUp({ value, duration = 1400 }: { value: string; duration?: 
 
 function initialValue(value: string): string {
   const match = value.match(/^(\d+(?:\.\d+)?)/);
-  if (!match) return value;
-  const decimals = match[1].includes(".") ? match[1].split(".")[1].length : 0;
-  return (0).toFixed(decimals) + value.slice(match[1].length);
+  const numStr = match?.[1];
+  if (!numStr) return value;
+  const parts = numStr.split(".");
+  const decimals = parts[1]?.length ?? 0;
+  return (0).toFixed(decimals) + value.slice(numStr.length);
 }

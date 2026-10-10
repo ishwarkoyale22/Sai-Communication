@@ -1,5 +1,5 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { createFileRoute } from "@tanstack/react-router";
+import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { adminLogin, adminLogout } from "@/lib/admin.functions";
@@ -22,9 +22,14 @@ export const Route = createFileRoute("/admin")({
 const SESSION_KEY = "sc_admin_token";
 
 function AdminPage() {
-  const [token, setToken] = useState(() => (typeof window !== "undefined" ? sessionStorage.getItem(SESSION_KEY) ?? "" : ""));
+  const [token, setToken] = useState("");
   const [password, setPassword] = useState("");
   const [loginLoading, setLoginLoading] = useState(false);
+
+  useEffect(() => {
+    const saved = sessionStorage.getItem(SESSION_KEY);
+    if (saved) setToken(saved);
+  }, []);
   const loginFn = useServerFn(adminLogin);
   const logoutFn = useServerFn(adminLogout);
 

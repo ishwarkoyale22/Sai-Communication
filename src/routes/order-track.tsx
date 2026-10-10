@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Search, Package } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useAuth } from "@/context/AuthContext";
@@ -11,8 +11,8 @@ import { formatINR } from "@/lib/format";
 
 export const Route = createFileRoute("/order-track")({
   validateSearch: (search: Record<string, unknown>) => ({
-    phone: String(search["phone"] ?? ""),
-    order: String(search["order"] ?? ""),
+    phone: String(search["phone"] ?? "").replace(/^["']|["']$/g, "").trim(),
+    order: String(search["order"] ?? "").replace(/^["']|["']$/g, "").trim(),
   }),
   head: () => ({
     meta: [
@@ -58,18 +58,18 @@ function OrderTrackPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Two ways in, like Amazon/Flipkart: signed-in customers see only their own orders (matched on their
-  // account, never on a typed phone number); guests must give the order number AND the phone it was
-  // placed with, so a phone number alone can't be used to browse someone else's orders.
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    const num = orderNumber.trim().toUpperCase();
-    if (!num || !phone.trim()) { setError("Enter both your order number and the mobile number used for the order."); return; }
+  async function performSearch(targetNum: string, targetPhone: string) {
+    const num = targetNum.replace(/^["']|["']$/g, "").trim().toUpperCase();
+    const cleanPhone = targetPhone.replace(/[^0-9]/g, "");
+    if (!num || !cleanPhone) {
+      setError("Enter both your order number and the mobile number used for the order.");
+      return;
+    }
     setLoading(true);
     setError("");
     setResults(null);
     try {
-      const { data, error: qError } = await supabase.rpc("web_track_orders", { p_phone: phone.trim() });
+      const { data, error: qError } = await supabase.rpc("web_track_orders", { p_phone: cleanPhone });
       if (qError) throw new Error(qError.message);
       const match = ((data ?? []) as WebsiteOrder[]).filter((o) => o.order_number.toUpperCase() === num);
       if (match.length === 0) {
@@ -84,6 +84,17 @@ function OrderTrackPage() {
       setLoading(false);
     }
   }
+
+  async function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    await performSearch(orderNumber, phone);
+  }
+
+  useEffect(() => {
+    if (initOrder && initPhone) {
+      performSearch(initOrder, initPhone);
+    }
+  }, [initOrder, initPhone]);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">

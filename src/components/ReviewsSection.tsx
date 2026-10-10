@@ -146,7 +146,7 @@ export function ReviewsSection() {
       let device = "Customer Purchase";
       let cleanComment = r.review_text || "Great service and genuine advice!";
       const match = cleanComment.match(/^\[Device\/Service:\s*([^\]]+)\]\s*(.*)$/s);
-      if (match) {
+      if (match && match[1] && match[2]) {
         device = match[1];
         cleanComment = match[2];
       }

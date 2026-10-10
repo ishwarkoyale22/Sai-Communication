@@ -141,12 +141,12 @@ export function SiteHeader() {
   // Sync category and search query from URL when on /products
   useEffect(() => {
     if (pathname === "/products") {
-      setSearchCategory(searchParams.category || "All");
-      if (searchParams.q !== undefined) {
-        setQuery(searchParams.q);
+      setSearchCategory(searchParams["category"] || "All");
+      if (searchParams["q"] !== undefined) {
+        setQuery(searchParams["q"]);
       }
     }
-  }, [pathname, searchParams.category, searchParams.q]);
+  }, [pathname, searchParams["category"], searchParams["q"]]);
 
   function handleCategorySelectChange(newCat: string) {
     setSearchCategory(newCat);
@@ -665,7 +665,7 @@ export function SiteHeader() {
                   <Link
                     key={item.label}
                     to={item.to}
-                    search={item.search}
+                    search={item.search as any}
                     className={`relative flex shrink-0 items-center gap-1.5 whitespace-nowrap px-2.5 xl:px-3 py-1.5 text-[12.5px] font-bold transition-all rounded-md ${
                       isActive
                         ? "text-primary bg-card shadow-xs"
@@ -956,7 +956,7 @@ export function SiteHeader() {
                 <Link
                   key={item.label}
                   to={item.to}
-                  search={item.search}
+                  search={item.search as any}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center justify-between rounded-lg px-3 py-2.5 text-xs font-bold hover:bg-muted transition-colors"
                 >

@@ -1,12 +1,49 @@
-﻿import { supabaseAdmin } from "@/integrations/supabase/client.server";
-import { randomUUID } from "crypto";
+import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { randomUUID, timingSafeEqual } from "crypto";
 
 // ─── Admin Session Auth ────────────────────────────────────────
 
+// In-memory brute-force guard on the admin password. Keyed by IP so a
+// single attacker can't hammer the one shared admin password unthrottled;
+// resets on deploy/restart, which is an acceptable trade-off for a single
+// extra admin table.
+const LOGIN_ATTEMPT_LIMIT = 5;
+const LOGIN_ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
+const loginAttempts = new Map<string, { count: number; resetAt: number }>();
+
+function constantTimeEquals(a: string, b: string): boolean {
+  const bufA = Buffer.from(a);
+  const bufB = Buffer.from(b);
+  // timingSafeEqual requires equal-length buffers; padding keeps the
+  // comparison itself constant-time without leaking the real length early.
+  if (bufA.length !== bufB.length) {
+    timingSafeEqual(bufA, bufA);
+    return false;
+  }
+  return timingSafeEqual(bufA, bufB);
+}
+
 export async function createAdminSession(password: string, ip?: string): Promise<string> {
+  const key = ip || "unknown";
+  const now = Date.now();
+  const attempt = loginAttempts.get(key);
+  if (attempt && attempt.resetAt > now && attempt.count >= LOGIN_ATTEMPT_LIMIT) {
+    throw new Error("Too many login attempts. Please try again later.");
+  }
+
   const expected = process.env["ADMIN_PASSWORD"];
   if (!expected) throw new Error("Admin password is not configured on the server.");
-  if (password !== expected) throw new Error("Incorrect password.");
+
+  if (!constantTimeEquals(password, expected)) {
+    const next =
+      attempt && attempt.resetAt > now
+        ? { count: attempt.count + 1, resetAt: attempt.resetAt }
+        : { count: 1, resetAt: now + LOGIN_ATTEMPT_WINDOW_MS };
+    loginAttempts.set(key, next);
+    throw new Error("Incorrect password.");
+  }
+
+  loginAttempts.delete(key);
 
   const token = randomUUID() + "-" + randomUUID();
   const { error } = await supabaseAdmin
@@ -64,13 +101,22 @@ export type ProductInput = {
 
 export async function saveProduct(input: ProductInput) {
   const { id, ...rest } = input;
-  const payload = { ...rest, product_type: "new", original_price: rest.original_price ?? null, is_active: rest.is_active ?? true };
+  const payload = {
+    ...rest,
+    product_type: "new",
+    original_price: rest.original_price ?? null,
+    is_active: rest.is_active ?? true,
+  };
   if (id) {
-    const { error } = await supabaseAdmin.from("inventory").update(payload).eq("id", id);
+    const { error } = await supabaseAdmin.from("inventory").update(payload as any).eq("id", id);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("inventory").insert(payload).select("id").single();
+  const { data, error } = await supabaseAdmin
+    .from("inventory")
+    .insert(payload as any)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
@@ -100,8 +146,7 @@ export async function setEnquiryStatus(id: string, status: string) {
 
 export async function saveSettings(entries: { key: string; value: string }[]) {
   for (const entry of entries) {
-    const { error } = await supabaseAdmin
-      .from("settings")
+    const { error } = await (supabaseAdmin.from as any)("settings")
       .upsert({ key: entry.key, value: entry.value }, { onConflict: "key" });
     if (error) throw new Error(error.message);
   }
@@ -110,7 +155,12 @@ export async function saveSettings(entries: { key: string; value: string }[]) {
 
 // ─── Brands ───────────────────────────────────────────────────
 
-export async function saveBrand(input: { id?: string; name: string; logo_url?: string | null; is_active?: boolean }) {
+export async function saveBrand(input: {
+  id?: string;
+  name: string;
+  logo_url?: string | null;
+  is_active?: boolean;
+}) {
   const { id, ...rest } = input;
   if (id) {
     const { error } = await supabaseAdmin.from("brands").update(rest).eq("id", id);
@@ -175,10 +225,7 @@ export async function listRepairEnquiries(filters?: { status?: string }) {
 }
 
 export async function updateRepairStatus(id: string, status: string) {
-  const { error } = await supabaseAdmin
-    .from("repair_enquiries")
-    .update({ status })
-    .eq("id", id);
+  const { error } = await supabaseAdmin.from("repair_enquiries").update({ status }).eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
@@ -189,11 +236,18 @@ export async function saveRefurbished(input: Record<string, unknown> & { id?: st
   const { id, ...rest } = input;
   const payload = { ...rest, product_type: "refurbished" };
   if (id) {
-    const { error } = await supabaseAdmin.from("inventory").update(payload).eq("id", id as string);
+    const { error } = await supabaseAdmin
+      .from("inventory")
+      .update(payload as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("inventory").insert(payload).select("id").single();
+  const { data, error } = await supabaseAdmin
+    .from("inventory")
+    .insert(payload as any)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
@@ -205,7 +259,11 @@ export async function removeRefurbished(id: string) {
 }
 
 export async function listRefurbishedAdmin() {
-  const { data, error } = await supabaseAdmin.from("inventory").select("*").eq("product_type", "refurbished").order("created_at", { ascending: false });
+  const { data, error } = await supabaseAdmin
+    .from("inventory")
+    .select("*")
+    .eq("product_type", "refurbished")
+    .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data ?? [];
 }
@@ -215,11 +273,14 @@ export async function listRefurbishedAdmin() {
 export async function saveOffer(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("offers").update(rest).eq("id", id as string);
+    const { error } = await supabaseAdmin
+      .from("offers")
+      .update(rest as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("offers").insert(rest).select("id").single();
+  const { data, error } = await supabaseAdmin.from("offers").insert(rest as any).select("id").single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
@@ -237,7 +298,10 @@ export async function toggleOffer(id: string, is_active: boolean) {
 }
 
 export async function listOffersAdmin() {
-  const { data, error } = await supabaseAdmin.from("offers").select("*").order("created_at", { ascending: false });
+  const { data, error } = await supabaseAdmin
+    .from("offers")
+    .select("*")
+    .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data ?? [];
 }
@@ -247,27 +311,37 @@ export async function listOffersAdmin() {
 export async function savePopup(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("promotional_popups").update(rest).eq("id", id as string);
+    const { error } = await (supabaseAdmin.from as any)("promotional_popups")
+      .update(rest as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("promotional_popups").insert(rest).select("id").single();
+  const { data, error } = await (supabaseAdmin.from as any)("promotional_popups")
+    .insert(rest as any)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function togglePopup(id: string, is_enabled: boolean) {
   // Disable all others first (only one active popup at a time)
-  if (is_enabled) await supabaseAdmin.from("promotional_popups").update({ is_enabled: false }).neq("id", id);
-  const { error } = await supabaseAdmin.from("promotional_popups").update({ is_enabled }).eq("id", id);
+  if (is_enabled)
+    await (supabaseAdmin.from as any)("promotional_popups").update({ is_enabled: false }).neq("id", id);
+  const { error } = await (supabaseAdmin.from as any)("promotional_popups")
+    .update({ is_enabled })
+    .eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
 export async function listPopupsAdmin() {
-  const { data, error } = await supabaseAdmin.from("promotional_popups").select("*").order("created_at", { ascending: false });
+  const { data, error } = await (supabaseAdmin.from as any)("promotional_popups")
+    .select("*")
+    .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as any[];
 }
 
 // ─── Gallery ──────────────────────────────────────────────────
@@ -275,11 +349,14 @@ export async function listPopupsAdmin() {
 export async function saveGalleryItem(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("gallery").update(rest).eq("id", id as string);
+    const { error } = await supabaseAdmin
+      .from("gallery")
+      .update(rest as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("gallery").insert(rest).select("id").single();
+  const { data, error } = await supabaseAdmin.from("gallery").insert(rest as any).select("id").single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
@@ -293,7 +370,7 @@ export async function removeGalleryItem(id: string) {
 export async function listGalleryAdmin() {
   const { data, error } = await supabaseAdmin.from("gallery").select("*").order("sort_order");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as any[];
 }
 
 // ─── Hamper Items ───────────────────────────────────────────────
@@ -301,11 +378,18 @@ export async function listGalleryAdmin() {
 export async function saveHamperProduct(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("hamper_items").update(rest).eq("id", id as string);
+    const { error } = await supabaseAdmin
+      .from("hamper_items")
+      .update(rest as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("hamper_items").insert(rest).select("id").single();
+  const { data, error } = await supabaseAdmin
+    .from("hamper_items")
+    .insert(rest as any)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
@@ -342,11 +426,13 @@ export async function createOrder(input: {
     total_price: number;
   }>;
 }) {
+  const order_id = crypto.randomUUID();
   const order_number = generateEnquiryNumber("SC");
 
-  const { data: order, error: orderError } = await supabaseAdmin
+  const { error: orderError } = await supabaseAdmin
     .from("website_orders")
     .insert({
+      id: order_id,
       order_number,
       customer_name: input.customer_name,
       customer_phone: input.customer_phone,
@@ -357,16 +443,14 @@ export async function createOrder(input: {
       payment_status: "pending",
       order_status: "pending",
       notes: input.notes ?? null,
-    })
-    .select("id, order_number")
-    .single();
+    });
   if (orderError) throw new Error(orderError.message);
 
-  const orderItems = input.items.map((item) => ({ order_id: order.id, ...item }));
+  const orderItems = input.items.map((item) => ({ order_id, ...item }));
   const { error: itemsError } = await supabaseAdmin.from("website_order_items").insert(orderItems);
   if (itemsError) throw new Error(itemsError.message);
 
-  return { order_id: order.id, order_number: order.order_number };
+  return { order_id, order_number };
 }
 
 export async function getOrderStatus(phone: string) {
@@ -386,15 +470,20 @@ export async function listOrdersAdmin(filters?: { order_type?: string; order_sta
     .from("website_orders")
     .select("*, website_order_items(*)")
     .order("created_at", { ascending: false });
-  if (filters?.order_type && filters.order_type !== "all") q = q.eq("order_type", filters.order_type);
-  if (filters?.order_status && filters.order_status !== "all") q = q.eq("order_status", filters.order_status);
+  if (filters?.order_type && filters.order_type !== "all")
+    q = q.eq("order_type", filters.order_type);
+  if (filters?.order_status && filters.order_status !== "all")
+    q = q.eq("order_status", filters.order_status);
   const { data, error } = await q;
   if (error) throw new Error(error.message);
   return data ?? [];
 }
 
 export async function updateOrderStatus(id: string, order_status: string) {
-  const { error } = await supabaseAdmin.from("website_orders").update({ order_status }).eq("id", id);
+  const { error } = await supabaseAdmin
+    .from("website_orders")
+    .update({ order_status })
+    .eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
@@ -426,40 +515,48 @@ export async function listCustomersAdmin() {
 export async function saveBranch(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("branches").update(rest).eq("id", id as string);
+    const { error } = await (supabaseAdmin.from as any)("branches")
+      .update(rest as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("branches").insert(rest).select("id").single();
+  const { data, error } = await (supabaseAdmin.from as any)("branches").insert(rest as any).select("id").single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function removeBranch(id: string) {
-  const { error } = await supabaseAdmin.from("branches").delete().eq("id", id);
+  const { error } = await (supabaseAdmin.from as any)("branches").delete().eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
 export async function listBranchesAdmin() {
-  const { data, error } = await supabaseAdmin.from("branches").select("*").order("name");
+  const { data, error } = await (supabaseAdmin.from as any)("branches").select("*").order("name");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as any[];
 }
 
 export async function getBranchInventoryAdmin(branch_id: string) {
-  const { data, error } = await supabaseAdmin
-    .from("branch_inventory")
+  const { data, error } = await (supabaseAdmin.from as any)("branch_inventory")
     .select("*, products(name, brand)")
     .eq("branch_id", branch_id);
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as any[];
 }
 
-export async function upsertBranchInventory(branch_id: string, product_id: string, quantity: number, reserved_quantity: number) {
-  const { error } = await supabaseAdmin
-    .from("branch_inventory")
-    .upsert({ branch_id, product_id, quantity, reserved_quantity }, { onConflict: "branch_id,product_id" });
+export async function upsertBranchInventory(
+  branch_id: string,
+  product_id: string,
+  quantity: number,
+  reserved_quantity: number,
+) {
+  const { error } = await (supabaseAdmin.from as any)("branch_inventory")
+    .upsert(
+      { branch_id, product_id, quantity, reserved_quantity },
+      { onConflict: "branch_id,product_id" },
+    );
   if (error) throw new Error(error.message);
   return { ok: true };
 }
@@ -467,24 +564,30 @@ export async function upsertBranchInventory(branch_id: string, product_id: strin
 // ─── Transfers (INTERNAL) ─────────────────────────────────────
 
 export async function createTransfer(input: Record<string, unknown>) {
-  const { data, error } = await supabaseAdmin.from("product_transfers").insert(input).select("id").single();
+  const { data, error } = await (supabaseAdmin.from as any)("product_transfers")
+    .insert(input as any)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function updateTransferStatus(id: string, transfer_status: string) {
-  const { error } = await supabaseAdmin.from("product_transfers").update({ transfer_status }).eq("id", id);
+  const { error } = await (supabaseAdmin.from as any)("product_transfers")
+    .update({ transfer_status } as any)
+    .eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
 export async function listTransfersAdmin() {
-  const { data, error } = await supabaseAdmin
-    .from("product_transfers")
-    .select("*, products(name, brand), from_branch:from_branch_id(name), to_branch:to_branch_id(name)")
+  const { data, error } = await (supabaseAdmin.from as any)("product_transfers")
+    .select(
+      "*, products(name, brand), from_branch:from_branch_id(name), to_branch:to_branch_id(name)",
+    )
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as any[];
 }
 
 // ─── Suppliers (INTERNAL) ─────────────────────────────────────
@@ -492,25 +595,27 @@ export async function listTransfersAdmin() {
 export async function saveSupplier(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("suppliers").update(rest).eq("id", id as string);
+    const { error } = await (supabaseAdmin.from as any)("suppliers")
+      .update(rest as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("suppliers").insert(rest).select("id").single();
+  const { data, error } = await (supabaseAdmin.from as any)("suppliers").insert(rest as any).select("id").single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function removeSupplier(id: string) {
-  const { error } = await supabaseAdmin.from("suppliers").delete().eq("id", id);
+  const { error } = await (supabaseAdmin.from as any)("suppliers").delete().eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
 export async function listSuppliersAdmin() {
-  const { data, error } = await supabaseAdmin.from("suppliers").select("*").order("name");
+  const { data, error } = await (supabaseAdmin.from as any)("suppliers").select("*").order("name");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as any[];
 }
 
 // ─── Product Sources (INTERNAL) ───────────────────────────────
@@ -518,22 +623,28 @@ export async function listSuppliersAdmin() {
 export async function saveProductSource(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("product_sources").update(rest).eq("id", id as string);
+    const { error } = await (supabaseAdmin.from as any)("product_sources")
+      .update(rest as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("product_sources").insert(rest).select("id").single();
+  const { data, error } = await (supabaseAdmin.from as any)("product_sources")
+    .insert(rest as any)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function listProductSourcesAdmin() {
-  const { data, error } = await supabaseAdmin
-    .from("product_sources")
-    .select("*, products(name, brand), suppliers(name), source_branch:source_branch_id(name), dest_branch:destination_branch_id(name)")
+  const { data, error } = await (supabaseAdmin.from as any)("product_sources")
+    .select(
+      "*, products(name, brand), suppliers(name), source_branch:source_branch_id(name), dest_branch:destination_branch_id(name)",
+    )
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as any[];
 }
 
 // ─── Third-Party Sources (INTERNAL) ───────────────────────────
@@ -541,19 +652,24 @@ export async function listProductSourcesAdmin() {
 export async function saveThirdPartySource(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("third_party_sources").update(rest).eq("id", id as string);
+    const { error } = await (supabaseAdmin.from as any)("third_party_sources")
+      .update(rest as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("third_party_sources").insert(rest).select("id").single();
+  const { data, error } = await (supabaseAdmin.from as any)("third_party_sources")
+    .insert(rest as any)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function listThirdPartySourcesAdmin() {
-  const { data, error } = await supabaseAdmin.from("third_party_sources").select("*").order("name");
+  const { data, error } = await (supabaseAdmin.from as any)("third_party_sources").select("*").order("name");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as any[];
 }
 
 // ─── Finance Partners ─────────────────────────────────────────
@@ -561,25 +677,30 @@ export async function listThirdPartySourcesAdmin() {
 export async function saveFinancePartner(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("finance_partners").update(rest).eq("id", id as string);
+    const { error } = await (supabaseAdmin.from as any)("finance_partners")
+      .update(rest as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("finance_partners").insert(rest).select("id").single();
+  const { data, error } = await (supabaseAdmin.from as any)("finance_partners")
+    .insert(rest as any)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function removeFinancePartner(id: string) {
-  const { error } = await supabaseAdmin.from("finance_partners").delete().eq("id", id);
+  const { error } = await (supabaseAdmin.from as any)("finance_partners").delete().eq("id", id);
   if (error) throw new Error(error.message);
   return { ok: true };
 }
 
 export async function listFinancePartnersAdmin() {
-  const { data, error } = await supabaseAdmin.from("finance_partners").select("*").order("name");
+  const { data, error } = await (supabaseAdmin.from as any)("finance_partners").select("*").order("name");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as any[];
 }
 
 // ─── Direct Partners (INTERNAL) ───────────────────────────────
@@ -587,19 +708,24 @@ export async function listFinancePartnersAdmin() {
 export async function saveDirectPartner(input: Record<string, unknown> & { id?: string }) {
   const { id, ...rest } = input;
   if (id) {
-    const { error } = await supabaseAdmin.from("direct_partners").update(rest).eq("id", id as string);
+    const { error } = await (supabaseAdmin.from as any)("direct_partners")
+      .update(rest as any)
+      .eq("id", id as string);
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await supabaseAdmin.from("direct_partners").insert(rest).select("id").single();
+  const { data, error } = await (supabaseAdmin.from as any)("direct_partners")
+    .insert(rest as any)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }
 
 export async function listDirectPartnersAdmin() {
-  const { data, error } = await supabaseAdmin.from("direct_partners").select("*").order("name");
+  const { data, error } = await (supabaseAdmin.from as any)("direct_partners").select("*").order("name");
   if (error) throw new Error(error.message);
-  return data ?? [];
+  return (data ?? []) as any[];
 }
 
 // ─── Dashboard Stats (new schema: inventory / website_orders / repair_enquiries) ──
@@ -640,7 +766,10 @@ export async function getDashboardStats() {
   if (lowStock.error) throw new Error(lowStock.error.message);
   if (recentOrders.error) throw new Error(recentOrders.error.message);
 
-  const todaysSales = (todayOrders.data ?? []).reduce((sum, o) => sum + Number(o.total_amount ?? 0), 0);
+  const todaysSales = (todayOrders.data ?? []).reduce(
+    (sum, o) => sum + Number(o.total_amount ?? 0),
+    0,
+  );
 
   return {
     todays_sales: todaysSales,
@@ -661,11 +790,22 @@ export async function getDashboardStats() {
 // restricted to this fixed allowlist, so this is not open to arbitrary
 // table access despite the loosened typing.
 const GENERIC_CRUD_TABLES = [
-  "staff", "sales", "sales_items", "services", "wholesaler_invoices",
-  "third_party_purchases", "emi_finance", "repairs", "customers",
-  "inventory", "brands", "hamper_items", "offers", "gallery",
+  "staff",
+  "sales",
+  "sales_items",
+  "services",
+  "wholesaler_invoices",
+  "third_party_purchases",
+  "emi_finance",
+  "repairs",
+  "customers",
+  "inventory",
+  "brands",
+  "hamper_items",
+  "offers",
+  "gallery",
 ] as const;
-export type GenericCrudTable = typeof GENERIC_CRUD_TABLES[number];
+export type GenericCrudTable = (typeof GENERIC_CRUD_TABLES)[number];
 
 function assertGenericTable(table: string): asserts table is GenericCrudTable {
   if (!GENERIC_CRUD_TABLES.includes(table as GenericCrudTable)) {
@@ -677,7 +817,7 @@ export async function genericList(
   table: string,
   orderBy = "created_at",
   ascending = false,
-  filter?: { column: string; value: string }
+  filter?: { column: string; value: string },
 ) {
   assertGenericTable(table);
   let q = (supabaseAdmin.from(table as never) as any).select("*").order(orderBy, { ascending });
@@ -695,7 +835,10 @@ export async function genericSave(table: string, input: Record<string, unknown> 
     if (error) throw new Error(error.message);
     return { id };
   }
-  const { data, error } = await (supabaseAdmin.from(table as never) as any).insert(rest).select("id").single();
+  const { data, error } = await (supabaseAdmin.from(table as never) as any)
+    .insert(rest)
+    .select("id")
+    .single();
   if (error) throw new Error(error.message);
   return { id: data.id as string };
 }

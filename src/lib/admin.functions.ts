@@ -1,4 +1,5 @@
-﻿import { createServerFn } from "@tanstack/react-start";
+import { createServerFn } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 import {
   createAdminSession,
   deleteAdminSession,
@@ -67,7 +68,9 @@ import {
 export const adminLogin = createServerFn({ method: "POST" })
   .validator((d: { password: string }) => d)
   .handler(async ({ data }) => {
-    const token = await createAdminSession(data.password);
+    const request = getRequest();
+    const ip = request?.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+    const token = await createAdminSession(data.password, ip);
     return { token };
   });
 
@@ -118,7 +121,18 @@ export const adminSaveSettings = createServerFn({ method: "POST" })
 
 // ─── Brands ──────────────────────────────────────────────────
 export const adminSaveBrand = createServerFn({ method: "POST" })
-  .validator((d: { token: string; brand: { id?: string; name: string; logo_url?: string | null; display_order?: number; is_active?: boolean } }) => d)
+  .validator(
+    (d: {
+      token: string;
+      brand: {
+        id?: string;
+        name: string;
+        logo_url?: string | null;
+        display_order?: number;
+        is_active?: boolean;
+      };
+    }) => d,
+  )
   .handler(async ({ data }) => {
     await assertAdminSession(data.token);
     return saveBrand(data.brand);
@@ -140,19 +154,27 @@ export const adminListBrands = createServerFn({ method: "POST" })
 
 // ─── Repair Enquiries ─────────────────────────────────────────
 export const publicSubmitRepair = createServerFn({ method: "POST" })
-  .validator((d: {
-    customer_name: string; phone: string; email?: string | null;
-    phone_brand: string; phone_model: string; problem_type: string;
-    description?: string | null; image_urls?: string[]; video_urls?: string[];
-    preferred_contact?: string;
-  }) => d)
+  .validator(
+    (d: {
+      customer_name: string;
+      phone: string;
+      email?: string | null;
+      phone_brand: string;
+      phone_model: string;
+      problem_type: string;
+      description?: string | null;
+      image_urls?: string[];
+      video_urls?: string[];
+      preferred_contact?: string;
+    }) => d,
+  )
   .handler(async ({ data }) => submitRepairEnquiry(data));
 
 export const adminListRepairEnquiries = createServerFn({ method: "POST" })
   .validator((d: { token: string; status?: string }) => d)
   .handler(async ({ data }) => {
     await assertAdminSession(data.token);
-    return listRepairEnquiries({ status: data.status });
+    return listRepairEnquiries(data.status ? { status: data.status } : {});
   });
 
 export const adminUpdateRepairStatus = createServerFn({ method: "POST" })
@@ -292,7 +314,10 @@ export const adminListOrders = createServerFn({ method: "POST" })
   .validator((d: { token: string; order_type?: string; order_status?: string }) => d)
   .handler(async ({ data }) => {
     await assertAdminSession(data.token);
-    return listOrdersAdmin({ order_type: data.order_type, order_status: data.order_status });
+    return listOrdersAdmin({
+      ...(data.order_type ? { order_type: data.order_type } : {}),
+      ...(data.order_status ? { order_status: data.order_status } : {}),
+    });
   });
 
 export const adminUpdateOrderStatus = createServerFn({ method: "POST" })
@@ -347,10 +372,23 @@ export const adminGetBranchInventory = createServerFn({ method: "POST" })
   });
 
 export const adminUpsertBranchInventory = createServerFn({ method: "POST" })
-  .validator((d: { token: string; branch_id: string; product_id: string; quantity: number; reserved_quantity: number }) => d)
+  .validator(
+    (d: {
+      token: string;
+      branch_id: string;
+      product_id: string;
+      quantity: number;
+      reserved_quantity: number;
+    }) => d,
+  )
   .handler(async ({ data }) => {
     await assertAdminSession(data.token);
-    return upsertBranchInventory(data.branch_id, data.product_id, data.quantity, data.reserved_quantity);
+    return upsertBranchInventory(
+      data.branch_id,
+      data.product_id,
+      data.quantity,
+      data.reserved_quantity,
+    );
   });
 
 // ─── Transfers ────────────────────────────────────────────────
@@ -474,14 +512,24 @@ export const adminGetDashboardStats = createServerFn({ method: "POST" })
 
 // ─── Generic CRUD (minimal admin screens) ──────────────────────
 export const adminGenericList = createServerFn({ method: "POST" })
-  .validator((d: { token: string; table: string; orderBy?: string | undefined; ascending?: boolean | undefined; filter?: { column: string; value: string } | undefined }) => d)
+  .validator(
+    (d: {
+      token: string;
+      table: string;
+      orderBy?: string | undefined;
+      ascending?: boolean | undefined;
+      filter?: { column: string; value: string } | undefined;
+    }) => d,
+  )
   .handler(async ({ data }) => {
     await assertAdminSession(data.token);
     return genericList(data.table, data.orderBy, data.ascending, data.filter);
   });
 
 export const adminGenericSave = createServerFn({ method: "POST" })
-  .validator((d: { token: string; table: string; record: Record<string, unknown> & { id?: string } }) => d)
+  .validator(
+    (d: { token: string; table: string; record: Record<string, unknown> & { id?: string } }) => d,
+  )
   .handler(async ({ data }) => {
     await assertAdminSession(data.token);
     return genericSave(data.table, data.record);
