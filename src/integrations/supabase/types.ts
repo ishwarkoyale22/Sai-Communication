@@ -964,6 +964,9 @@ export type Database = {
           customer_name: string
           customer_phone: string
           discount_amount: number | null
+          gateway_name: string | null
+          gateway_order_id: string | null
+          gateway_payment_id: string | null
           id: string
           notes: string | null
           order_number: string
@@ -971,6 +974,7 @@ export type Database = {
           order_type: string | null
           payment_method: string | null
           payment_status: string | null
+          payment_verified_at: string | null
           total_amount: number
           updated_at: string | null
         }
@@ -982,6 +986,9 @@ export type Database = {
           customer_name: string
           customer_phone: string
           discount_amount?: number | null
+          gateway_name?: string | null
+          gateway_order_id?: string | null
+          gateway_payment_id?: string | null
           id?: string
           notes?: string | null
           order_number: string
@@ -989,6 +996,7 @@ export type Database = {
           order_type?: string | null
           payment_method?: string | null
           payment_status?: string | null
+          payment_verified_at?: string | null
           total_amount: number
           updated_at?: string | null
         }
@@ -1000,6 +1008,9 @@ export type Database = {
           customer_name?: string
           customer_phone?: string
           discount_amount?: number | null
+          gateway_name?: string | null
+          gateway_order_id?: string | null
+          gateway_payment_id?: string | null
           id?: string
           notes?: string | null
           order_number?: string
@@ -1007,10 +1018,46 @@ export type Database = {
           order_type?: string | null
           payment_method?: string | null
           payment_status?: string | null
+          payment_verified_at?: string | null
           total_amount?: number
           updated_at?: string | null
         }
         Relationships: []
+      }
+      payment_webhook_events: {
+        Row: {
+          created_at: string
+          event_key: string
+          event_type: string
+          gateway_name: string
+          order_id: string | null
+          payload: Json | null
+        }
+        Insert: {
+          created_at?: string
+          event_key: string
+          event_type: string
+          gateway_name: string
+          order_id?: string | null
+          payload?: Json | null
+        }
+        Update: {
+          created_at?: string
+          event_key?: string
+          event_type?: string
+          gateway_name?: string
+          order_id?: string | null
+          payload?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_webhook_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "website_orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       customer_profiles: {
         Row: {
@@ -1243,6 +1290,25 @@ export type Database = {
     }
     Functions: {
       current_staff_id: { Args: never; Returns: string }
+      web_set_order_gateway: {
+        Args: { p_order_id: string; p_gateway_name: string; p_gateway_order_id: string }
+        Returns: { id: string; order_number: string; total_amount: number }[]
+      }
+      web_apply_payment_result: {
+        Args: { p_gateway_order_id: string; p_gateway_payment_id: string | null; p_status: string }
+        Returns: { id: string; order_number: string; payment_status: string }[]
+      }
+      web_get_order_for_payment: {
+        Args: { p_order_id: string }
+        Returns: {
+          id: string
+          order_number: string
+          total_amount: number
+          payment_status: string
+          gateway_order_id: string | null
+          customer_phone: string
+        }[]
+      }
       web_save_customer_birthday: {
         Args: { p_name: string; p_phone: string; p_email: string | null; p_address: string | null; p_birthday: string }
         Returns: undefined

@@ -1,4 +1,4 @@
-﻿import { createHmac } from "crypto";
+﻿import { createHmac, timingSafeEqual } from "crypto";
 import type {
   PaymentProvider,
   CreateOrderParams,
@@ -7,6 +7,18 @@ import type {
   VerificationResult,
   WebhookEvent,
 } from "./types";
+
+/**
+ * Constant-time check that `signature` is the hex HMAC-SHA256 of `payload` under `secret`.
+ * Used for both Checkout.js callback signatures (key secret) and webhook signatures
+ * (webhook secret) — Razorpay uses a different secret for each.
+ */
+export function isValidRazorpaySignature(payload: string, signature: string, secret: string) {
+  const expected = createHmac("sha256", secret).update(payload).digest();
+  // Hex-decode the claimed signature; anything that isn't exactly 32 bytes of hex is invalid.
+  if (!/^[0-9a-fA-F]{64}$/.test(signature)) return false;
+  return timingSafeEqual(expected, Buffer.from(signature, "hex"));
+}
 
 /**
  * Razorpay Payment Provider
@@ -18,14 +30,15 @@ export class RazorpayProvider implements PaymentProvider {
   private keySecret: string;
 
   constructor(keyId?: string, keySecret?: string) {
-    this.keyId = keyId ?? process.env["VITE_RAZORPAY_KEY_ID"] ?? process.env["RAZORPAY_KEY_ID"] ?? "";
+    this.keyId =
+      keyId ?? process.env["RAZORPAY_KEY_ID"] ?? process.env["VITE_RAZORPAY_KEY_ID"] ?? "";
     this.keySecret = keySecret ?? process.env["RAZORPAY_KEY_SECRET"] ?? "";
   }
 
   async createOrder(params: CreateOrderParams): Promise<GatewayOrder> {
     if (!this.keyId || !this.keySecret) {
       throw new Error(
-        "Razorpay credentials not configured. Please set VITE_RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env"
+        "Razorpay credentials not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in the server environment",
       );
     }
 
@@ -52,7 +65,8 @@ export class RazorpayProvider implements PaymentProvider {
       if (!response.ok) {
         const errBody = await response.json().catch(() => ({}));
         throw new Error(
-          errBody.error?.description || `Razorpay order creation failed with status ${response.status}`
+          errBody.error?.description ||
+            `Razorpay order creation failed with status ${response.status}`,
         );
       }
 
@@ -75,11 +89,7 @@ export class RazorpayProvider implements PaymentProvider {
     }
 
     const payload = `${params.gatewayOrderId}|${params.gatewayPaymentId}`;
-    const expectedSignature = createHmac("sha256", this.keySecret)
-      .update(payload)
-      .digest("hex");
-
-    const isMatch = expectedSignature === params.signature;
+    const isMatch = isValidRazorpaySignature(payload, params.signature, this.keySecret);
     return {
       verified: isMatch,
       transactionId: params.gatewayPaymentId,
@@ -88,15 +98,14 @@ export class RazorpayProvider implements PaymentProvider {
   }
 
   async handleWebhook(rawBody: string, signature: string): Promise<WebhookEvent> {
-    if (!this.keySecret) {
-      throw new Error("RAZORPAY_KEY_SECRET is not configured on the server.");
+    // Webhooks are signed with the separate webhook secret configured in the Razorpay
+    // Dashboard, NOT the API key secret.
+    const webhookSecret = process.env["RAZORPAY_WEBHOOK_SECRET"];
+    if (!webhookSecret) {
+      throw new Error("RAZORPAY_WEBHOOK_SECRET is not configured on the server.");
     }
 
-    const expectedSignature = createHmac("sha256", this.keySecret)
-      .update(rawBody)
-      .digest("hex");
-
-    if (expectedSignature !== signature) {
+    if (!isValidRazorpaySignature(rawBody, signature, webhookSecret)) {
       throw new Error("Invalid Razorpay webhook signature.");
     }
 

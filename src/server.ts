@@ -55,12 +55,15 @@ const SUPABASE_URL = "https://egzcesgamwghmddxnent.supabase.co";
 // Report-Only to be useful (it still restricts which external origins can load/connect/frame).
 const CSP_DIRECTIVES = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  // checkout.razorpay.com serves Checkout.js; it is the only third-party script origin.
+  "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: https:",
-  `connect-src 'self' ${SUPABASE_URL} wss://egzcesgamwghmddxnent.supabase.co https://api.razorpay.com https://api.cashfree.com https://sandbox.cashfree.com`,
-  "frame-src https://www.google.com https://www.youtube.com https://www.youtube-nocookie.com",
+  // Razorpay Checkout talks to api.razorpay.com and reports telemetry to lumberjack.razorpay.com.
+  `connect-src 'self' ${SUPABASE_URL} wss://egzcesgamwghmddxnent.supabase.co https://api.razorpay.com https://lumberjack.razorpay.com`,
+  // The payment popup renders inside Razorpay-hosted iframes.
+  "frame-src https://www.google.com https://www.youtube.com https://www.youtube-nocookie.com https://api.razorpay.com https://checkout.razorpay.com",
   "worker-src 'self'",
   "manifest-src 'self'",
   "object-src 'none'",
