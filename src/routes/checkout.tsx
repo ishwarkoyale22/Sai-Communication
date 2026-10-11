@@ -22,6 +22,8 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { CheckoutFormData, Offer } from "@/lib/types";
 import { Tag, X as XIcon } from "lucide-react";
+import { ConsentCheckbox, PrivacyPolicyLink } from "@/components/privacy/ConsentCheckbox";
+import { recordConsent } from "@/lib/consent";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -74,6 +76,9 @@ function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState<Offer | null>(null);
   const [couponError, setCouponError] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
+
+  const [dataConsent, setDataConsent] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
 
   function setF<K extends keyof CheckoutFormData>(k: K, v: CheckoutFormData[K]) {
     setForm((f) => ({ ...f, [k]: v }));
@@ -280,6 +285,17 @@ function CheckoutPage() {
         }
       }
 
+      const consentBase = {
+        fullName: form.customer_name,
+        phone: form.customer_phone.replace(/[\s-]/g, ""),
+        email: form.customer_email || undefined,
+        sourcePage: "checkout",
+      } as const;
+      recordConsent({ ...consentBase, purpose: "order_processing", granted: dataConsent });
+      if (marketingConsent) {
+        recordConsent({ ...consentBase, purpose: "marketing_communications", granted: true });
+      }
+
       clearCart();
       const phone = form.customer_phone.replace(/[\s-]/g, "");
       // Reset the form (payment method back to Cash) so a fresh checkout —
@@ -417,6 +433,15 @@ function CheckoutPage() {
                   />
                 </div>
               </div>
+              <div className="space-y-2.5 border-t border-border pt-3">
+                <ConsentCheckbox id="co-consent-data" checked={dataConsent} onCheckedChange={setDataConsent}>
+                  I agree that Sai Communication may use these details to process my order and delivery,
+                  as described in the <PrivacyPolicyLink />. *
+                </ConsentCheckbox>
+                <ConsentCheckbox id="co-consent-marketing" checked={marketingConsent} onCheckedChange={setMarketingConsent}>
+                  I'd also like to receive order and offer updates by phone/WhatsApp/email (optional).
+                </ConsentCheckbox>
+              </div>
               <Button
                 className="w-full"
                 onClick={() => {
@@ -426,6 +451,10 @@ function CheckoutPage() {
                   }
                   if (!/^\d{10}$/.test(form.customer_phone.replace(/[\s-]/g, ""))) {
                     toast.error("Please enter a valid 10-digit mobile number.");
+                    return;
+                  }
+                  if (!dataConsent) {
+                    toast.error("Please agree to let us use your details to process this order.");
                     return;
                   }
                   setStep(2);

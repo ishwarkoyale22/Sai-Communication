@@ -214,6 +214,22 @@ export function SiteFooter() {
           </Link>
         </nav>
 
+        {/* Legal / privacy navigation row */}
+        <nav className="mt-3 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-[11px] text-slate-400">
+          <Link to="/privacy-policy" className="hover:text-[#F5A623] transition-colors">
+            Privacy Policy
+          </Link>
+          <Link to="/terms-and-conditions" className="hover:text-[#F5A623] transition-colors">
+            Terms &amp; Conditions
+          </Link>
+          <Link to="/data-rights-request" className="hover:text-[#F5A623] transition-colors">
+            Data Rights Request
+          </Link>
+          <a href={`mailto:${settings["grievance_email"] || email}`} className="hover:text-[#F5A623] transition-colors">
+            Grievance Officer: {settings["grievance_officer_name"] || "Vijay Sir"} — {settings["grievance_email"] || email}
+          </a>
+        </nav>
+
         {/* Copyright notice */}
         <p className="mt-4 text-xs text-slate-400">
           Copyright © {year} | Designed with ❤️ for{" "}

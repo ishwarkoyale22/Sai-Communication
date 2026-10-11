@@ -16,6 +16,7 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DataRightsRequestRouteImport } from './routes/data-rights-request'
 import { Route as GalleryRouteImport } from './routes/gallery'
 import { Route as GiftHampersRouteImport } from './routes/gift-hampers'
 import { Route as OffersRouteImport } from './routes/offers'
@@ -64,6 +65,11 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DataRightsRequestRoute = DataRightsRequestRouteImport.update({
+  id: '/data-rights-request',
+  path: '/data-rights-request',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GalleryRoute = GalleryRouteImport.update({
@@ -145,6 +151,7 @@ export interface FileRoutesByFullPath {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/data-rights-request': typeof DataRightsRequestRoute
   '/gallery': typeof GalleryRoute
   '/gift-hampers': typeof GiftHampersRoute
   '/offers': typeof OffersRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/data-rights-request': typeof DataRightsRequestRoute
   '/gallery': typeof GalleryRoute
   '/gift-hampers': typeof GiftHampersRoute
   '/offers': typeof OffersRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/cart': typeof CartRoute
   '/checkout': typeof CheckoutRoute
   '/contact': typeof ContactRoute
+  '/data-rights-request': typeof DataRightsRequestRoute
   '/gallery': typeof GalleryRoute
   '/gift-hampers': typeof GiftHampersRoute
   '/offers': typeof OffersRoute
@@ -217,6 +226,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/data-rights-request'
     | '/gallery'
     | '/gift-hampers'
     | '/offers'
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/data-rights-request'
     | '/gallery'
     | '/gift-hampers'
     | '/offers'
@@ -263,6 +274,7 @@ export interface FileRouteTypes {
     | '/cart'
     | '/checkout'
     | '/contact'
+    | '/data-rights-request'
     | '/gallery'
     | '/gift-hampers'
     | '/offers'
@@ -287,6 +299,7 @@ export interface RootRouteChildren {
   CartRoute: typeof CartRoute
   CheckoutRoute: typeof CheckoutRoute
   ContactRoute: typeof ContactRoute
+  DataRightsRequestRoute: typeof DataRightsRequestRoute
   GalleryRoute: typeof GalleryRoute
   GiftHampersRoute: typeof GiftHampersRoute
   OffersRoute: typeof OffersRoute
@@ -352,6 +365,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/data-rights-request': {
+      id: '/data-rights-request'
+      path: '/data-rights-request'
+      fullPath: '/data-rights-request'
+      preLoaderRoute: typeof DataRightsRequestRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/gallery': {
@@ -463,6 +483,7 @@ const rootRouteChildren: RootRouteChildren = {
   CartRoute: CartRoute,
   CheckoutRoute: CheckoutRoute,
   ContactRoute: ContactRoute,
+  DataRightsRequestRoute: DataRightsRequestRoute,
   GalleryRoute: GalleryRoute,
   GiftHampersRoute: GiftHampersRoute,
   OffersRoute: OffersRoute,
