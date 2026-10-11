@@ -25,6 +25,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import { PromoPopup } from "@/components/PromoPopup";
+import { ConsentBanner } from "@/components/privacy/ConsentBanner";
 import { cn } from "@/lib/utils";
 
 
@@ -198,6 +199,7 @@ function RootComponent() {
           {!isAdmin && <BottomNav />}
           {!isAdmin && <WhatsAppButton />}
           {!isAdmin && <PromoPopup />}
+          {!isAdmin && <ConsentBanner />}
         </div>
         <Toaster position="top-center" richColors />
       </CartProvider>

@@ -16,6 +16,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
+import { ConsentCheckbox, PrivacyPolicyLink } from "@/components/privacy/ConsentCheckbox";
+import { recordConsent } from "@/lib/consent";
+import { Link } from "@tanstack/react-router";
 
 const PHONE_RE = /^[6-9]\d{9}$/;
 
@@ -196,6 +199,9 @@ function SignupForm({ onSuccess, onSwitchToLogin }: { onSuccess: () => void; onS
   const { signUp } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [termsConsent, setTermsConsent] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
+  const [consentError, setConsentError] = useState(false);
 
   const {
     register,
@@ -204,8 +210,23 @@ function SignupForm({ onSuccess, onSwitchToLogin }: { onSuccess: () => void; onS
   } = useForm<SignupValues>({ resolver: zodResolver(signupSchema) });
 
   async function onSubmit(values: SignupValues) {
+    if (!termsConsent) {
+      setConsentError(true);
+      return;
+    }
+    setConsentError(false);
     const { error, needsEmailConfirmation } = await signUp(values);
     if (error) { toast.error(error); return; }
+    const base = {
+      fullName: values.fullName,
+      phone: values.phone,
+      email: values.email,
+      sourcePage: "signup_form",
+    } as const;
+    recordConsent({ ...base, purpose: "account_creation", granted: true });
+    if (marketingConsent) {
+      recordConsent({ ...base, purpose: "marketing_communications", granted: true });
+    }
     if (needsEmailConfirmation) {
       toast.success("Account created! Check your email to confirm your address, then log in.");
     } else {
@@ -265,6 +286,23 @@ function SignupForm({ onSuccess, onSwitchToLogin }: { onSuccess: () => void; onS
           </button>
         </div>
         {errors.confirmPassword && <p className="text-xs text-destructive-foreground">{errors.confirmPassword.message}</p>}
+      </div>
+
+      <div className="space-y-2.5 border-t border-border pt-3">
+        <ConsentCheckbox id="signup-consent-terms" checked={termsConsent} onCheckedChange={setTermsConsent}>
+          I agree to the{" "}
+          <Link to="/terms-and-conditions" className="font-medium text-primary hover:underline">
+            Terms &amp; Conditions
+          </Link>{" "}
+          and <PrivacyPolicyLink />, and consent to my data being processed to create and manage my
+          account. *
+        </ConsentCheckbox>
+        {consentError && (
+          <p className="text-xs text-destructive-foreground">Please agree to the Terms and Privacy Policy to continue.</p>
+        )}
+        <ConsentCheckbox id="signup-consent-marketing" checked={marketingConsent} onCheckedChange={setMarketingConsent}>
+          I'd also like to receive offers and updates by phone/WhatsApp/email (optional).
+        </ConsentCheckbox>
       </div>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>

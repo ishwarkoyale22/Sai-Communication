@@ -1,8 +1,14 @@
-﻿import { createFileRoute } from "@tanstack/react-router";
-import { Shield, Database, Eye, Lock, Globe, UserCheck, RefreshCw, Bell } from "lucide-react";
+﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { Shield, Database, Eye, Lock, Globe, UserCheck, RefreshCw, Bell, Clock, Gavel } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 import { useSettings } from "@/hooks/useSettings";
+
+// LEGAL REVIEW REQUIRED: this entire page is drafted to satisfy the Digital Personal Data
+// Protection Act, 2023 (DPDP Act) and should be reviewed by a lawyer before being relied on —
+// in particular the retention periods, the Grievance Officer designation, and the "legal
+// basis" wording in "How We Use Your Information" (consent vs. legitimate use vs. contract).
+// See DPDP_PROGRESS.md at the repo root for what drove each addition.
 
 export const Route = createFileRoute("/privacy-policy")({
   head: () => ({
@@ -72,14 +78,37 @@ const SECTIONS = [
     ],
   },
   {
+    icon: Clock,
+    title: "Data Retention",
+    content: [
+      "**[LEGAL REVIEW] Enquiry & repair booking records** — retained for 3 years from the last interaction, to support warranty claims and service history.",
+      "**[LEGAL REVIEW] Purchase/order records** — retained for 8 years to meet GST and other statutory record-keeping obligations under Indian tax law.",
+      "**[LEGAL REVIEW] Account data** (name, phone, email, password hash) — retained until you request deletion or close your account, then erased within 30 days except where we must keep it to comply with law.",
+      "**Consent records** — retained for 3 years after the consent is withdrawn or expires, as evidence of compliance.",
+      "After the applicable retention period, personal data is deleted or irreversibly anonymised.",
+    ],
+  },
+  {
     icon: UserCheck,
-    title: "Your Rights",
+    title: "Your Rights as a Data Principal",
     content: [
       "**Access** — you may request a copy of the personal data we hold about you.",
-      "**Correction** — you can ask us to update inaccurate or incomplete information.",
-      "**Deletion** — you may request erasure of your data, subject to any legal retention obligations.",
-      "**Opt-out** — reply STOP to any promotional message from us to be removed from our marketing list.",
-      "To exercise any right, contact us at the address or phone number listed on our Contact page.",
+      "**Correction & completion** — you can ask us to update inaccurate, incomplete or outdated information.",
+      "**Erasure** — you may request deletion of your data once it is no longer needed for the purpose it was collected, subject to legal retention obligations.",
+      "**Withdraw consent** — you may withdraw any consent you previously gave, at any time, as easily as you gave it. Withdrawal does not affect the lawfulness of processing done before withdrawal.",
+      "**Nominate** — you may nominate another individual to exercise these rights on your behalf in the event of death or incapacity.",
+      "**Grievance redressal** — you may raise a complaint about how we handle your data (see below) before approaching the Data Protection Board of India.",
+      "To exercise any of these rights, submit a request via our Data Rights Request page (linked in the footer) or contact our Grievance Officer below. We aim to respond within 30 days.",
+    ],
+  },
+  {
+    icon: Gavel,
+    title: "Grievance Redressal",
+    content: [
+      "**[LEGAL REVIEW] Grievance Officer:** Vijay Sir — reachable via the phone number and email on our Contact page, and via the footer of every page on this website.",
+      "You may raise any concern about how your personal data is collected, used or shared by submitting a request through our Data Rights Request page, calling us, or emailing our Grievance Officer directly.",
+      "We will acknowledge your grievance and aim to resolve it within **30 days**.",
+      "If you are not satisfied with our response, you may approach the **Data Protection Board of India** under the Digital Personal Data Protection Act, 2023.",
     ],
   },
   {
@@ -169,6 +198,12 @@ function PrivacyPolicyPage() {
           <h2 className="font-serif text-xl font-medium">Questions about your privacy?</h2>
           <p className="mt-2 text-sm text-muted-foreground">We are happy to help. Reach us in store or over the phone.</p>
           <div className="mt-4 flex flex-wrap items-center justify-center gap-4 text-sm">
+            <Link
+              to="/data-rights-request"
+              className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            >
+              Submit a Data Rights Request
+            </Link>
             {settings["phone"] && (
               <a href={`tel:${settings["phone"]}`} className="inline-flex items-center gap-1.5 font-medium text-primary hover:underline">
                 {settings["phone"]}

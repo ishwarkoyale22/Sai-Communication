@@ -1,5 +1,5 @@
 ﻿import { createFileRoute, Link } from "@tanstack/react-router";
-import { Scale, ShoppingBag, Wrench, RefreshCw, AlertTriangle, FileText, Phone, Globe } from "lucide-react";
+import { Scale, ShoppingBag, Wrench, RefreshCw, AlertTriangle, FileText, Phone, Globe, Shield } from "lucide-react";
 import { Reveal } from "@/components/Reveal";
 import { TextReveal } from "@/components/TextReveal";
 import { useSettings } from "@/hooks/useSettings";
@@ -81,6 +81,17 @@ const SECTIONS = [
       "All content on this website — including text, images, graphics, logos and layout — is the property of Sai Communication or its content suppliers.",
       "You may not reproduce, redistribute or commercially exploit any content from this site without our prior written permission.",
       "Brand names, logos and trademarks displayed on this website belong to their respective owners and are used solely for identification purposes.",
+    ],
+  },
+  {
+    icon: Shield,
+    title: "Data Protection",
+    content: [
+      "We collect and process your personal data (name, phone, email, address and, where relevant, device details) only as described in our Privacy Policy, and only with your consent or another lawful basis under the Digital Personal Data Protection Act, 2023 (DPDP Act).",
+      "By submitting a form on this website or creating an account, you confirm that the consent you give at that point is informed, specific and freely given, and you may withdraw it at any time via our Data Rights Request page without affecting services already provided.",
+      "**[LEGAL REVIEW]** We retain personal data only for as long as necessary for the purpose collected, or as required by law, as detailed in the Privacy Policy's Data Retention section.",
+      "You have the right to access, correct or erase your personal data, nominate another person to act on your behalf, and raise a grievance with our Grievance Officer, as described in our Privacy Policy.",
+      "In the event of a personal data breach likely to affect you, we will notify you and the Data Protection Board of India as required under the DPDP Act.",
     ],
   },
   {

@@ -230,6 +230,81 @@ export type Database = {
           },
         ]
       }
+      consent_records: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          granted: boolean
+          id: string
+          phone: string | null
+          policy_version: string
+          purpose: string
+          source_page: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          granted: boolean
+          id?: string
+          phone?: string | null
+          policy_version?: string
+          purpose: string
+          source_page: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          granted?: boolean
+          id?: string
+          phone?: string | null
+          policy_version?: string
+          purpose?: string
+          source_page?: string
+        }
+        Relationships: []
+      }
+      data_rights_requests: {
+        Row: {
+          created_at: string
+          details: string | null
+          email: string | null
+          full_name: string
+          id: string
+          phone: string
+          request_type: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          details?: string | null
+          email?: string | null
+          full_name: string
+          id?: string
+          phone: string
+          request_type: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          details?: string | null
+          email?: string | null
+          full_name?: string
+          id?: string
+          phone?: string
+          request_type?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       enquiries: {
         Row: {
           created_at: string | null

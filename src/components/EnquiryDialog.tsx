@@ -14,6 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Product } from "@/lib/types";
+import { ConsentCheckbox, PrivacyPolicyLink } from "@/components/privacy/ConsentCheckbox";
+import { recordConsent } from "@/lib/consent";
 
 export const enquirySchema = z.object({
   customer_name: z.string().trim().min(2, "Please enter your name").max(100),
@@ -40,6 +42,8 @@ export function EnquiryForm({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [dataConsent, setDataConsent] = useState(false);
+  const [marketingConsent, setMarketingConsent] = useState(false);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -48,6 +52,10 @@ export function EnquiryForm({
       const next: Record<string, string> = {};
       for (const issue of parsed.error.issues) next[String(issue.path[0])] = issue.message;
       setErrors(next);
+      return;
+    }
+    if (!dataConsent) {
+      toast.error("Please agree to let us use your details to respond to this enquiry.");
       return;
     }
     setErrors({});
@@ -64,8 +72,20 @@ export function EnquiryForm({
       toast.error("Could not send enquiry. Please try again.");
       return;
     }
+    const base = {
+      fullName: parsed.data.customer_name,
+      phone: parsed.data.phone,
+      email: parsed.data.email || undefined,
+      sourcePage: "enquiry_form",
+    } as const;
+    recordConsent({ ...base, purpose: "repair_enquiry", granted: true });
+    if (marketingConsent) {
+      recordConsent({ ...base, purpose: "marketing_communications", granted: true });
+    }
     toast.success("Thank you! We'll call you shortly.");
     setValues({ customer_name: "", phone: "", email: "", message: "" });
+    setDataConsent(false);
+    setMarketingConsent(false);
     onDone?.();
   }
 
@@ -126,6 +146,15 @@ export function EnquiryForm({
           onChange={(e) => setValues({ ...values, message: e.target.value })}
           placeholder="Is EMI available? What's the best price?"
         />
+      </div>
+      <div className="space-y-2.5 border-t border-border pt-3">
+        <ConsentCheckbox id="enq-consent-data" checked={dataConsent} onCheckedChange={setDataConsent}>
+          I agree that Sai Communication may use my name, phone number and email to respond to this
+          enquiry, as described in the <PrivacyPolicyLink />. *
+        </ConsentCheckbox>
+        <ConsentCheckbox id="enq-consent-marketing" checked={marketingConsent} onCheckedChange={setMarketingConsent}>
+          I'd also like to receive offers and updates by phone/WhatsApp/email (optional).
+        </ConsentCheckbox>
       </div>
       <Button type="submit" className="w-full" disabled={saving}>
         {saving ? "Sending..." : "Submit Enquiry"}
