@@ -9,7 +9,12 @@ export const Route = createFileRoute("/api/payments/razorpay-webhook")({
       POST: async ({ request }) => {
         // Imported lazily so the secret-reading, Node-only payment module can never be pulled
         // into a client chunk through this route file.
-        const { handleRazorpayWebhook, PaymentConfigError } = await import("@/lib/payment.server");
+        const {
+          handleRazorpayWebhook,
+          PaymentConfigError,
+          WebhookSignatureError,
+          WebhookPayloadError,
+        } = await import("@/lib/payment.server");
 
         // The signature is computed over the exact bytes Razorpay sent, so read the raw text —
         // never re-serialize parsed JSON before verifying.
@@ -22,7 +27,8 @@ export const Route = createFileRoute("/api/payments/razorpay-webhook")({
         } catch (err) {
           const message = err instanceof Error ? err.message : "Webhook processing failed";
           // Bad/missing signature or malformed body: a client error Razorpay should not retry.
-          if (/signature/i.test(message) || err instanceof SyntaxError) {
+          if (err instanceof WebhookSignatureError || err instanceof WebhookPayloadError) {
+            console.warn("[razorpay-webhook] rejected:", message);
             return Response.json({ ok: false, error: "Invalid webhook request" }, { status: 400 });
           }
           if (err instanceof PaymentConfigError) {

@@ -31,7 +31,6 @@ import {
   saveHamperProduct,
   removeHamperProduct,
   listHamperProductsAdmin,
-  createOrder,
   getOrderStatus,
   listOrdersAdmin,
   updateOrderStatus,
@@ -302,10 +301,6 @@ export const adminListHamperProducts = createServerFn({ method: "POST" })
   });
 
 // ─── Orders ───────────────────────────────────────────────────
-export const publicCreateOrder = createServerFn({ method: "POST" })
-  .validator((d: Parameters<typeof createOrder>[0]) => d)
-  .handler(async ({ data }) => createOrder(data));
-
 export const publicGetOrderStatus = createServerFn({ method: "POST" })
   .validator((d: { phone: string }) => d)
   .handler(async ({ data }) => getOrderStatus(data.phone));

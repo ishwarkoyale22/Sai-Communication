@@ -1,4 +1,4 @@
-﻿import { createHmac, timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual } from "crypto";
 import type {
   PaymentProvider,
   CreateOrderParams,
@@ -6,6 +6,7 @@ import type {
   VerifyParams,
   VerificationResult,
   WebhookEvent,
+  GatewayPayment,
 } from "./types";
 
 /**
@@ -94,6 +95,52 @@ export class RazorpayProvider implements PaymentProvider {
       verified: isMatch,
       transactionId: params.gatewayPaymentId,
       status: isMatch ? "paid" : "failed",
+    };
+  }
+
+  /**
+   * Asks Razorpay (server-to-server, with our key pair) what it actually recorded for a payment.
+   * The Checkout.js callback only proves the signature of (order_id|payment_id); it says nothing
+   * about the amount or currency, so those must come from here.
+   */
+  async fetchPayment(gatewayPaymentId: string): Promise<GatewayPayment> {
+    if (!this.keyId || !this.keySecret) {
+      throw new Error("Razorpay credentials not configured.");
+    }
+    // The id is interpolated into a URL path: accept only Razorpay's own id shape.
+    if (!/^pay_[A-Za-z0-9]{6,40}$/.test(gatewayPaymentId)) {
+      throw new Error("Invalid payment id.");
+    }
+    const auth = Buffer.from(`${this.keyId}:${this.keySecret}`).toString("base64");
+    const response = await fetch(`https://api.razorpay.com/v1/payments/${gatewayPaymentId}`, {
+      method: "GET",
+      headers: { Authorization: `Basic ${auth}` },
+    });
+    if (!response.ok) {
+      throw new Error(`Razorpay payment lookup failed with status ${response.status}`);
+    }
+    const data = (await response.json()) as {
+      id?: unknown;
+      order_id?: unknown;
+      amount?: unknown;
+      currency?: unknown;
+      status?: unknown;
+    };
+    if (
+      typeof data.id !== "string" ||
+      typeof data.order_id !== "string" ||
+      typeof data.amount !== "number" ||
+      typeof data.currency !== "string" ||
+      typeof data.status !== "string"
+    ) {
+      throw new Error("Razorpay payment lookup returned an unexpected response.");
+    }
+    return {
+      id: data.id,
+      orderId: data.order_id,
+      amount: data.amount,
+      currency: data.currency.toUpperCase(),
+      status: data.status,
     };
   }
 

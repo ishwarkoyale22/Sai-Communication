@@ -4,6 +4,14 @@
 // For user-authenticated queries (with RLS), use the auth middleware instead.
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
+// NOTE: manually added import — this file is otherwise auto-generated. The accompanying guard
+// below (resolveSupabaseAdminKey) fixes a real bug: an unset/placeholder SUPABASE_SERVICE_ROLE_KEY
+// (e.g. "REPLACE_ME" while setting up Razorpay) used to be sent to Supabase as-is, since it is
+// non-empty and therefore won the `||` fallback chain below. Every admin query then failed with
+// 401, which checkout.server.ts's inventory lookup folded into a misleading
+// "product is no longer available" error — unrelated to actual stock. If this file gets
+// regenerated, re-apply this import + the resolveSupabaseAdminKey() call below.
+import { resolveSupabaseAdminKey } from '@/lib/env-validation';
 
 function isNewSupabaseApiKey(value: string): boolean {
   return value.startsWith('sb_publishable_') || value.startsWith('sb_secret_');
@@ -31,10 +39,15 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 
 function createSupabaseAdminClient() {
   const SUPABASE_URL = process.env['SUPABASE_URL'] || process.env['VITE_SUPABASE_URL'];
-  const SUPABASE_SERVICE_ROLE_KEY =
-    process.env['SUPABASE_SERVICE_ROLE_KEY'] ||
-    process.env['SUPABASE_PUBLISHABLE_KEY'] ||
-    process.env['VITE_SUPABASE_PUBLISHABLE_KEY'];
+  const publishableKey =
+    process.env['SUPABASE_PUBLISHABLE_KEY'] || process.env['VITE_SUPABASE_PUBLISHABLE_KEY'];
+  // Only use SUPABASE_SERVICE_ROLE_KEY when it actually looks like a real Supabase secret key —
+  // see the NOTE above. A missing/invalid value safely falls back to the publishable key, same as
+  // the previous behaviour for an *unset* key.
+  const SUPABASE_SERVICE_ROLE_KEY = resolveSupabaseAdminKey(
+    process.env['SUPABASE_SERVICE_ROLE_KEY'],
+    publishableKey,
+  );
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     const missing = [

@@ -177,3 +177,55 @@ describe("RazorpayProvider.createOrder", () => {
     );
   });
 });
+
+describe("RazorpayProvider.fetchPayment", () => {
+  const provider = new RazorpayProvider(KEY_ID, KEY_SECRET);
+  const realFetch = globalThis.fetch;
+  afterEach(() => {
+    globalThis.fetch = realFetch;
+  });
+  const mockFetch = (res: { ok: boolean; status?: number; json?: unknown }) => {
+    const calls: { url: string; init: any }[] = [];
+    globalThis.fetch = (async (url: string, init: any) => {
+      calls.push({ url, init });
+      return { ok: res.ok, status: res.status ?? 200, json: async () => res.json };
+    }) as any;
+    return calls;
+  };
+
+  test("GETs the payment with Basic auth and normalises the result", async () => {
+    const calls = mockFetch({
+      ok: true,
+      json: { id: "pay_Abc123XYZ789", order_id: "order_1", amount: 50000, currency: "inr", status: "captured" },
+    });
+    const p = await provider.fetchPayment("pay_Abc123XYZ789");
+    assert.deepEqual(p, { id: "pay_Abc123XYZ789", orderId: "order_1", amount: 50000, currency: "INR", status: "captured" });
+    assert.equal(calls[0]!.url, "https://api.razorpay.com/v1/payments/pay_Abc123XYZ789");
+    assert.equal(calls[0]!.init.method, "GET");
+    assert.match(calls[0]!.init.headers.Authorization, /^Basic /);
+  });
+
+  test("rejects ids that are not Razorpay payment ids (no path injection)", async () => {
+    const calls = mockFetch({ ok: true, json: {} });
+    for (const bad of ["../orders", "pay_abc/../x", "", "order_123456", "pay_a b c d e f"]) {
+      await assert.rejects(() => provider.fetchPayment(bad), /Invalid payment id/);
+    }
+    assert.equal(calls.length, 0);
+  });
+
+  test("surfaces HTTP errors", async () => {
+    mockFetch({ ok: false, status: 404 });
+    await assert.rejects(() => provider.fetchPayment("pay_Abc123XYZ789"), /status 404/);
+  });
+
+  test("rejects an unexpected response shape", async () => {
+    mockFetch({ ok: true, json: { id: "pay_Abc123XYZ789", amount: "500" } });
+    await assert.rejects(() => provider.fetchPayment("pay_Abc123XYZ789"), /unexpected response/);
+  });
+
+  test("refuses to call Razorpay without credentials", async () => {
+    const calls = mockFetch({ ok: true, json: {} });
+    await assert.rejects(() => new RazorpayProvider("", "").fetchPayment("pay_Abc123XYZ789"), /not configured/);
+    assert.equal(calls.length, 0);
+  });
+});

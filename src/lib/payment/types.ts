@@ -1,4 +1,4 @@
-﻿// Payment Provider Abstraction Layer
+// Payment Provider Abstraction Layer
 // Drop in any gateway by implementing PaymentProvider
 
 export interface CreateOrderParams {
@@ -39,9 +39,20 @@ export interface WebhookEvent {
   metadata: Record<string, unknown>;
 }
 
+// What the gateway itself reports about a payment (fetched server-to-server, never from the browser).
+export interface GatewayPayment {
+  id: string;
+  orderId: string;      // gateway order this payment belongs to
+  amount: number;       // smallest currency unit (paise)
+  currency: string;
+  status: string;       // gateway-specific, e.g. "captured"
+}
+
 export interface PaymentProvider {
   name: string;
   createOrder(params: CreateOrderParams): Promise<GatewayOrder>;
   verifyPayment(params: VerifyParams): Promise<VerificationResult>;
   handleWebhook(rawBody: string, signature: string): Promise<WebhookEvent>;
+  // Optional: providers that can look a payment up server-side. Callers must fail closed if absent.
+  fetchPayment?(gatewayPaymentId: string): Promise<GatewayPayment>;
 }

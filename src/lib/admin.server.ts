@@ -1,4 +1,5 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { callRpc } from "@/lib/rpc.server";
 import { randomUUID, timingSafeEqual } from "crypto";
 
 // ─── Admin Session Auth ────────────────────────────────────────
@@ -185,13 +186,6 @@ export async function listBrandsAdmin() {
 }
 
 // ─── Repair Enquiries ──────────────────────────────────────────
-
-function generateEnquiryNumber(prefix: string): string {
-  const date = new Date();
-  const d = date.toISOString().slice(0, 10).replace(/-/g, "");
-  const rand = Math.floor(1000 + Math.random() * 9000);
-  return `${prefix}-${d}-${rand}`;
-}
 
 export async function submitRepairEnquiry(input: {
   customer_name: string;
@@ -408,51 +402,6 @@ export async function listHamperProductsAdmin() {
 
 // ─── Orders ───────────────────────────────────────────────────
 
-export async function createOrder(input: {
-  customer_name: string;
-  customer_phone: string;
-  customer_email?: string | null;
-  order_type?: string;
-  total_amount: number;
-  payment_method?: string | null;
-  notes?: string | null;
-  items: Array<{
-    item_type: string;
-    inventory_id?: string | null;
-    hamper_item_id?: string | null;
-    item_name: string;
-    quantity: number;
-    unit_price: number;
-    total_price: number;
-  }>;
-}) {
-  const order_id = crypto.randomUUID();
-  const order_number = generateEnquiryNumber("SC");
-
-  const { error: orderError } = await supabaseAdmin
-    .from("website_orders")
-    .insert({
-      id: order_id,
-      order_number,
-      customer_name: input.customer_name,
-      customer_phone: input.customer_phone,
-      customer_email: input.customer_email ?? null,
-      order_type: input.order_type ?? "product",
-      total_amount: input.total_amount,
-      payment_method: input.payment_method ?? null,
-      payment_status: "pending",
-      order_status: "pending",
-      notes: input.notes ?? null,
-    });
-  if (orderError) throw new Error(orderError.message);
-
-  const orderItems = input.items.map((item) => ({ order_id, ...item }));
-  const { error: itemsError } = await supabaseAdmin.from("website_order_items").insert(orderItems);
-  if (itemsError) throw new Error(itemsError.message);
-
-  return { order_id, order_number };
-}
-
 export async function getOrderStatus(phone: string) {
   // Returns all orders for a phone number (order tracking is phone-based).
   const { data, error } = await supabaseAdmin
@@ -479,23 +428,43 @@ export async function listOrdersAdmin(filters?: { order_type?: string; order_sta
   return data ?? [];
 }
 
-export async function updateOrderStatus(id: string, order_status: string) {
-  const { error } = await supabaseAdmin
-    .from("website_orders")
-    .update({ order_status })
-    .eq("id", id);
-  if (error) throw new Error(error.message);
+type AdminRpcDb = Pick<typeof supabaseAdmin, "rpc">;
+
+// Order status and manual payment changes go through SECURITY DEFINER functions that validate the
+// transition in the database (service_role has no UPDATE privilege on website_orders on purpose).
+// Callers must already have passed assertAdminSession.
+export const ADMIN_ORDER_STATUSES = ["pending", "confirmed", "processing", "ready", "delivered", "cancelled"] as const;
+export const ADMIN_PAYMENT_METHODS = ["cash", "upi", "card", "emi", "credit"] as const;
+
+export async function updateOrderStatus(id: string, order_status: string, db: AdminRpcDb = supabaseAdmin) {
+  if (!(ADMIN_ORDER_STATUSES as readonly string[]).includes(order_status)) {
+    throw new Error("Invalid order status.");
+  }
+  const { error } = await callRpc(db, "web_admin_set_order_status", {
+    p_order_id: id,
+    p_status: order_status,
+  });
+  if (error) {
+    console.error("[admin] web_admin_set_order_status failed:", error.code);
+    throw new Error("Could not update the order status.");
+  }
   return { ok: true };
 }
 
-// ─── Payments (website_orders.payment_status/payment_method directly) ──
+// ─── Payments (in-store / manual only; online orders are settled by Razorpay) ──
 
-export async function verifyAndMarkPaid(order_id: string, payment_method: string) {
-  const { error } = await supabaseAdmin
-    .from("website_orders")
-    .update({ payment_status: "paid", payment_method, order_status: "confirmed" })
-    .eq("id", order_id);
-  if (error) throw new Error(error.message);
+export async function verifyAndMarkPaid(order_id: string, payment_method: string, db: AdminRpcDb = supabaseAdmin) {
+  if (!(ADMIN_PAYMENT_METHODS as readonly string[]).includes(payment_method)) {
+    throw new Error("Invalid payment method.");
+  }
+  const { error } = await callRpc(db, "web_admin_mark_order_paid", {
+    p_order_id: order_id,
+    p_payment_method: payment_method,
+  });
+  if (error) {
+    console.error("[admin] web_admin_mark_order_paid failed:", error.code);
+    throw new Error("Could not mark the order as paid.");
+  }
   return { ok: true };
 }
 

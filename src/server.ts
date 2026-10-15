@@ -55,8 +55,9 @@ const SUPABASE_URL = "https://egzcesgamwghmddxnent.supabase.co";
 // Report-Only to be useful (it still restricts which external origins can load/connect/frame).
 const CSP_DIRECTIVES = [
   "default-src 'self'",
-  // checkout.razorpay.com serves Checkout.js; it is the only third-party script origin.
-  "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com",
+  // checkout.razorpay.com serves Checkout.js; cdn.razorpay.com serves its risk-detection bundle
+  // (loaded by Checkout.js itself). These are the only third-party script origins.
+  "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com https://cdn.razorpay.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com",
   "img-src 'self' data: https:",
