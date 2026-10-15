@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { formatINR } from "@/lib/format";
+import { recallOrderPhone } from "@/lib/order-handoff";
 
 export const Route = createFileRoute("/order-track")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -50,9 +51,9 @@ function statusClasses(status: string) {
 }
 
 function OrderTrackPage() {
-  const { phone: initPhone, order: initOrder } = Route.useSearch();
+  const { phone: urlPhone, order: initOrder } = Route.useSearch();
   const { user, isLoading: authLoading } = useAuth();
-  const [phone, setPhone] = useState(initPhone);
+  const [phone, setPhone] = useState(urlPhone);
   const [orderNumber, setOrderNumber] = useState(initOrder);
   const [results, setResults] = useState<WebsiteOrder[] | null>(null);
   const [error, setError] = useState("");
@@ -91,10 +92,15 @@ function OrderTrackPage() {
   }
 
   useEffect(() => {
-    if (initOrder && initPhone) {
-      performSearch(initOrder, initPhone);
+    if (!initOrder) return;
+    // Coming from the order-success page the phone is not in the URL: recall it (browser only,
+    // after mount, so server and client render the same markup) for that order only.
+    const p = urlPhone || recallOrderPhone(initOrder);
+    if (p) {
+      setPhone(p);
+      performSearch(initOrder, p);
     }
-  }, [initOrder, initPhone]);
+  }, [initOrder, urlPhone]);
 
   return (
     <div className="mx-auto max-w-lg px-4 py-16">

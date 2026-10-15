@@ -1,38 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, useEffect, useRef } from "react";
-import { useQuery } from "@tanstack/react-query";
-import {
-  Check,
-  ChevronRight,
-  User,
-  Truck,
-  CreditCard,
-  ShieldCheck,
-  ArrowLeft,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { Check, ChevronRight, User, Truck, Phone, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { formatINR } from "@/lib/format";
-import { financePartnersQuery } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { placeOrder } from "@/lib/checkout.functions";
-import {
-  createRazorpayOrder,
-  getPaymentConfig,
-  verifyRazorpayPayment,
-} from "@/lib/payment.functions";
+import { rememberOrderPhone } from "@/lib/order-handoff";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import type { CheckoutFormData, Offer } from "@/lib/types";
@@ -50,8 +27,6 @@ export const Route = createFileRoute("/checkout")({
 const STEPS = [
   { num: 1, label: "Your Details", icon: User },
   { num: 2, label: "Delivery", icon: Truck },
-  { num: 3, label: "Finance", icon: ShieldCheck },
-  { num: 4, label: "Payment", icon: CreditCard },
 ];
 
 const EMPTY_FORM: CheckoutFormData = {
@@ -69,54 +44,11 @@ const EMPTY_FORM: CheckoutFormData = {
   payment_method: "cash",
 };
 
-// Minimal typing for the parts of Razorpay's Checkout.js we use.
-type RazorpaySuccess = {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
-};
-type RazorpayInstance = {
-  open: () => void;
-  on: (event: "payment.failed", cb: (resp: { error?: { description?: string } }) => void) => void;
-};
-type RazorpayCtor = new (opts: {
-  key: string;
-  amount: number;
-  currency: string;
-  order_id: string;
-  name: string;
-  description: string;
-  prefill: { name: string; email: string; contact: string };
-  theme: { color: string };
-  handler: (resp: RazorpaySuccess) => void;
-  modal: { ondismiss: () => void };
-}) => RazorpayInstance;
-
-const RAZORPAY_SCRIPT_SRC = "https://checkout.razorpay.com/v1/checkout.js";
-
-function loadRazorpayScript(): Promise<RazorpayCtor | null> {
-  const existing = (window as unknown as { Razorpay?: RazorpayCtor }).Razorpay;
-  if (existing) return Promise.resolve(existing);
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = RAZORPAY_SCRIPT_SRC;
-    script.async = true;
-    script.onload = () =>
-      resolve((window as unknown as { Razorpay?: RazorpayCtor }).Razorpay ?? null);
-    script.onerror = () => resolve(null);
-    document.body.appendChild(script);
-  });
-}
-
-// idle → creating (order + gateway session) → awaiting (popup open) → verifying (server check)
-// → success navigates away; failed/cancelled leave the placed order intact so the shopper can retry.
-type PayState = "idle" | "creating" | "awaiting" | "verifying" | "failed" | "cancelled";
-
 function CheckoutPage() {
   const { items, total, clearCart, removeItem } = useCart();
   const { user, profile } = useAuth();
   const navigate = useNavigate();
-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step, setStep] = useState<1 | 2>(1);
   const [form, setForm] = useState<CheckoutFormData>(() =>
     profile
       ? {
@@ -128,21 +60,6 @@ function CheckoutPage() {
       : EMPTY_FORM,
   );
   const [loading, setLoading] = useState(false);
-  const { data: financePartners = [] } = useQuery(financePartnersQuery);
-
-  const { data: paymentConfig } = useQuery({
-    queryKey: ["payment-config"],
-    queryFn: () => getPaymentConfig(),
-    staleTime: 5 * 60 * 1000,
-  });
-  const onlineEnabled = paymentConfig?.onlineEnabled === true;
-  const [payState, setPayState] = useState<PayState>("idle");
-  const [payError, setPayError] = useState("");
-  // Set once the website order exists; a retry reuses it instead of placing a duplicate order.
-  const [pendingOrder, setPendingOrder] = useState<{ id: string; order_number: string } | null>(
-    null,
-  );
-
   const [couponInput, setCouponInput] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<Offer | null>(null);
   const [couponError, setCouponError] = useState("");
@@ -238,8 +155,6 @@ function CheckoutPage() {
     })();
   }, [items, removeItem]);
 
-  const selectedPartner = financePartners.find((p) => p.id === form.finance_partner_id);
-
   const discountAmount = appliedCoupon?.discount_value
     ? Math.min(Number(appliedCoupon.discount_value), total)
     : 0;
@@ -282,12 +197,6 @@ function CheckoutPage() {
     setCouponError("");
   }
 
-  const loanAmount = payableTotal - (form.finance_down_payment ?? 0);
-  const monthlyEMI =
-    selectedPartner && form.finance_tenure > 0 && loanAmount > 0
-      ? Math.ceil(loanAmount / form.finance_tenure)
-      : 0;
-
   const cleanPhone = form.customer_phone.replace(/[\s-]/g, "");
 
   function validateBeforeOrder(): boolean {
@@ -309,13 +218,6 @@ function CheckoutPage() {
     const noteParts: string[] = [];
     if (form.customer_address) noteParts.push(`Address: ${form.customer_address}`);
     noteParts.push(`Delivery: ${form.delivery_type}`);
-    if (form.payment_type === "emi") {
-      const partnerName = selectedPartner?.name ?? "TBD";
-      noteParts.push(
-        `EMI via ${partnerName}: ${form.finance_tenure} months, down payment ${formatINR(form.finance_down_payment)}, est. EMI ${formatINR(monthlyEMI)}/mo`,
-      );
-    }
-
     // Pricing/totals are recomputed server-side from the live catalog and
     // coupon table — the client only tells the server which items/
     // quantities were selected, never what they cost.
@@ -385,13 +287,11 @@ function CheckoutPage() {
     setStep(1);
     setAppliedCoupon(null);
     setCouponInput("");
-    setPendingOrder(null);
-    setPayState("idle");
-    setPayError("");
-    navigate({ to: "/order-success", search: { order_number, phone } });
+    // The phone number is handed over via sessionStorage, never the URL (PII + JSON-quoting).
+    rememberOrderPhone(order_number, phone);
+    navigate({ to: "/order-success", search: { order_number } });
   }
 
-  // In-store / cash / EMI path — unchanged behaviour: place the order and finish.
   async function handlePlaceOrder() {
     if (!validateBeforeOrder()) return;
     setLoading(true);
@@ -405,88 +305,6 @@ function CheckoutPage() {
       setLoading(false);
     }
   }
-
-  // Online path (Razorpay). The cart is only cleared after the server has verified the payment
-  // signature; any earlier exit leaves the pending order and cart intact so the shopper can retry.
-  async function handleOnlinePayment() {
-    if (!validateBeforeOrder()) return;
-    setPayError("");
-    setPayState("creating");
-    try {
-      let order = pendingOrder;
-      if (!order) {
-        const placed = await createWebsiteOrder();
-        order = { id: placed.order_id, order_number: placed.order_number };
-        setPendingOrder(order);
-        await recordOrderSideEffects();
-      }
-
-      const gateway = await createRazorpayOrder({
-        data: { orderId: order.id, customerPhone: cleanPhone },
-      });
-      const Razorpay = await loadRazorpayScript();
-      if (!Razorpay)
-        throw new Error("Could not load the payment window. Check your connection and retry.");
-
-      const orderRef = order;
-      const rzp = new Razorpay({
-        key: gateway.keyId,
-        amount: gateway.amount,
-        currency: gateway.currency,
-        order_id: gateway.gatewayOrderId,
-        name: "Sai Communication",
-        description: `Order ${orderRef.order_number}`,
-        prefill: { name: form.customer_name, email: form.customer_email, contact: cleanPhone },
-        theme: { color: "#F5A623" },
-        handler: async (resp) => {
-          setPayState("verifying");
-          try {
-            const result = await verifyRazorpayPayment({
-              data: {
-                orderId: orderRef.id,
-                gatewayOrderId: resp.razorpay_order_id,
-                gatewayPaymentId: resp.razorpay_payment_id,
-                signature: resp.razorpay_signature,
-              },
-            });
-            if (!result.verified) {
-              setPayState("failed");
-              setPayError(
-                "We could not verify your payment. If money was deducted, it will be refunded or confirmed shortly — contact the store with your order number.",
-              );
-              return;
-            }
-            finishCheckout(result.orderNumber);
-          } catch (err) {
-            setPayState("failed");
-            setPayError(
-              err instanceof Error
-                ? err.message
-                : "Payment verification failed. If money was deducted, contact the store with your order number.",
-            );
-          }
-        },
-        modal: {
-          ondismiss: () => {
-            setPayState((s) => (s === "awaiting" ? "cancelled" : s));
-          },
-        },
-      });
-      rzp.on("payment.failed", (resp) => {
-        setPayState("failed");
-        setPayError(resp.error?.description || "The payment failed. You can try again.");
-      });
-      setPayState("awaiting");
-      rzp.open();
-    } catch (err) {
-      setPayState("failed");
-      setPayError(
-        err instanceof Error ? err.message : "Could not start the payment. Please try again.",
-      );
-    }
-  }
-
-  const payBusy = payState === "creating" || payState === "awaiting" || payState === "verifying";
 
   if (items.length === 0) {
     return (
@@ -509,7 +327,7 @@ function CheckoutPage() {
           <div key={s.num} className="flex items-center">
             <button
               onClick={() => {
-                if (s.num < step) setStep(s.num as 1 | 2 | 3 | 4);
+                if (s.num < step) setStep(s.num as 1 | 2);
               }}
               className={cn(
                 "flex flex-col items-center gap-1",
@@ -687,290 +505,16 @@ function CheckoutPage() {
                 <Button variant="secondary" onClick={() => setStep(1)}>
                   <ArrowLeft className="size-4 mr-1" /> Back
                 </Button>
-                <Button className="flex-1" onClick={() => setStep(3)}>
-                  Continue <ChevronRight className="size-4 ml-1" />
+                <Button className="flex-1" onClick={handlePlaceOrder} disabled={loading}>
+                  {loading ? "Submitting..." : "Submit Order"}
                 </Button>
               </div>
-            </div>
-          )}
-
-          {/* Step 3: Finance */}
-          {step === 3 && (
-            <div className="card-surface rounded-2xl p-6 space-y-4">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <ShieldCheck className="size-5 text-primary" /> Payment Type
-              </h2>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {(
-                  [
-                    ["full", "💰", "Pay Full Amount", "One-time payment. No EMI."],
-                    ["emi", "📆", "Finance / EMI", "Split into monthly instalments."],
-                  ] as const
-                ).map(([val, icon, title, desc]) => (
-                  <button
-                    key={val}
-                    onClick={() => {
-                      // Keep payment_method in sync with the type so Step 4 never
-                      // shows "Place Order" enabled against a method that isn't
-                      // one of the currently visible options.
-                      setForm((f) => ({
-                        ...f,
-                        payment_type: val,
-                        payment_method: val === "emi" ? "emi" : "cash",
-                      }));
-                    }}
-                    className={cn(
-                      "rounded-xl border-2 p-4 text-left transition-colors",
-                      form.payment_type === val
-                        ? "border-primary bg-accent"
-                        : "border-border hover:border-border/80",
-                    )}
-                  >
-                    <span className="text-2xl">{icon}</span>
-                    <p className="mt-2 font-semibold">{title}</p>
-                    <p className="text-xs text-muted-foreground">{desc}</p>
-                  </button>
-                ))}
-              </div>
-
-              {form.payment_type === "emi" && (
-                <div className="mt-4 space-y-4 border-t border-border pt-4">
-                  {financePartners.length === 0 ? (
-                    <p className="text-sm text-muted-foreground">
-                      No finance partners configured. Please contact us at the store for EMI
-                      options.
-                    </p>
-                  ) : (
-                    <>
-                      <div className="space-y-2">
-                        <Label>Finance Partner</Label>
-                        <Select
-                          value={form.finance_partner_id}
-                          onValueChange={(v) => setF("finance_partner_id", v)}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select partner" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {financePartners.map((p) => (
-                              <SelectItem key={p.id} value={p.id}>
-                                {p.name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      {selectedPartner && (
-                        <>
-                          <div className="space-y-2">
-                            <Label>Tenure (months)</Label>
-                            <div className="flex flex-wrap gap-2">
-                              {(selectedPartner.available_tenures as number[]).map((t) => (
-                                <button
-                                  key={t}
-                                  onClick={() => setF("finance_tenure", t)}
-                                  className={cn(
-                                    "rounded-full border px-4 py-1.5 text-sm font-medium transition-colors",
-                                    form.finance_tenure === t
-                                      ? "border-primary bg-primary text-primary-foreground"
-                                      : "border-border text-muted-foreground hover:text-foreground",
-                                  )}
-                                >
-                                  {t} months
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="down-payment">Down Payment (₹)</Label>
-                            <Input
-                              id="down-payment"
-                              type="number"
-                              min={0}
-                              max={payableTotal}
-                              value={form.finance_down_payment}
-                              onChange={(e) => setF("finance_down_payment", Number(e.target.value))}
-                            />
-                          </div>
-                          {monthlyEMI > 0 && (
-                            <div className="rounded-xl bg-accent border border-primary/20 p-4 text-center">
-                              <p className="text-xs text-muted-foreground">Estimated Monthly EMI</p>
-                              <p className="text-2xl font-bold text-primary">
-                                {formatINR(monthlyEMI)} / month
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                for {form.finance_tenure} months after{" "}
-                                {formatINR(form.finance_down_payment)} down payment
-                              </p>
-                              <p className="mt-1 text-xs text-muted-foreground">
-                                Final EMI amount subject to finance partner approval.
-                              </p>
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-              )}
-
-              <div className="flex gap-2">
-                <Button variant="secondary" onClick={() => setStep(2)}>
-                  <ArrowLeft className="size-4 mr-1" /> Back
-                </Button>
-                <Button
-                  className="flex-1"
-                  onClick={() => {
-                    if (
-                      form.payment_type === "emi" &&
-                      financePartners.length > 0 &&
-                      !form.finance_partner_id
-                    ) {
-                      toast.error("Please choose a finance partner for EMI.");
-                      return;
-                    }
-                    setStep(4);
-                  }}
-                >
-                  Continue <ChevronRight className="size-4 ml-1" />
-                </Button>
-              </div>
-            </div>
-          )}
-
-          {/* Step 4: Payment */}
-          {step === 4 && (
-            <div className="card-surface rounded-2xl p-6 space-y-4">
-              <h2 className="text-xl font-bold flex items-center gap-2">
-                <CreditCard className="size-5 text-primary" /> Payment Method
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {onlineEnabled
-                  ? "Pay securely online now, or choose an in-store option and pay when you collect your order."
-                  : "Select how you would like to pay. Payment will be completed at the store or via our representative."}
-              </p>
-              <div className="grid gap-2 sm:grid-cols-2">
-                {(form.payment_type === "full"
-                  ? [
-                      ...(onlineEnabled
-                        ? [["razorpay", "🔒 Pay Online Now (UPI / Cards / Net Banking)"]]
-                        : []),
-                      ["cash", "💵 Cash (pay in store)"],
-                      ["upi", "📱 UPI / GPay / PhonePe (in store)"],
-                      ["credit_card", "💳 Credit Card (in store)"],
-                      ["debit_card", "🏧 Debit Card (in store)"],
-                      ["net_banking", "🏦 Net Banking (in store)"],
-                    ]
-                  : [["emi", "📆 EMI via Finance Partner"]]
-                ).map((item) => {
-                  const val = item[0]!;
-                  const label = item[1]!;
-                  return (
-                    <button
-                      key={val}
-                      disabled={payBusy}
-                      onClick={() => setF("payment_method", val)}
-                      className={cn(
-                        "rounded-xl border-2 p-3 text-left text-sm font-medium transition-colors disabled:opacity-60",
-                        form.payment_method === val
-                          ? "border-primary bg-accent"
-                          : "border-border hover:border-border/80",
-                      )}
-                    >
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-              {form.payment_method === "razorpay" && form.payment_type === "full" ? (
-                <div className="rounded-xl bg-secondary/50 border border-border p-4 text-xs text-muted-foreground">
-                  <p className="font-medium text-foreground mb-1">🔒 Secure online payment</p>
-                  You will pay {formatINR(payableTotal)} through Razorpay. Your order is confirmed
-                  only after the payment is verified by our server — closing the payment window just
-                  leaves your order unpaid and you can retry.
-                </div>
-              ) : (
-                <div className="rounded-xl bg-secondary/50 border border-border p-4 text-xs text-muted-foreground">
-                  <p className="font-medium text-foreground mb-1">ℹ️ Payment Information</p>
-                  Payment is collected by our store representative upon order fulfillment. Your
-                  order is secured by your unique order number.
-                </div>
-              )}
-              {payState === "verifying" && (
-                <div
-                  role="status"
-                  className="flex items-center gap-2 rounded-xl border border-border bg-secondary/50 p-3 text-sm"
-                >
-                  <Loader2 className="size-4 animate-spin text-primary" /> Verifying your payment —
-                  please don't close this page…
-                </div>
-              )}
-              {payState === "awaiting" && (
-                <div
-                  role="status"
-                  className="flex items-center gap-2 rounded-xl border border-border bg-secondary/50 p-3 text-sm"
-                >
-                  <Loader2 className="size-4 animate-spin text-primary" /> Complete the payment in
-                  the Razorpay window.
-                </div>
-              )}
-              {(payState === "failed" || payState === "cancelled") && (
-                <div
-                  role="alert"
-                  className="flex items-start gap-2 rounded-xl border border-destructive/40 bg-destructive/10 p-3 text-sm"
-                >
-                  <AlertCircle className="mt-0.5 size-4 shrink-0 text-destructive" />
-                  <div>
-                    <p className="font-medium">
-                      {payState === "cancelled" ? "Payment cancelled" : "Payment unsuccessful"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {payState === "cancelled"
-                        ? "You closed the payment window. Your order is saved but unpaid — try again below."
-                        : payError || "The payment could not be completed. You can try again."}
-                      {pendingOrder ? ` Order number: ${pendingOrder.order_number}.` : ""}
-                    </p>
-                  </div>
-                </div>
-              )}
-              <div className="flex gap-2">
-                <Button
-                  variant="secondary"
-                  onClick={() => setStep(3)}
-                  disabled={payBusy || !!pendingOrder}
-                >
-                  <ArrowLeft className="size-4 mr-1" /> Back
-                </Button>
-                {form.payment_method === "razorpay" && form.payment_type === "full" ? (
-                  <Button
-                    className="flex-1"
-                    size="lg"
-                    onClick={handleOnlinePayment}
-                    disabled={payBusy}
-                  >
-                    {payState === "creating" ? (
-                      <>
-                        <Loader2 className="mr-2 size-4 animate-spin" /> Preparing payment…
-                      </>
-                    ) : payState === "verifying" ? (
-                      "Verifying payment…"
-                    ) : payState === "failed" || payState === "cancelled" ? (
-                      `Retry payment · ${formatINR(payableTotal)}`
-                    ) : (
-                      `Pay ${formatINR(payableTotal)} securely`
-                    )}
-                  </Button>
-                ) : (
-                  <Button
-                    className="flex-1"
-                    size="lg"
-                    onClick={handlePlaceOrder}
-                    disabled={loading || !form.payment_method || !!pendingOrder}
-                  >
-                    {loading ? "Placing Order..." : "Place Order"}
-                  </Button>
-                )}
-              </div>
+              <a
+                href="tel:+917507575755"
+                className="flex items-center justify-center gap-2 rounded-xl border-2 border-primary px-4 py-3 font-semibold text-primary hover:bg-accent"
+              >
+                <Phone className="size-4" /> Prefer to talk? Call 7507575755
+              </a>
             </div>
           )}
         </div>
@@ -1044,11 +588,6 @@ function CheckoutPage() {
                 <span className="text-primary">{formatINR(payableTotal)}</span>
               </div>
             </div>
-            {form.payment_type === "emi" && monthlyEMI > 0 && (
-              <div className="mt-2 text-xs text-muted-foreground">
-                EMI: ~{formatINR(monthlyEMI)}/month × {form.finance_tenure} months
-              </div>
-            )}
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-﻿import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle, MessageCircle, Package, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,7 +7,6 @@ import { useSettings } from "@/hooks/useSettings";
 export const Route = createFileRoute("/order-success")({
   validateSearch: (search: Record<string, unknown>) => ({
     order_number: String(search["order_number"] ?? ""),
-    phone: String(search["phone"] ?? ""),
   }),
   head: () => ({
     meta: [
@@ -19,7 +18,7 @@ export const Route = createFileRoute("/order-success")({
 });
 
 function OrderSuccessPage() {
-  const { order_number, phone } = Route.useSearch();
+  const { order_number } = Route.useSearch();
   const settings = useSettings();
   const whatsapp = (settings["whatsapp"] || "917507575755").replace(/\D/g, "");
   const waMsg = encodeURIComponent(`Hello, I have placed an order at Sai Communication. My order number is ${order_number}.`);
@@ -49,7 +48,7 @@ function OrderSuccessPage() {
           </a>
         </Button>
         <Button asChild variant="secondary" className="w-full">
-          <Link to="/order-track" search={{ order: order_number, phone }}>
+          <Link to="/order-track" search={{ order: order_number, phone: "" }}>
             <Search className="size-4 mr-2" /> Track Order Status
           </Link>
         </Button>
