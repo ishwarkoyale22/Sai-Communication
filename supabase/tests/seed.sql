@@ -1,0 +1,17 @@
+-- Standard cast, inserted by the superuser at the start of EVERY chunk (rolled back afterwards).
+--   a1 = a0000000-0000-0000-0000-000000000001   admin
+--   a2 = a0000000-0000-0000-0000-000000000002   admin
+--   st = a0000000-0000-0000-0000-000000000003   staff
+--   c1 = a0000000-0000-0000-0000-000000000004   shopper (customer_profiles phone 9000000004, NO profiles row)
+--   c2 = a0000000-0000-0000-0000-000000000005   another shopper (phone 9000000005)
+insert into auth.users (id) values
+  ('a0000000-0000-0000-0000-000000000001'), ('a0000000-0000-0000-0000-000000000002'),
+  ('a0000000-0000-0000-0000-000000000003'), ('a0000000-0000-0000-0000-000000000004'),
+  ('a0000000-0000-0000-0000-000000000005');
+insert into public.profiles (id, role) values
+  ('a0000000-0000-0000-0000-000000000001', 'admin'),
+  ('a0000000-0000-0000-0000-000000000002', 'admin'),
+  ('a0000000-0000-0000-0000-000000000003', 'staff');
+insert into public.customer_profiles (id, full_name, phone) values
+  ('a0000000-0000-0000-0000-000000000004', 'Shopper One', '9000000004'),
+  ('a0000000-0000-0000-0000-000000000005', 'Shopper Two', '9000000005');
