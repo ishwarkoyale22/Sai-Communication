@@ -60,8 +60,8 @@ async function runTests() {
   // Test 5: End-to-end Supabase review insertion via anonymous client
   console.log('\n5. Testing Supabase Review Form Submission (E2E):');
   const sb = createClient(
-    'https://egzcesgamwghmddxnent.supabase.co',
-    'sb_publishable_TlkAKqE1YolICBKvRYs2FA_pIaHSTs2'
+    process.env.SUPABASE_URL,
+    process.env.SUPABASE_PUBLISHABLE_KEY
   );
 
   const testReview = {

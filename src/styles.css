@@ -1347,3 +1347,77 @@
   color: transparent;
 }
 
+
+/* ═══════════════════════════════════════════════════════════════
+   MOTION POLISH — additive hover / focus / entrance refinements.
+   All of it is disabled by the prefers-reduced-motion rule above.
+   ═══════════════════════════════════════════════════════════════ */
+
+html {
+  scroll-padding-top: 5rem; /* anchored sections clear the sticky header */
+}
+
+/* Hover-capable devices only, so touch screens never get "stuck" hover states. */
+@media (hover: hover) and (pointer: fine) {
+  /* shadcn <Button> variants: gentle lift + soft shadow */
+  button[class*="rounded-[3px]"]:not(:disabled):hover,
+  a[class*="rounded-[3px]"]:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px -8px rgb(0 0 0 / 0.35);
+  }
+
+  /* Product / feature cards rise on hover */
+  .card-premium {
+    transition:
+      transform 350ms cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 350ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .card-premium:hover {
+    transform: translateY(-6px);
+  }
+  .card-premium img {
+    transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .card-premium:hover img {
+    transform: scale(1.06);
+  }
+
+  /* Animated underline for in-text links and footer links */
+  footer a,
+  main p a {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 0% 1px;
+    transition: background-size 350ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  footer a:hover,
+  main p a:hover {
+    background-size: 100% 1px;
+  }
+}
+
+/* Keyboard focus: clear, animated ring */
+:focus-visible {
+  outline: 2px solid var(--color-ring, #f5a623);
+  outline-offset: 3px;
+  transition: outline-offset 150ms ease;
+}
+
+/* Smoother reveal: slight scale + blur-in on top of the existing fade-up */
+.reveal {
+  will-change: opacity, transform;
+}
+
+/* Headings fade in softly when text reveal is not used */
+@keyframes soft-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* iOS Safari: use the dynamic viewport so bars don't clip content */
+@supports (height: 100dvh) {
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+}

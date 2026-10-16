@@ -47,8 +47,7 @@ function isH3SwallowedErrorBody(body: string): boolean {
 // Supabase project URL (data/API + realtime websocket) this app actually talks to.
 const SUPABASE_URL = "https://egzcesgamwghmddxnent.supabase.co";
 
-// Report-Only for now: logs violations to the browser console without blocking anything,
-// so we can confirm the policy against real traffic before switching to an enforcing header.
+// Enforced in production (see withSecurityHeaders); Report-Only in dev.
 // script-src/style-src need 'unsafe-inline' because the app has two static inline <script>
 // tags (theme-flash + PWA-install-prompt capture in __root.tsx) and widespread React
 // style={{...}} usage — tightening those to nonces/hashes is a follow-up, not required for
@@ -78,8 +77,16 @@ function withSecurityHeaders(response: Response): Response {
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
-  // Report-Only: observe real violations before this becomes an enforcing Content-Security-Policy.
-  response.headers.set("Content-Security-Policy-Report-Only", CSP_DIRECTIVES);
+  response.headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  response.headers.set("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+  response.headers.set("Cross-Origin-Resource-Policy", "same-site");
+  response.headers.set("X-Permitted-Cross-Domain-Policies", "none");
+  // Enforced in production builds. The dev server (Vite HMR websocket, injected scripts) stays on
+  // Report-Only so local development isn't blocked.
+  response.headers.set(
+    import.meta.env.PROD ? "Content-Security-Policy" : "Content-Security-Policy-Report-Only",
+    CSP_DIRECTIVES,
+  );
   return response;
 }
 

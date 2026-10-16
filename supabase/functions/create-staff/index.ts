@@ -10,6 +10,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { corsHeaders } from "../_shared/cors.ts";
+import bcrypt from "npm:bcryptjs@2.4.3";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -62,7 +63,7 @@ Deno.serve(async (req) => {
 
     const { data: staffRow, error: staffErr } = await admin
       .from("staff")
-      .insert({ name, role: role ?? "cashier", phone, pin: String(pin), auth_user_id: authUser.user.id })
+      .insert({ name, role: role ?? "cashier", phone, pin: bcrypt.hashSync(String(pin), 10), auth_user_id: authUser.user.id })
       .select()
       .single();
     if (staffErr) return json(CORS_HEADERS, { error: staffErr.message }, 400);
@@ -72,7 +73,9 @@ Deno.serve(async (req) => {
       .insert({ id: authUser.user.id, role: "staff", staff_id: staffRow.id });
     if (profileErr) return json(CORS_HEADERS, { error: profileErr.message }, 400);
 
-    return json(CORS_HEADERS, { staff: staffRow });
+    // Never send the stored PIN hash back to the browser.
+    const { pin: _pinHash, ...safeStaff } = staffRow;
+    return json(CORS_HEADERS, { staff: safeStaff });
   } catch (e) {
     return json(CORS_HEADERS, { error: String(e) }, 500);
   }
